@@ -1,3 +1,7 @@
+IF OBJECTPROPERTY(OBJECT_ID('usp_ShowDataFileGrowth'), 'IsProcedure') = 1
+    DROP PROCEDURE dbo.usp_ShowDataFileGrowth;
+GO
+
 CREATE PROC dbo.usp_ShowDataFileGrowth (
     @StartDate DATETIME2 = NULL
 )
@@ -23,18 +27,15 @@ BEGIN
 
     SET @sql
         = N'
-SELECT *
-FROM   (
-	SELECT convert(varchar, CollectionTime, 105) AS CollectionTime, DatabaseName, DataSpaceUtilMB
-	FROM dbo.DatabaseInfo dbi
-) tbl
-PIVOT (
-	AVG(DataSpaceUtilMB) FOR CollectionTime IN (' + @columns + N')
-) AS pvt';
+		SELECT *
+		FROM   (
+			SELECT convert(varchar, CollectionTime, 105) AS CollectionTime, DatabaseName, DataSpaceUtilMB
+			FROM dbo.DatabaseInfo dbi
+		) tbl
+		PIVOT (
+			AVG(DataSpaceUtilMB) FOR CollectionTime IN (' + @columns + N')
+		) AS pvt';
 
     EXECUTE sp_executesql @sql;
 END;
 GO
-
-
---EXEC dbo.usp_ShowDataFileGrowth @StartDate = '2020-11-02'

@@ -31,6 +31,10 @@
      20200831   1.0         Mark Boomaars			Open Sourced on GitHub
 *********************************************************************************************************/
 
+IF OBJECTPROPERTY(OBJECT_ID('usp_ReadCommandLog'), 'IsProcedure') = 1
+    DROP PROCEDURE dbo.usp_ReadCommandLog;
+GO
+
 CREATE PROC dbo.usp_ReadCommandLog (
 	@DatabaseName sysname,
     @Days         INT = 1

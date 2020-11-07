@@ -75,8 +75,8 @@ BEGIN
         TriggerCount      INT       NOT NULL,
         DataTotalSizeMB   BIGINT    NOT NULL,
         DataSpaceUtilMB   BIGINT    NOT NULL,
-        LogTotalSizeMB    BIGINT    NOT NULL,
-        LogSpaceUtilMB    BIGINT    NOT NULL
+        LogTotalSizeMB    BIGINT    NULL,
+        LogSpaceUtilMB    BIGINT    NULL
     );
 END;
 GO
@@ -85,24 +85,61 @@ GO
 -- Install prerequisites
 -------------------------------------------------------------------------------
 
-:setvar path "C:\Users\adm_mboomaa1\Downloads\T-SQL\DBA\Prereqs"
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Prereqs"
 :r $(path)\FirstResponderKit\Install-Core-Blitz-No-Query-Store.sql
+GO
 
-:setvar path "C:\Users\adm_mboomaa1\Downloads\T-SQL\DBA\Prereqs"
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Prereqs"
 :r $(path)\MaintenanceSolution.sql
+GO
 
-:setvar path "C:\Users\adm_mboomaa1\Downloads\T-SQL\DBA\Prereqs"
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Prereqs"
 :r $(path)\who_is_active.sql
+GO
 
 -------------------------------------------------------------------------------
 -- Create stored procedures
 -------------------------------------------------------------------------------
 
-:setvar path "C:\Users\adm_mboomaa1\Downloads\T-SQL\DBA\Stored Procedures"
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
 :r $(path)\usp_ShowDataFileGrowth.sql
+GO
 
-:setvar path "C:\Users\adm_mboomaa1\Downloads\T-SQL\DBA\Stored Procedures"
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
 :r $(path)\usp_ReadCommandLog.sql
+GO
+
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
+:r $(path)\usp_IndexAnalysis.sql
+GO
+
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
+:r $(path)\20170228-sp_sqlskills_exposecolsinindexlevels.sql
+GO
+
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
+:r $(path)\sp_helpindex8.sql
+GO
+
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
+:r $(path)\usp_ReadAllErrorLogs.sql
+GO
+
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
+:r $(path)\usp_RebuildHeaps.sql
+GO
+
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
+:r $(path)\usp_SearchErrorLogs.sql
+GO
+
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
+:r $(path)\usp_DBPermissions.sql
+GO
+
+:setvar path "D:\Dropbox\SQL Server\Documents\Mark Boomaars\DBA\Stored Procedures"
+:r $(path)\usp_SrvPermissions.sql
+GO
 
 -------------------------------------------------------------------------------
 -- Create TAB operator
@@ -400,8 +437,8 @@ EXEC msdb.dbo.sp_add_jobstep @job_id = @jobId,
 											TriggerCount      INT     NOT NULL,
 											DataTotalSizeMB   BIGINT  NOT NULL,
 											DataSpaceUtilMB   BIGINT  NOT NULL,
-											LogTotalSizeMB    BIGINT  NOT NULL,
-											LogSpaceUtilMB    BIGINT  NOT NULL
+											LogTotalSizeMB    BIGINT  NULL,
+											LogSpaceUtilMB    BIGINT  NULL
 										);
 
 										SELECT @tsql
@@ -1108,4 +1145,72 @@ GO
 -------------------------------------------------------------------------------
 -- Schedule Ola maintenance jobs
 -------------------------------------------------------------------------------
+
+-- Add schedule for CommandLog Cleanup job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'CommandLog Cleanup', -- Job name
+                                 @name = N'CommandLog Cleanup',     -- Schedule name
+                                 @freq_type = 8,                    -- Weekly
+                                 @freq_interval = 1,                -- Sunday
+                                 @freq_recurrence_factor = 1,       -- every week
+                                 @active_start_time = 120100;          -- 12:01 AM
+
+-- Add schedule for Output File Cleanup job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'Output File Cleanup', -- Job name
+                                 @name = N'Output File Cleanup',     -- Schedule name
+                                 @freq_type = 8,                     -- Weekly
+                                 @freq_interval = 1,                 -- Sunday
+                                 @freq_recurrence_factor = 1,        -- every week
+                                 @active_start_time = 120200;           -- 12:02 AM
+
+-- Add schedule for sp_delete_backuphistory job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'sp_delete_backuphistory', -- Job name
+                                 @name = N'sp_delete_backuphistory',     -- Schedule name
+                                 @freq_type = 8,                         -- Weekly
+                                 @freq_interval = 1,                     -- Sunday
+                                 @freq_recurrence_factor = 1,            -- every week
+                                 @active_start_time = 120300;               -- 12:03 AM
+
+-- Add schedule for sp_purge_jobhistory job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'sp_purge_jobhistory', -- Job name
+                                 @name = N'sp_purge_jobhistory',     -- Schedule name
+                                 @freq_type = 8,                     -- Weekly
+                                 @freq_interval = 1,                 -- Sunday
+                                 @freq_recurrence_factor = 1,        -- every week
+                                 @active_start_time = 120400;           -- 12:04 AM
+
+-- Add schedule for DatabaseBackup - SYSTEM_DATABASES - FULL job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'DatabaseBackup - SYSTEM_DATABASES - FULL', -- Job name
+                                 @name = N'DatabaseBackup - SYSTEM_DATABASES - FULL',     -- Schedule name
+                                 @freq_type = 4,                                          -- Daily
+                                 @freq_interval = 1,                                      -- Daily
+                                 @active_start_time = 180000;                             -- 06:00 PM
+
+
+-- Add schedule for DatabaseIntegrityCheck - SYSTEM_DATABASES job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'DatabaseIntegrityCheck - SYSTEM_DATABASES', -- Job name
+                                 @name = N'DatabaseIntegrityCheck - SYSTEM_DATABASES',     -- Schedule name
+                                 @freq_type = 4,                                           -- Daily
+                                 @freq_interval = 1,                                       -- Daily
+                                 @active_start_time = 210000;                              -- 09:00 PM
+
+-- Add schedule for DatabaseBackup - USER_DATABASES - FULL job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'DatabaseBackup - USER_DATABASES - FULL', -- Job name
+                                 @name = N'DatabaseBackup - USER_DATABASES - FULL',     -- Schedule name
+                                 @freq_type = 4,                                        -- Daily
+                                 @freq_interval = 1,                                    -- Daily
+                                 @active_start_time = 181500;                            -- 6:15 PM	
+
+-- Add schedule for IndexOptimize - USER_DATABASES job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'IndexOptimize - USER_DATABASES', -- Job name
+                                 @name = N'IndexOptimize - USER_DATABASES',     -- Schedule name
+                                 @freq_type = 4,                                -- Daily
+                                 @freq_interval = 1,                            -- Daily
+                                 @active_start_time = 10000;                    -- 1:00 AM
+
+-- Add schedule for DatabaseIntegrityCheck - USER_DATABASES job
+EXEC msdb.dbo.sp_add_jobschedule @job_name = N'DatabaseIntegrityCheck - USER_DATABASES', -- Job name
+                                 @name = N'DatabaseIntegrityCheck - USER_DATABASES',     -- Schedule name
+                                 @freq_type = 8,                                         -- Weekly
+                                 @freq_interval = 1,                                     -- Sunday
+                                 @active_start_time = 30000;                             -- 3:00 AM	
 

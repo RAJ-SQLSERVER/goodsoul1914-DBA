@@ -45,7 +45,11 @@
 
 *********************************************************************************************************/
 
-CREATE OR ALTER PROC dbo.usp_RebuildHeaps
+IF OBJECTPROPERTY(OBJECT_ID('usp_RebuildHeaps'), 'IsProcedure') = 1
+    DROP PROCEDURE dbo.usp_RebuildHeaps;
+GO
+
+CREATE PROC dbo.usp_RebuildHeaps
     @DatabaseName NVARCHAR(100),
     @MinNumberOfPages INT = 0,
     @ProcessHeapCount INT = 2,

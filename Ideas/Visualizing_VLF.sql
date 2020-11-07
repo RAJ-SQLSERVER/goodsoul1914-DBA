@@ -5,18 +5,18 @@ Original link: http://stevestedman.com/2016/10/visualizing-vlfs-updated/
 
 DECLARE @logInfoResults AS TABLE
 (
-    [RecoveryUnitId] BIGINT, -- only on SQL Server 2012 and newer
-    [FileId] TINYINT,
-    [FileSize] BIGINT,
-    [StartOffset] BIGINT,
-    [FSeqNo] INTEGER,
-    [Status] TINYINT,
-    [Parity] TINYINT,
-    [CreateLSN] NUMERIC(38, 0)
+    RecoveryUnitId BIGINT, -- only on SQL Server 2012 and newer
+    FileId TINYINT,
+    FileSize BIGINT,
+    StartOffset BIGINT,
+    FSeqNo INTEGER,
+    Status TINYINT,
+    Parity TINYINT,
+    CreateLSN NUMERIC(38, 0)
 );
 
 INSERT INTO @logInfoResults
-EXEC sp_executesql N'DBCC LOGINFO WITH NO_INFOMSGS';
+EXEC sys.sp_executesql N'DBCC LOGINFO WITH NO_INFOMSGS';
 
 SELECT CAST(FileSize / 1024.0 / 1024 AS DECIMAL(20, 1)) AS FileSizeInMB,
        CASE
@@ -24,14 +24,14 @@ SELECT CAST(FileSize / 1024.0 / 1024 AS DECIMAL(20, 1)) AS FileSizeInMB,
                'Available - Never Used'
            ELSE
        (CASE
-            WHEN [Status] = 2 THEN
+            WHEN Status = 2 THEN
                 'In Use'
             ELSE
                 'Available'
         END
        )
        END AS TextStatus,
-       [Status],
+       Status,
        REPLICATE('x', FileSize / MIN(FileSize) OVER ()) AS [BarChart ________________________________________________________________________________________________]
-FROM @logInfoResults;
+FROM   @logInfoResults;
 GO
