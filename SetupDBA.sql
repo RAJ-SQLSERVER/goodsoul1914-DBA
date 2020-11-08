@@ -149,12 +149,12 @@ GO
 GO
 
 -------------------------------------------------------------------------------
--- Create TAB operator
+-- Create DBA operator
 -------------------------------------------------------------------------------
 
-IF NOT EXISTS (SELECT name FROM msdb.dbo.sysoperators WHERE name = N'TAB')
+IF NOT EXISTS (SELECT name FROM msdb.dbo.sysoperators WHERE name = N'DBA')
 BEGIN
-    EXEC msdb.dbo.sp_add_operator @name = N'TAB',
+    EXEC msdb.dbo.sp_add_operator @name = N'DBA',
                                   @enabled = 1,
                                   @weekday_pager_start_time = 90000,
                                   @weekday_pager_end_time = 180000,
@@ -184,7 +184,7 @@ EXEC msdb.dbo.sp_add_job @job_name = N'DBA: BlitzFirst Log to Table',
                          @description = N'No description available.',
                          @category_name = N'Data Collector',
                          @owner_login_name = N'sa',
-                         @notify_email_operator_name = N'TAB',
+                         @notify_email_operator_name = N'DBA',
                          @job_id = @jobId OUTPUT;
 
 EXEC msdb.dbo.sp_add_jobstep @job_id = @jobId,
@@ -272,7 +272,7 @@ EXEC msdb.dbo.sp_add_job @job_name = N'DBA: BlitzIndex Log to Table',
                          @description = N'No description available.',
                          @category_name = N'Data Collector',
                          @owner_login_name = N'sa',
-                         @notify_email_operator_name = N'TAB',
+                         @notify_email_operator_name = N'DBA',
                          @job_id = @jobId OUTPUT;
 
 EXEC msdb.dbo.sp_add_jobstep @job_id = @jobId,
@@ -344,7 +344,7 @@ EXEC msdb.dbo.sp_add_job @job_name = N'DBA: BlitzWho Log to Table',
                          @description = N'No description available.',
                          @category_name = N'Data Collector',
                          @owner_login_name = N'sa',
-                         @notify_email_operator_name = N'TAB',
+                         @notify_email_operator_name = N'DBA',
                          @job_id = @jobId OUTPUT;
 
 EXEC msdb.dbo.sp_add_jobstep @job_id = @jobId,
@@ -414,7 +414,7 @@ EXEC msdb.dbo.sp_add_job @job_name = N'DBA: Log DatabaseInfo to table',
                          @description = N'No description available.',
                          @category_name = N'Data Collector',
                          @owner_login_name = N'sa',
-                         @notify_email_operator_name = N'TAB',
+                         @notify_email_operator_name = N'DBA',
                          @job_id = @jobId OUTPUT;
 
 EXEC msdb.dbo.sp_add_jobstep @job_id = @jobId,
@@ -510,7 +510,7 @@ EXEC msdb.dbo.sp_add_job @job_name = N'DBA: Fix plan cache bloat',
                          @description = N'No description available.',
                          @category_name = N'Database Maintenance',
                          @owner_login_name = N'sa',
-                         @notify_email_operator_name = N'TAB',
+                         @notify_email_operator_name = N'DBA',
                          @job_id = @jobId OUTPUT;
 
 EXEC msdb.dbo.sp_add_jobstep @job_id = @jobId,
@@ -634,7 +634,7 @@ BEGIN
     -- Send a test message
     EXEC msdb..sp_send_dbmail @profile_name = @servername,
                               @recipients = @AdminEmail,
-                              @subject = @testmsg,
+                              @subject = 'Test message from SQL',
                               @body = @testmsg;
 
     -- Show mail profile						  
@@ -691,7 +691,7 @@ GO
 
 SET NOCOUNT ON;
 
-DECLARE @OperatorName sysname = N'TAB';
+DECLARE @OperatorName sysname = N'DBA';
 DECLARE @CategoryName sysname = N'SQL Server Agent Alerts';
 
 -- Make sure you have an Agent Operator defined that matches the name you supplied
