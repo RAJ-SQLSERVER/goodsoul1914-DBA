@@ -64,9 +64,11 @@ BEGIN
     IF @Group = 1
         SET @Sql += N' 
 			GROUP BY SUBSTRING (CONVERT (NVARCHAR(10), LogDate, 120), 1, 10), ProcessInfo, LogText
-			ORDER BY LogDate DESC, Occurrence DESC, ProcessInfo, LogText
+			ORDER BY LogDate DESC, Occurrence DESC, ProcessInfo, LogText;
 		';
-    ELSE SET @Sql += N' ORDER BY LogDate DESC, ProcessInfo, LogText';
+    ELSE 
+		SET @Sql += N' 
+			ORDER BY LogDate DESC, ProcessInfo, LogText;';
 
     IF @PrintSql = 1 PRINT @Sql;
 
