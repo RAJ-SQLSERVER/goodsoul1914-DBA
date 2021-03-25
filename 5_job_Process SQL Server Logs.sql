@@ -1,7 +1,6 @@
 USE msdb;
 GO
 
-/****** Object:  Job [DBA - Process SQL Server Logs]    Script Date: 25-3-2021 23:14:29 ******/
 BEGIN TRANSACTION;
 DECLARE @ReturnCode INT;
 SELECT @ReturnCode = 0;
