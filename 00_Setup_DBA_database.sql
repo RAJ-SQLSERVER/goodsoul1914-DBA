@@ -1,3 +1,18 @@
+CREATE DATABASE DBA CONTAINMENT = NONE
+ON PRIMARY (
+       NAME = N'DBA',
+       FILENAME = N'D:\MSSQL\Data\DBA.mdf',
+       SIZE = 1048576KB,
+       FILEGROWTH = 262144KB
+   )
+LOG ON (
+    NAME = N'DBA_log',
+    FILENAME = N'D:\MSSQL\Logs\DBA_log.ldf',
+    SIZE = 262144KB,
+    FILEGROWTH = 65536KB
+);
+GO
+
 USE [DBA]
 GO
 
@@ -7,7 +22,8 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[DiskSpeedTests](
+CREATE TABLE [dbo].[DiskSpeedTests]
+(
 	[CheckDate] [datetime2](7) NULL,
 	[SqlInstance] [nvarchar](max) NULL,
 	[Database] [nvarchar](max) NULL,
@@ -35,30 +51,31 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE VIEW [dbo].[vwDiskSpeedTestsLatest]
 AS
-SELECT SqlInstance,
-       [Database],
-       SizeGB,
-       FileName,
-       DiskLocation,
-       Reads,
-       AverageReadStall,
-       ReadPerformance,
-       Writes,
-       AverageWriteStall,
-       WritePerformance,
-       [Avg Overall Latency],
-       [Avg Bytes/Read],
-       [Avg Bytes/Write],
-       [Avg Bytes/Transfer]
-FROM DBA.dbo.DiskSpeedTests
-WHERE CheckDate >= GETDATE () - 1
+	SELECT SqlInstance,
+		[Database],
+		SizeGB,
+		FileName,
+		DiskLocation,
+		Reads,
+		AverageReadStall,
+		ReadPerformance,
+		Writes,
+		AverageWriteStall,
+		WritePerformance,
+		[Avg Overall Latency],
+		[Avg Bytes/Read],
+		[Avg Bytes/Write],
+		[Avg Bytes/Transfer]
+	FROM DBA.dbo.DiskSpeedTests
+	WHERE CheckDate >= GETDATE () - 1
 GO
 /****** Object:  Table [dbo].[FailedJobHistory]    Script Date: 11-5-2021 14:35:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[FailedJobHistory](
+CREATE TABLE [dbo].[FailedJobHistory]
+(
 	[InstanceID] [int] NULL,
 	[SqlMessageID] [int] NULL,
 	[Message] [nvarchar](max) NULL,
@@ -84,16 +101,17 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE VIEW [dbo].[vwFailedAgentJobsLatest]
 AS
-SELECT        Server, RunDate, JobName, StepID, StepName, RunDuration, SqlMessageID, SqlSeverity, Message, OperatorEmailed
-FROM            dbo.FailedJobHistory
-WHERE        (RunDate >= DATEADD(DAY, - 1, GETDATE())) AND (StepName <> '(Job outcome)')
+	SELECT Server, RunDate, JobName, StepID, StepName, RunDuration, SqlMessageID, SqlSeverity, Message, OperatorEmailed
+	FROM dbo.FailedJobHistory
+	WHERE        (RunDate >= DATEADD(DAY, - 1, GETDATE())) AND (StepName <> '(Job outcome)')
 GO
 /****** Object:  Table [dbo].[ErrorLogs]    Script Date: 11-5-2021 14:35:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[ErrorLogs](
+CREATE TABLE [dbo].[ErrorLogs]
+(
 	[ComputerName] [nvarchar](max) NULL,
 	[InstanceName] [nvarchar](max) NULL,
 	[SqlInstance] [nvarchar](max) NULL,
@@ -109,21 +127,22 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE VIEW [dbo].[vwErrorLogs]
 AS
-SELECT        SqlInstance, LogDate, Source, Text
-FROM            dbo.ErrorLogs
-WHERE        (Text NOT LIKE 'Login succeeded for %') AND (Text NOT LIKE 'Log was backed up%') AND (Text NOT LIKE 'Log was restored.%') AND (Text NOT LIKE 'BACKUP DATABASE successfully%') AND 
-                         (Text NOT LIKE 'RESTORE DATABASE successfully%') AND (Text NOT LIKE 'Database backed up.%') AND (Text NOT LIKE 'Database was restored%') AND (Text NOT LIKE 'Restore is complete %') AND 
-                         (Text NOT LIKE '%without errors%') AND (Text NOT LIKE '%0 errors%') AND (Text NOT LIKE 'Starting up database%') AND (Text NOT LIKE 'Parallel redo is %') AND (Text NOT LIKE 'This instance of SQL Server%') 
-                         AND (Text NOT LIKE 'Error: %, Severity:%') AND (Text NOT LIKE 'Setting database option %') AND (Text NOT LIKE 'Recovery is writing a checkpoint%') AND (Text NOT LIKE 'Process ID % was killed by hostname %') 
-                         AND (Text NOT LIKE 'The database % is marked RESTORING and is in a state that does not allow recovery to be run.') AND (Text NOT LIKE '%informational message only%') AND 
-                         (Text NOT LIKE 'I/O is frozen on database%') AND (Text NOT LIKE 'I/O was resumed on database%') AND (Text NOT LIKE 'The error log has been reinitialized%')
+	SELECT SqlInstance, LogDate, Source, Text
+	FROM dbo.ErrorLogs
+	WHERE        (Text NOT LIKE 'Login succeeded for %') AND (Text NOT LIKE 'Log was backed up%') AND (Text NOT LIKE 'Log was restored.%') AND (Text NOT LIKE 'BACKUP DATABASE successfully%') AND
+		(Text NOT LIKE 'RESTORE DATABASE successfully%') AND (Text NOT LIKE 'Database backed up.%') AND (Text NOT LIKE 'Database was restored%') AND (Text NOT LIKE 'Restore is complete %') AND
+		(Text NOT LIKE '%without errors%') AND (Text NOT LIKE '%0 errors%') AND (Text NOT LIKE 'Starting up database%') AND (Text NOT LIKE 'Parallel redo is %') AND (Text NOT LIKE 'This instance of SQL Server%')
+		AND (Text NOT LIKE 'Error: %, Severity:%') AND (Text NOT LIKE 'Setting database option %') AND (Text NOT LIKE 'Recovery is writing a checkpoint%') AND (Text NOT LIKE 'Process ID % was killed by hostname %')
+		AND (Text NOT LIKE 'The database % is marked RESTORING and is in a state that does not allow recovery to be run.') AND (Text NOT LIKE '%informational message only%') AND
+		(Text NOT LIKE 'I/O is frozen on database%') AND (Text NOT LIKE 'I/O was resumed on database%') AND (Text NOT LIKE 'The error log has been reinitialized%')
 GO
 /****** Object:  Table [dbo].[CPURingBuffers]    Script Date: 11-5-2021 14:35:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[CPURingBuffers](
+CREATE TABLE [dbo].[CPURingBuffers]
+(
 	[ComputerName] [nvarchar](max) NULL,
 	[InstanceName] [nvarchar](max) NULL,
 	[SqlInstance] [nvarchar](max) NULL,
@@ -141,14 +160,14 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE VIEW [dbo].[vwHighCPUUtilization]
 AS
-SELECT SqlInstance,
-       RecordId,
-       EventTime,
-       SQLProcessUtilization,
-       OtherProcessUtilization,
-       SystemIdle
-FROM DBA.dbo.CPURingBuffers
-WHERE SQLProcessUtilization > 50
+	SELECT SqlInstance,
+		RecordId,
+		EventTime,
+		SQLProcessUtilization,
+		OtherProcessUtilization,
+		SystemIdle
+	FROM DBA.dbo.CPURingBuffers
+	WHERE SQLProcessUtilization > 50
 GO
 /****** Object:  View [dbo].[vwRecentIOBottlenecks]    Script Date: 11-5-2021 14:35:35 ******/
 SET ANSI_NULLS ON
@@ -157,25 +176,25 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE VIEW [dbo].[vwRecentIOBottlenecks]
 AS
-SELECT CheckDate,
-       SqlInstance,
-       [Database],
-       SizeGB,
-       FileName,
-       FileID,
-       DiskLocation,
-       Reads,
-       AverageReadStall,
-       ReadPerformance,
-       Writes,
-       AverageWriteStall,
-       WritePerformance,
-       [Avg Overall Latency],
-       [Avg Bytes/Read],
-       [Avg Bytes/Write],
-       [Avg Bytes/Transfer]
-FROM DBA.dbo.DiskSpeedTests
-WHERE ReadPerformance NOT IN ('OK', 'Very Good') OR WritePerformance NOT IN ('OK', 'Very Good') AND CheckDate >= DATEADD(DAY, -1, GETDATE())
+	SELECT CheckDate,
+		SqlInstance,
+		[Database],
+		SizeGB,
+		FileName,
+		FileID,
+		DiskLocation,
+		Reads,
+		AverageReadStall,
+		ReadPerformance,
+		Writes,
+		AverageWriteStall,
+		WritePerformance,
+		[Avg Overall Latency],
+		[Avg Bytes/Read],
+		[Avg Bytes/Write],
+		[Avg Bytes/Transfer]
+	FROM DBA.dbo.DiskSpeedTests
+	WHERE ReadPerformance NOT IN ('OK', 'Very Good') OR WritePerformance NOT IN ('OK', 'Very Good') AND CheckDate >= DATEADD(DAY, -1, GETDATE())
 GO
 /****** Object:  View [dbo].[vwAllScannedSqlInstances]    Script Date: 11-5-2021 14:35:35 ******/
 SET ANSI_NULLS ON
@@ -184,14 +203,17 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE VIEW [dbo].[vwAllScannedSqlInstances]
 AS
-SELECT SqlInstance FROM DBA.dbo.SqlInstances WHERE Scan = 1;
+	SELECT SqlInstance
+	FROM DBA.dbo.SqlInstances
+	WHERE Scan = 1;
 GO
 /****** Object:  Table [dbo].[Certificates]    Script Date: 11-5-2021 14:35:35 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[Certificates](
+CREATE TABLE [dbo].[Certificates]
+(
 	[PSComputerName] [nvarchar](max) NULL,
 	[DnsNameList] [nvarchar](max) NULL,
 	[NotAfter] [datetime2](7) NULL,
@@ -208,7 +230,8 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[Databases](
+CREATE TABLE [dbo].[Databases]
+(
 	[CheckDate] [datetime] NOT NULL,
 	[BackupStatus] [nvarchar](max) NULL,
 	[ComputerName] [nvarchar](max) NULL,
@@ -424,7 +447,8 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[DatabaseUsers](
+CREATE TABLE [dbo].[DatabaseUsers]
+(
 	[CheckDate] [datetime2](7) NULL,
 	[ComputerName] [nvarchar](max) NULL,
 	[InstanceName] [nvarchar](max) NULL,
@@ -452,7 +476,8 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[DefaultTraceEntries](
+CREATE TABLE [dbo].[DefaultTraceEntries]
+(
 	[SqlInstance] [nvarchar](max) NULL,
 	[LoginName] [nvarchar](max) NULL,
 	[HostName] [nvarchar](max) NULL,
@@ -467,7 +492,8 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[DiskSpace](
+CREATE TABLE [dbo].[DiskSpace]
+(
 	[CheckDate] [datetime2](7) NULL,
 	[ComputerName] [nvarchar](max) NULL,
 	[Name] [nvarchar](max) NULL,
@@ -500,7 +526,8 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[LastBackupTests](
+CREATE TABLE [dbo].[LastBackupTests]
+(
 	[SourceServer] [nvarchar](max) NULL,
 	[TestServer] [nvarchar](max) NULL,
 	[Database] [nvarchar](max) NULL,
@@ -524,7 +551,8 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[ServerLogins](
+CREATE TABLE [dbo].[ServerLogins]
+(
 	[CheckDate] [datetime2](7) NULL,
 	[ComputerName] [nvarchar](max) NULL,
 	[InstanceName] [nvarchar](max) NULL,
@@ -571,56 +599,57 @@ GO
 
 
 CREATE   PROCEDURE [dbo].[usp_CreateDiskSpaceReport]
-    @profile_name sysname,
-    @recipients   VARCHAR(MAX)
+	@profile_name sysname,
+	@recipients   VARCHAR(MAX)
 AS
 BEGIN
-    DECLARE @subj VARCHAR(200),
+	DECLARE @subj VARCHAR(200),
             @body NVARCHAR(MAX),
             @xml  NVARCHAR(MAX);
 
-    -- Create a temp table
-    IF OBJECT_ID ('tempdb.dbo.#DiskSpace') IS NOT NULL DROP TABLE #DiskSpace;
-    CREATE TABLE tempdb.dbo.#DiskSpace (
-        ComputerName VARCHAR(100)  NOT NULL,
-        Name         VARCHAR(50)   NULL,
-        Label        NVARCHAR(255) NULL,
-        Capacity     BIGINT        NULL,
-        Free         BIGINT        NULL,
-        PercentFree  DECIMAL(5,2)         NULL,
-        BlockSize    INT           NULL,
-        FileSystem   NVARCHAR(50),
-        Type         NVARCHAR(255)
-    );
+	-- Create a temp table
+	IF OBJECT_ID ('tempdb.dbo.#DiskSpace') IS NOT NULL DROP TABLE #DiskSpace;
+	CREATE TABLE tempdb.dbo.#DiskSpace
+	(
+		ComputerName VARCHAR(100) NOT NULL,
+		Name VARCHAR(50) NULL,
+		Label NVARCHAR(255) NULL,
+		Capacity BIGINT NULL,
+		Free BIGINT NULL,
+		PercentFree DECIMAL(5,2) NULL,
+		BlockSize INT NULL,
+		FileSystem NVARCHAR(50),
+		Type NVARCHAR(255)
+	);
 
-    -- Store all applicable errorlog entries in a temp table
-    INSERT INTO #DiskSpace
-    SELECT ComputerName,
-           Name,
-           Label,
-           Capacity,
-           Free,
-           PercentFree,
-           BlockSize,
-           FileSystem,
-           Type
-    FROM DBA.dbo.DiskSpace AS el
-    WHERE (CheckDate >= DATEADD (DAY, -1, GETDATE ()))
-          AND (PercentFree < 2.5 AND FreeinGB < 2)
-          AND Label <> 'Page file'
-          AND Type <> 'RemovableDisk'
-    ORDER BY ComputerName,
+	-- Store all applicable errorlog entries in a temp table
+	INSERT INTO #DiskSpace
+	SELECT ComputerName,
+		Name,
+		Label,
+		Capacity,
+		Free,
+		PercentFree,
+		BlockSize,
+		FileSystem,
+		Type
+	FROM DBA.dbo.DiskSpace AS el
+	WHERE (CheckDate >= DATEADD (DAY, -1, GETDATE ()))
+		AND (PercentFree < 2.5 AND FreeinGB < 2)
+		AND Label <> 'Page file'
+		AND Type <> 'RemovableDisk'
+	ORDER BY ComputerName,
              Name;
 
-    --SELECT * FROM #DiskSpace;
+	--SELECT * FROM #DiskSpace;
 
-    -------------------------------------------------------------------------------
-    -- SQL Server Diskspace Report
-    -------------------------------------------------------------------------------
+	-------------------------------------------------------------------------------
+	-- SQL Server Diskspace Report
+	-------------------------------------------------------------------------------
 
 
-    SELECT @subj = CONCAT (@@SERVERNAME, ' - SQL Server diskspace report');
-    SET @body
+	SELECT @subj = CONCAT (@@SERVERNAME, ' - SQL Server diskspace report');
+	SET @body
         = N'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 			<html>
 				<head>
@@ -672,33 +701,33 @@ BEGIN
 						</tr> 
 					</thead>';
 
-    SET @xml = CAST((
+	SET @xml = CAST((
                    SELECT ComputerName AS td,
-                          '',
-                          Name AS td,
-                          '',
-                          Label AS td,
-                          '',
-                          Capacity AS td,
-                          '',
-                          Free AS td,
-                          '',
-                          PercentFree AS td,
-                          '',
-                          BlockSize AS td,
-                          '',
-                          FileSystem AS td,
-                          '',
-                          Type AS td,
-                          ''                          
-                   FROM #DiskSpace
-                   ORDER BY ComputerName
-                   FOR XML PATH ('tr'), ELEMENTS
+		'',
+		Name AS td,
+		'',
+		Label AS td,
+		'',
+		Capacity AS td,
+		'',
+		Free AS td,
+		'',
+		PercentFree AS td,
+		'',
+		BlockSize AS td,
+		'',
+		FileSystem AS td,
+		'',
+		Type AS td,
+		''
+	FROM #DiskSpace
+	ORDER BY ComputerName
+	FOR XML PATH ('tr'), ELEMENTS
                ) AS NVARCHAR(MAX));
 
-    SET @body = @body + @xml + N'</table></body></html>';
+	SET @body = @body + @xml + N'</table></body></html>';
 
-    EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
+	EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
                                  @recipients = @recipients,
                                  @subject = @subj,
                                  @body = @body,
@@ -712,78 +741,80 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE   PROCEDURE [dbo].[usp_ProcessErrorLogs]
-    @profile_name sysname,
-    @recipients   VARCHAR(MAX)
+	@profile_name sysname,
+	@recipients   VARCHAR(MAX)
 AS
 BEGIN
-    DECLARE @subj VARCHAR(200),
+	DECLARE @subj VARCHAR(200),
             @body NVARCHAR(MAX),
             @xml  NVARCHAR(MAX);
 
-    -- Create a temp table
-    IF OBJECT_ID ('tempdb.dbo.#SQLErrorLog') IS NOT NULL DROP TABLE #SQLErrorLog;
-    CREATE TABLE tempdb.dbo.#SQLErrorLog (
-        SQLInstance VARCHAR(100)   NOT NULL,
-        Text        NVARCHAR(4000) NULL,
-		[Count]	    INT NULL
-    );
+	-- Create a temp table
+	IF OBJECT_ID ('tempdb.dbo.#SQLErrorLog') IS NOT NULL DROP TABLE #SQLErrorLog;
+	CREATE TABLE tempdb.dbo.#SQLErrorLog
+	(
+		SQLInstance VARCHAR(100) NOT NULL,
+		Text NVARCHAR(4000) NULL,
+		[Count] INT NULL
+	);
 
-    -- Store all applicable errorlog entries in a temp table
-    INSERT INTO #SQLErrorLog (SQLInstance, Text, [Count])
-    SELECT SqlInstance,
-           Text,
-		   COUNT(*) AS Number
-    FROM DBA.dbo.ErrorLogs AS el
-    WHERE (LogDate >= DATEADD (DAY, -1, GETDATE ()))
-          AND Text NOT LIKE ('%(c)%')
-          AND Text NOT LIKE ('%Microsoft SQL Server%')
-		  AND Text NOT LIKE ('%All rights reserved%')
-		  AND Text NOT LIKE ('%Server is listening%')
-		  AND Text NOT LIKE ('%Database Mirroring endpoint%')
-		  AND Text NOT LIKE ('%SQL Trace ID 1%')
-		  AND Text NOT LIKE ('%Service Broker%')
-		  AND Text NOT LIKE ('%Software Usage Metrics%')		   
-		  AND Text NOT LIKE ('%Authentication mode is MIXED%')
-		  AND Text NOT LIKE ('%backed up%')
-		  AND Text NOT LIKE ('%Server local connection provider%')
-		  AND Text NOT LIKE ('%Server process ID%')
-		  AND Text NOT LIKE ('%changed from 0 to 0%')
-		  AND Text NOT LIKE ('%I/O is frozen on database%')
-		  AND Text NOT LIKE ('%I/O was resumed on database%')
-		  AND Text NOT LIKE ('%informational message%')
-		  AND Text NOT LIKE ('%Log was restored%')
-		  AND Text NOT LIKE ('%Starting up database%')
-		  AND Text NOT LIKE ('%BACKUP DATABASE successfully processed%')
-		  AND Text NOT LIKE ('%BACKUP DATABASE WITH DIFFERENTIAL successfully processed%')
-		  AND Text NOT LIKE ('%Setting database option % to % for database%')
-		  AND Text NOT LIKE ('%The tempdb database has % data file(s)%')
-		  AND Text NOT LIKE ('%SSPI handshake failed%')
-		  AND Text NOT LIKE ('%Login succeeded%')
-		  AND Text NOT LIKE ('%found 0 errors%')
-		  AND Text NOT LIKE ('%finished without errors%')
-		  AND Text NOT LIKE ('%Error: %, Severity: %, State: %')
-		  AND Text NOT LIKE ('%Log was backed up%')
-		  AND Text NOT LIKE ('%Parallel redo is shutdown%')
-		  AND Text NOT LIKE ('%Parallel redo is started%')
-		  AND Text NOT LIKE ('%RESTORE DATABASE successfully processed %')
-		  AND Text NOT LIKE ('%Restore is complete on database%')
-		  AND Text NOT LIKE ('%Login failed for user ''UltimoLogin''%')
-		  AND Text NOT LIKE ('%The database ''%'' is marked RESTORING%')
-		  AND Text NOT LIKE ('%The operating system returned the error ''21(The device is not ready.)''%')
-		  AND Text NOT LIKE ('%Filegroup MultimediaFileStream in database % is unavailable%')
-		  AND Text NOT LIKE ('%Process ID % was killed by hostname %, host process ID %.')
-    GROUP BY SqlInstance, Text
-    ORDER BY SqlInstance;
+	-- Store all applicable errorlog entries in a temp table
+	INSERT INTO #SQLErrorLog
+		(SQLInstance, Text, [Count])
+	SELECT SqlInstance,
+		Text,
+		COUNT(*) AS Number
+	FROM DBA.dbo.ErrorLogs AS el
+	WHERE (LogDate >= DATEADD (DAY, -1, GETDATE ()))
+		AND Text NOT LIKE ('%(c)%')
+		AND Text NOT LIKE ('%Microsoft SQL Server%')
+		AND Text NOT LIKE ('%All rights reserved%')
+		AND Text NOT LIKE ('%Server is listening%')
+		AND Text NOT LIKE ('%Database Mirroring endpoint%')
+		AND Text NOT LIKE ('%SQL Trace ID 1%')
+		AND Text NOT LIKE ('%Service Broker%')
+		AND Text NOT LIKE ('%Software Usage Metrics%')
+		AND Text NOT LIKE ('%Authentication mode is MIXED%')
+		AND Text NOT LIKE ('%backed up%')
+		AND Text NOT LIKE ('%Server local connection provider%')
+		AND Text NOT LIKE ('%Server process ID%')
+		AND Text NOT LIKE ('%changed from 0 to 0%')
+		AND Text NOT LIKE ('%I/O is frozen on database%')
+		AND Text NOT LIKE ('%I/O was resumed on database%')
+		AND Text NOT LIKE ('%informational message%')
+		AND Text NOT LIKE ('%Log was restored%')
+		AND Text NOT LIKE ('%Starting up database%')
+		AND Text NOT LIKE ('%BACKUP DATABASE successfully processed%')
+		AND Text NOT LIKE ('%BACKUP DATABASE WITH DIFFERENTIAL successfully processed%')
+		AND Text NOT LIKE ('%Setting database option % to % for database%')
+		AND Text NOT LIKE ('%The tempdb database has % data file(s)%')
+		AND Text NOT LIKE ('%SSPI handshake failed%')
+		AND Text NOT LIKE ('%Login succeeded%')
+		AND Text NOT LIKE ('%found 0 errors%')
+		AND Text NOT LIKE ('%finished without errors%')
+		AND Text NOT LIKE ('%Error: %, Severity: %, State: %')
+		AND Text NOT LIKE ('%Log was backed up%')
+		AND Text NOT LIKE ('%Parallel redo is shutdown%')
+		AND Text NOT LIKE ('%Parallel redo is started%')
+		AND Text NOT LIKE ('%RESTORE DATABASE successfully processed %')
+		AND Text NOT LIKE ('%Restore is complete on database%')
+		AND Text NOT LIKE ('%Login failed for user ''UltimoLogin''%')
+		AND Text NOT LIKE ('%The database ''%'' is marked RESTORING%')
+		AND Text NOT LIKE ('%The operating system returned the error ''21(The device is not ready.)''%')
+		AND Text NOT LIKE ('%Filegroup MultimediaFileStream in database % is unavailable%')
+		AND Text NOT LIKE ('%Process ID % was killed by hostname %, host process ID %.')
+	GROUP BY SqlInstance, Text
+	ORDER BY SqlInstance;
 
-    --SELECT * FROM #SQLErrorLog;
+	--SELECT * FROM #SQLErrorLog;
 
-    -------------------------------------------------------------------------------
-    -- Unusual SQL Server Agentlog entries
-    -------------------------------------------------------------------------------
+	-------------------------------------------------------------------------------
+	-- Unusual SQL Server Agentlog entries
+	-------------------------------------------------------------------------------
 
 
-    SELECT @subj = CONCAT (@@SERVERNAME, ' - SQL Server Errorlog entries');
-    SET @body
+	SELECT @subj = CONCAT (@@SERVERNAME, ' - SQL Server Errorlog entries');
+	SET @body
         = N'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 			<html>
 				<head>
@@ -829,21 +860,21 @@ BEGIN
 						</tr> 
 					</thead>';
 
-    SET @xml = CAST((
+	SET @xml = CAST((
                    SELECT SQLInstance AS td,
-                          '',
-                          Text AS td,
-                          '',
-						  Count AS td,
-						  ''
-                   FROM #SQLErrorLog
-                   ORDER BY SQLInstance,[Count] DESC						                          
-                   FOR XML PATH ('tr'), ELEMENTS
+		'',
+		Text AS td,
+		'',
+		Count AS td,
+		''
+	FROM #SQLErrorLog
+	ORDER BY SQLInstance,[Count] DESC
+	FOR XML PATH ('tr'), ELEMENTS
                ) AS NVARCHAR(MAX));
 
-    SET @body = @body + @xml + N'</table></body></html>';
+	SET @body = @body + @xml + N'</table></body></html>';
 
-    EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
+	EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
                                  @recipients = @recipients,
                                  @subject = @subj,
                                  @body = @body,
@@ -857,47 +888,49 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE PROCEDURE [dbo].[usp_ProcessFailedAgentJobs]
-    @profile_name sysname,
-    @recipients   VARCHAR(MAX)
+	@profile_name sysname,
+	@recipients   VARCHAR(MAX)
 AS
 BEGIN
-    DECLARE @subj VARCHAR(200),
+	DECLARE @subj VARCHAR(200),
             @body NVARCHAR(MAX),
             @xml  NVARCHAR(MAX);
 
-    -- Create a temp table
-    IF OBJECT_ID ('tempdb.dbo.#SQLAgentLog') IS NOT NULL DROP TABLE #SQLAgentLog;
-    CREATE TABLE #SQLAgentLog (
-        SQLInstance VARCHAR(100)   NOT NULL,
-        RunDate     VARCHAR(20)    NOT NULL,
-        JobName     NVARCHAR(200)  NOT NULL,
-        StepName    NVARCHAR(200)  NOT NULL,
-        RunDuration INT            NOT NULL,
-        LogText     NVARCHAR(4000) NULL
-    );
+	-- Create a temp table
+	IF OBJECT_ID ('tempdb.dbo.#SQLAgentLog') IS NOT NULL DROP TABLE #SQLAgentLog;
+	CREATE TABLE #SQLAgentLog
+	(
+		SQLInstance VARCHAR(100) NOT NULL,
+		RunDate VARCHAR(20) NOT NULL,
+		JobName NVARCHAR(200) NOT NULL,
+		StepName NVARCHAR(200) NOT NULL,
+		RunDuration INT NOT NULL,
+		LogText NVARCHAR(4000) NULL
+	);
 
-    -- Store all applicable agentlog entries in a temp table
-    INSERT INTO #SQLAgentLog (SQLInstance, RunDate, JobName, StepName, RunDuration, LogText)
-    SELECT Server,
-           RunDate,
-           JobName,
-           StepName,
-           RunDuration,
-           Message
-    FROM DBA.dbo.FailedJobHistory
-    WHERE (RunDate >= DATEADD (DAY, -1, GETDATE ()))
-          AND StepName <> '(Job outcome)'
-    ORDER BY Server,
+	-- Store all applicable agentlog entries in a temp table
+	INSERT INTO #SQLAgentLog
+		(SQLInstance, RunDate, JobName, StepName, RunDuration, LogText)
+	SELECT Server,
+		RunDate,
+		JobName,
+		StepName,
+		RunDuration,
+		Message
+	FROM DBA.dbo.FailedJobHistory
+	WHERE (RunDate >= DATEADD (DAY, -1, GETDATE ()))
+		AND StepName <> '(Job outcome)'
+	ORDER BY Server,
              RunDate DESC;
 
 
-    -------------------------------------------------------------------------------
-    -- Unusual SQL Server Agentlog entries
-    -------------------------------------------------------------------------------
+	-------------------------------------------------------------------------------
+	-- Unusual SQL Server Agentlog entries
+	-------------------------------------------------------------------------------
 
 
-    SELECT @subj = CONCAT (@@SERVERNAME, ' - SQL Server Agentlog entries');
-    SET @body
+	SELECT @subj = CONCAT (@@SERVERNAME, ' - SQL Server Agentlog entries');
+	SET @body
         = N'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 			<html>
 				<head>
@@ -946,28 +979,28 @@ BEGIN
 						</tr> 
 					</thead>';
 
-    SET @xml = CAST((
+	SET @xml = CAST((
                    SELECT SQLInstance AS td,
-                          '',
-                          CONVERT (CHAR(30), RunDate, 21) AS td,
-                          '',
-                          JobName AS td,
-                          '',
-                          StepName AS td,
-                          '',
-                          RunDuration AS td,
-                          '',
-                          LogText AS td,
-                          ''
-                   FROM #SQLAgentLog
-                   ORDER BY SQLInstance,
+		'',
+		CONVERT (CHAR(30), RunDate, 21) AS td,
+		'',
+		JobName AS td,
+		'',
+		StepName AS td,
+		'',
+		RunDuration AS td,
+		'',
+		LogText AS td,
+		''
+	FROM #SQLAgentLog
+	ORDER BY SQLInstance,
                             RunDate DESC
-                   FOR XML PATH ('tr'), ELEMENTS
+	FOR XML PATH ('tr'), ELEMENTS
                ) AS NVARCHAR(MAX));
 
-    SET @body = @body + @xml + N'</table></body></html>';
+	SET @body = @body + @xml + N'</table></body></html>';
 
-    EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
+	EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
                                  @recipients = @recipients,
                                  @subject = @subj,
                                  @body = @body,
@@ -980,25 +1013,25 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE   PROC [dbo].[usp_ShowCPUUtilization]
-    @SqlInstance VARCHAR(255),
-    @NumDays     INT = 7
+	@SqlInstance VARCHAR(255),
+	@NumDays     INT = 7
 AS
 BEGIN
-    SET NOCOUNT ON;
+	SET NOCOUNT ON;
 
-    SELECT tbl.SqlInstance,
-           tbl.RecordId,
-           tbl.EventTime,
-           tbl.SQLProcessUtilization,
-           tbl.OtherProcessUtilization
-    FROM (
+	SELECT tbl.SqlInstance,
+		tbl.RecordId,
+		tbl.EventTime,
+		tbl.SQLProcessUtilization,
+		tbl.OtherProcessUtilization
+	FROM (
         SELECT *,
-               ROW_NUMBER () OVER (PARTITION BY c.RecordId ORDER BY c.EventTime) AS num
-        FROM dbo.CPURingBuffers AS c
-        WHERE SqlInstance = @SqlInstance
-              AND c.EventTime >= DATEADD (DAY, -@NumDays, GETDATE ())
+			ROW_NUMBER () OVER (PARTITION BY c.RecordId ORDER BY c.EventTime) AS num
+		FROM dbo.CPURingBuffers AS c
+		WHERE SqlInstance = @SqlInstance
+			AND c.EventTime >= DATEADD (DAY, -@NumDays, GETDATE ())
     ) AS tbl
-    WHERE num = 1
-    ORDER BY tbl.EventTime DESC;
+	WHERE num = 1
+	ORDER BY tbl.EventTime DESC;
 END;
 GO
