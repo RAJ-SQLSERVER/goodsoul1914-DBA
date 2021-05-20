@@ -1,4 +1,4 @@
-$managementServer = "LT-RSD-01"
+$managementServer = "DT-RSD-01"
 $managentDatabase = "DBA"
 
 # Retrieve all SQL Server instances from the management database
