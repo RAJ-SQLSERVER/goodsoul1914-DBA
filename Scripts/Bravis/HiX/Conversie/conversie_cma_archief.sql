@@ -1,0 +1,18 @@
+/****** Script for SelectTopNRows command from SSMS  ******/
+SELECT [IFourCArchive1299344].[dbo].[IFCDOCUMENT].[DOCUMENTID]
+      ,[IFourCArchive1299344].[dbo].[IFCDOCUMENT].[FIELD1]
+      ,[IFourCArchive1299344].[dbo].[IFCDATA].BINARY
+      ,[IFourCArchive1299344].[dbo].[IFCDATA].[SORTORDER]
+  FROM 
+	[IFourCArchive1299344].[dbo].[IFCDOCUMENT] 
+  INNER JOIN 
+	[IFourCArchive1299344].[dbo].[IFCDATA] 
+  ON 
+	[IFourCArchive1299344].[dbo].[IFCDOCUMENT].[DOCUMENTID] = [IFourCArchive1299344].[dbo].[IFCDATA].DOCUMENTID
+ WHERE FIELD1 = '7591609' 
+ ORDER BY [IFourCArchive1299344].[dbo].[IFCDATA].[SORTORDER] ASC
+ 
+SELECT FIELD1
+FROM [IFourCArchive1299344].[dbo].[IFCDOCUMENT]
+GROUP BY FIELD1
+HAVING FIELD1 LIKE '_______'

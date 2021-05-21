@@ -1,0 +1,13 @@
+EXEC msdb.dbo.sp_send_dbmail @profile_name = 'WINSRV1',
+                             @recipients = 'mboomaars@gmail.com',
+                             @subject = '[WINSRV1] SQL login password audit',
+                             @query = N'SELECT * FROM dbo.SQLPasswordAudit;',
+                             @exclude_query_output = 0,
+                             @execute_query_database = 'DBATools',
+                             @body = 'test',
+                             @body_format = 'HTML',
+                             @append_query_error = 1,
+                             @query_result_header = 1,
+                             @attach_query_result_as_file = 1,
+                             @query_attachment_filename = '[WINSRV1] SQL login password audit.txt',
+                             @query_no_truncate = 1;

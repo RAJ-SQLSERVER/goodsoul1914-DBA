@@ -1,0 +1,1 @@
+select * from AGENDA_AFSPRAAK where agenda = '001301' and datum >= '2019-01-01' and code = 'sfoto' order by datum

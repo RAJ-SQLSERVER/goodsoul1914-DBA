@@ -1,0 +1,103 @@
+/* 
+   Subtrajecten ZorgBV 
+*/
+
+USE ODSProductie
+GO
+
+DECLARE @StartDatum			AS DATE			-- Startmoment
+DECLARE @Peildatum			AS DATE			-- Eindmoment / Peildatum
+DECLARE @AGBCode			AS VARCHAR(8)	-- AGBCode
+DECLARE @DetailOverzicht	AS BIT
+
+SET @StartDatum =			'2017-01-01'	
+SET @Peildatum  =			'2020-05-31' 
+SET @AGBCode    =			'22220339'		-- ZorgBV
+SET @DetailOverzicht =		0				-- 0 = Toon gegroepeerde resulaten / 1 = Toon detailoverzicht
+
+IF @DetailOverzicht = 0
+	BEGIN
+		SELECT	GETDATE(), FORMAT (BEGINDAT, 'yyyy') as jaar, COUNT(*)
+		FROM	D001_EPISODE_DBCPER
+		WHERE	VERVALLEN <> 1
+				AND BEGINDAT >= @StartDatum
+				AND BEGINDAT <= @Peildatum
+				AND LOCATIE IN (
+					SELECT	CODE 
+					FROM	D001_CSZISLIB_LOCCODE 
+					WHERE	LOCCODE = @AGBCode
+				)
+				AND STATUS <> 'X'
+				AND EPISODE IN (
+					SELECT	EPISODE 
+					FROM	D001_EPISODE_EPISODE A, D001_PATIENT_PATIENT B 
+					WHERE	A.PATIENTNR = B.PATIENTNR AND B.IsTestPatient = 0
+				)
+				AND STROOM <> 'R'
+				AND DBCNUMMER IN (
+					SELECT	CASENR 
+					FROM	D001_FAKTUUR_VERRICHT_VERRSEC V
+					WHERE	V.DATUM >= @StartDatum 
+							AND V.DATUM <= @Peildatum
+							AND (V.VERZEKERIN LIKE 'V%' OR V.VERZEKERIN IS NULL OR V.VERZEKERIN = '')
+				)
+				AND ZORGTYPE IN ('L', 'R', 'I')
+		GROUP BY 
+				FORMAT (BEGINDAT, 'yyyy')
+		ORDER BY 2
+	END
+ELSE
+	BEGIN
+		SELECT	D.BEGINDAT,
+				D.EINDDAT,
+				D.DBCNUMMER,
+				D.HOOFDDBC,
+				D.EPISODE,
+				D.SPECIALISM,
+				D.ZORGTYPE,
+				D.ZORGVRAAG,
+				D.HOOFDDIAG,
+				D.BEHCODE,
+				D.INGBEH,
+				D.LOCATIE,
+				D.AFSLUIT,
+				D.MEDIND,
+				D.DECLCODE,
+				D.ZORGPROD,
+				D.VERWZORGPR,
+				D.VERZEKERIN,
+				D.DBCTypering,
+				D.AFSLREG,
+				D.ICD10,
+				D.STATUS,
+				D.VERVALLEN,
+				D.STROOM
+		INTO	ZorgBv_Subtrajecten_20200101_20200430
+		FROM	D001_EPISODE_DBCPER D
+		WHERE	VERVALLEN <> 1
+				AND BEGINDAT >= @StartDatum
+				AND BEGINDAT <= @Peildatum
+				AND LOCATIE IN (
+					SELECT	CODE 
+					FROM	D001_CSZISLIB_LOCCODE 
+					WHERE	LOCCODE = @AGBCode
+				)
+				AND STATUS <> 'X'
+				AND EPISODE IN (
+					SELECT	EPISODE 
+					FROM	D001_EPISODE_EPISODE A, D001_PATIENT_PATIENT B 
+					WHERE	A.PATIENTNR = B.PATIENTNR 
+							AND B.IsTestPatient = 0
+				)
+				AND STROOM <> 'R'
+				AND DBCNUMMER IN (
+					SELECT	CASENR 
+					FROM	D001_FAKTUUR_VERRICHT_VERRSEC 
+					WHERE	DATUM >= @StartDatum 
+							AND DATUM <= @Peildatum
+							AND (VERZEKERIN LIKE 'V%' OR VERZEKERIN IS NULL OR VERZEKERIN = '')
+					)
+				AND ZORGTYPE IN ('L', 'R', 'I')
+		ORDER BY 1, 4
+	END
+GO

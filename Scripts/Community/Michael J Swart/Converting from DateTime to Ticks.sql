@@ -1,0 +1,30 @@
+CREATE FUNCTION dbo.ToTicks (@DateTime DATETIME2)
+RETURNS BIGINT
+AS
+    BEGIN
+        RETURN DATEDIFF_BIG (MICROSECOND, '00010101', @DateTime) * 10 + (DATEPART (NANOSECOND, @DateTime) % 1000) / 100;
+    END;
+GO
+
+-- < sql2016
+CREATE FUNCTION dbo.ToTicksOld (@DateTime DATETIME2)
+RETURNS BIGINT
+AS
+    BEGIN
+        DECLARE @Days BIGINT = DATEDIFF (DAY, '00010101', CAST(@DateTime AS DATE));
+        DECLARE @Seconds BIGINT = DATEDIFF (SECOND, '00:00', CAST(@DateTime AS TIME(7)));
+        DECLARE @Nanoseconds BIGINT = DATEPART (NANOSECOND, @DateTime);
+        RETURN @Days * 864000000000 + @Seconds * 10000000 + @Nanoseconds / 100;
+    END;
+GO
+
+CREATE FUNCTION dbo.ToDateTime2 (@Ticks BIGINT)
+RETURNS DATETIME2
+AS
+    BEGIN
+        DECLARE @DateTime DATETIME2 = '00010101';
+        SET @DateTime = DATEADD (DAY, @Ticks / 864000000000, @DateTime);
+        SET @DateTime = DATEADD (SECOND, (@Ticks % 864000000000) / 10000000, @DateTime);
+        RETURN DATEADD (NANOSECOND, (@Ticks % 10000000) * 100, @DateTime);
+    END;
+GO

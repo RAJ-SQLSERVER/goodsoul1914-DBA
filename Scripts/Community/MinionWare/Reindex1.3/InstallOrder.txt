@@ -1,0 +1,9 @@
+Tables.sql
+Indexes.sql
+Views.sql
+IndexMaintDB.sql
+IndexMaintMaster.sql
+Data.sql
+HELPData.sql
+RefreshViews.sql
+Jobs.sql

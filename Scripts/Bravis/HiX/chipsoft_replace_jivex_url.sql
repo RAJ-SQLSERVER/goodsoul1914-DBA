@@ -1,0 +1,1 @@
+UPDATE UITSLAG5_PA_OND SET URL = cast(replace(cast(URL as nvarchar(max)),'http://fzr-jivex-03.msft.lan','http://10.34.52.29') as ntext) where URL like 'http://fzr-jivex-03.msft.lan%'

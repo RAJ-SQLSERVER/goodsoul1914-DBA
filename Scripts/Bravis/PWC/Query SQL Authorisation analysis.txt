@@ -1,0 +1,122 @@
+-- PWC SQL Server Authorisation Analysis Query
+-- Please do not spread or use this query without permission
+
+
+USE master
+GO
+SET NOCOUNT ON
+
+-- Declare temporary tables (@ tables are only there during this query)
+DECLARE @Server TABLE(
+ [Login] varchar(300), 
+ [LoginType] varchar(300),
+ [Disabled] varchar(300),
+ [ServerPermission] varchar(300), 
+ [ServerPermissionType] varchar(300),
+ [ServerPermissionCreated] varchar(300),
+ [ServerPermissionModified] varchar(300))
+ 
+ DECLARE @DB TABLE(
+ [Database] varchar(300), 
+ [User] sysname, 
+ [Login] sysname NULL, 
+ [DBPermission] varchar(300), 
+ [DBPermissionType] sysname)
+ 
+  DECLARE @PW TABLE(
+ [Login] varchar(300), 
+ [PasswPolicy] varchar(300), 
+ [PasswExpiration] varchar(300), 
+ [LastPwChange] sql_variant)
+ 
+ 
+   DECLARE @RESULT TABLE(
+[Login] varchar(300), 
+[LoginType] varchar(300), 
+[Disabled] varchar(300), 
+[PasswPolicy] varchar(300), 
+[PasswExpiration] varchar(300), 
+[LastPwChange] varchar(300), 
+[SrvAuth] varchar(300), 
+[SrvAuthType] varchar(300), 
+[SrvAuthModDate] varchar(300), 
+[MappedDBUser] varchar(300), 
+[Database] varchar(300), 
+[DbAuth] varchar(300), 
+[DbAuthType] varchar(300))
+ 
+-- Insert first row for file integrity check
+INSERT INTO @RESULT
+VALUES ('DO NOT DELETE THIS ROW', 'VERSION 1.0', '', '', '', '', '', '', '', '', '', '', '')
+ 
+-- Retrieve Server Roles and permissions and insert in temporary @Server table
+INSERT INTO @Server
+select
+ suser_sname(c.sid), c.type_desc, c.is_disabled, a.name, a.type_desc, c.create_date, c.modify_date
+FROM
+ master.sys.server_principals a
+ LEFT OUTER JOIN master.sys.server_role_members b ON a.principal_id = b.role_principal_id
+ LEFT OUTER JOIN master.sys.server_principals c ON c.principal_id = b.member_principal_id
+WHERE c.name LIKE '%'
+UNION
+SELECT 
+ suser_sname(e.sid), e.type_desc, e.is_disabled, d.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS, d.class_desc, 
+ e.create_date, e.modify_date
+FROM master.sys.server_permissions d
+ LEFT OUTER JOIN master.sys.server_principals e ON d.grantee_principal_id = e.principal_id
+ LEFT OUTER JOIN master.sys.server_principals f ON d.grantor_principal_id = f.principal_id
+WHERE e.name LIKE '%' 
+
+-- Retrieve DB roles and insert in temporary @DB table
+INSERT INTO @DB
+EXEC sp_MSforeachdb '
+ SELECT DISTINCT ''?'', users.Name, suser_sname(users.sid), roles.Name, roles.type_desc
+ FROM [?].sys.database_role_members a 
+ LEFT OUTER JOIN [?].sys.database_principals users on a.member_principal_id = users.principal_id
+ LEFT OUTER JOIN [?].sys.database_principals roles on a.role_principal_id = roles.principal_id'
+
+-- Retrieve DB and insert in temporary @DB table
+INSERT INTO @DB
+EXEC sp_msforeachdb '
+ SELECT DISTINCT ''?'', users.Name, suser_sname(users.sid), a.Permission_Name, a.class_desc
+ FROM [?].sys.database_permissions a 
+ LEFT OUTER JOIN [?].sys.database_principals users on a.Grantee_principal_id = users.principal_id
+ WHERE a.class_desc = ''DATABASE'''
+
+-- Retrieve password policy settings in insert in temporary @PW table
+INSERT INTO @PW
+select name, is_policy_checked, is_expiration_checked, LOGINPROPERTY(name, 'PasswordLastSetTime')
+from master.sys.sql_logins
+
+-- Join the three tables
+INSERT INTO @RESULT
+SELECT
+ a.Login as [Login],
+ a.LoginType as [LoginType],
+ case a.Disabled
+  when 0 then 'No'
+  when 1 then 'Yes'
+  else 'Not applicable' end as 'Disabled',
+ case c.[PasswPolicy]
+  when 0 then 'No'
+  when 1 then 'Yes'
+  else 'Not applicable' end as 'PasswPolicy',
+ case c. [PasswExpiration]
+  when 0 then 'No'
+  when 1 then 'Yes'
+  else 'Not applicable' end as 'PasswExpiration',
+ case 
+   when c.[LastPwChange] is null then 'Not applicable'
+   else cast(c.[LastPwChange] as varchar(30))
+ end as 'LastPwChange',
+ a.ServerPermission as SrvAuth,
+ a.ServerPermissionType as SrvAuthType,
+ a.ServerPermissionModified as SrvAuthModDate,
+ b.[User] as MappedDBUser,
+ b.[Database] as [Database],
+ b.DBPermission as DbAuth,
+ b.DBPermissionType as DbAuthType
+FROM
+ @Server a left outer join @DB b on a.Login = b.Login left outer join @PW c on a.Login = c.login
+
+SELECT * FROM @RESULT

@@ -1,0 +1,1 @@
+EXEC msdb.dbo.sp_syscollector_cleanup_collector

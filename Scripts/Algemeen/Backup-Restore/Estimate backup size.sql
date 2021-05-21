@@ -1,0 +1,1 @@
+EXECUTE master.sys.sp_MSforeachdb @command1 = 'USE [?]; if db_id()>4 EXEC sp_spaceused';

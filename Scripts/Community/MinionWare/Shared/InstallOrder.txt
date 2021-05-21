@@ -1,0 +1,15 @@
+Tables.sql
+HELPTables.sql
+HELPFormat.sql
+HELPBanner.sql
+HELP.sql
+DBMaintSQLInfoGet.sql
+DBMaintDBSizeGet.sql
+DBMaintInlineTokenParse.sql
+DBMaintServiceCheck.sql
+DBMaintDBSettingsGet.sql
+DBMaintStatusMonitorONOff.sql
+DBMaintLogToMinion.sql
+CloneSettings.sql
+CloneAllSettings.sql
+Data.sql
