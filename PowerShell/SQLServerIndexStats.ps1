@@ -1,4 +1,4 @@
-$hostName = "LT-RSD-01"
+$hostName = "GPSQL02"
 
-Get-DbaHelpIndex -SqlInstance $hostName -ExcludeDatabase master, tempdb, model, msdb -IncludeFragmentation -IncludeStats | 
+Get-DbaHelpIndex -SqlInstance $hostName -ExcludeDatabase master,tempdb,model,msdb -IncludeFragmentation -IncludeStats | 
     Export-Excel -Path "C:\Temp\$hostName.xlsx" -TitleBold -AutoSize -FreezeTopRow -BoldTopRow -AutoFilter -TableStyle Medium2
