@@ -13,8 +13,8 @@ Get-DbaDiskSpace -ComputerName $ComputerNames |
 
 # Retrieve errorlog info
 Get-DbaErrorLog -SqlInstance $SqlInstances -After (Get-Date).AddDays(-1) | 
-    Select-Object ComputerName,InstanceName,SqlInstance,LogDate,Source,Text | 
-    Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ErrorLogs -AutoCreateTable
+    Select-Object ComputerName, InstanceName, SqlInstance, LogDate, Source, Text | 
+        Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ErrorLogs -AutoCreateTable
 
 # Retrieve failed agent jobs from all instances and store them in DBA.dbo.FailedJobHistory
 Get-DbaAgentJobHistory -SqlInstance $SqlInstances -StartDate (Get-Date).AddDays(-1) -OutcomeType Failed | 
@@ -26,8 +26,8 @@ Get-DbaDatabase -SqlInstance $SqlInstances |
 
 # Retrieve disk speed
 Test-DbaDiskSpeed -SqlInstance $SqlInstances | 
-    Select-Object SqlInstance,Database,SizeGB,FileName,FileID,FileType,DiskLocation,Reads,AverageReadStall,ReadPerformance,Writes,AverageWriteStall,WritePerformance,"Avg Overall Latency","Avg Bytes/Read","Avg Bytes/Write","Avg Bytes/Transfer" | 
-    Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DiskSpeedTests -AutoCreateTable
+    Select-Object SqlInstance, Database, SizeGB, FileName, FileID, FileType, DiskLocation, Reads, AverageReadStall, ReadPerformance, Writes, AverageWriteStall, WritePerformance, "Avg Overall Latency", "Avg Bytes/Read", "Avg Bytes/Write", "Avg Bytes/Transfer" | 
+        Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DiskSpeedTests -AutoCreateTable
 
 # Retrieve default trace info
 $dt = (Get-Date).AddDays(-1)
@@ -39,18 +39,18 @@ and StartTime >= '$dt'
 and ApplicationName not like 'SQLAgent - TSQL JobStep %' ESCAPE '\'"
 $SqlInstances | 
     Get-DbaTrace -Id 1 | 
-    Read-DbaTraceFile -Where $where | 
-    Select-Object SqlInstance, LoginName, HostName, DatabaseName, ApplicationName, StartTime, TextData | 
-    Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DefaultTraceEntries -AutoCreateTable
+        Read-DbaTraceFile -Where $where | 
+            Select-Object SqlInstance, LoginName, HostName, DatabaseName, ApplicationName, StartTime, TextData | 
+                Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DefaultTraceEntries -AutoCreateTable
 
 # Retrieve all logins
 Get-DbaLogin -SqlInstance $SqlInstances | 
-    Select-Object ComputerName,InstanceName,SqlInstance,LastLogin,AsymmetricKey,Certificate,CreateDate,Credential,DateLastModified,DefaultDatabase,DenyWindowsLogin,HasAccess,ID,IsDisabled,IsLocked,IsPasswordExpired,IsSystemObject,LoginType,MustChangePassword,PasswordExpirationEnabled,PasswordHashAlgorithm,PasswordPolicyEnforced,Sid,WindowsLoginAccessType,Name | 
-    Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ServerLogins -AutoCreateTable
+    Select-Object ComputerName, InstanceName, SqlInstance, LastLogin, AsymmetricKey, Certificate, CreateDate, Credential, DateLastModified, DefaultDatabase, DenyWindowsLogin, HasAccess, ID, IsDisabled, IsLocked, IsPasswordExpired, IsSystemObject, LoginType, MustChangePassword, PasswordExpirationEnabled, PasswordHashAlgorithm, PasswordPolicyEnforced, Sid, WindowsLoginAccessType, Name | 
+        Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ServerLogins -AutoCreateTable
 
 # Retrieve all database users
 Get-DbaDbUser -SqlInstance $SqlInstances | 
-    Select-Object ComputerName,InstanceName,SqlInstance,Database,Parent,AsymmetricKey,AuthenticationType,Certificate,CreateDate,DateLastModified,DefaultSchema,HasDBAccess,ID,IsSystemObject,Login,LoginType,Sid,UserType,Name | 
-    Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseUsers -AutoCreateTable
+    Select-Object ComputerName, InstanceName, SqlInstance, Database, Parent, AsymmetricKey, AuthenticationType, Certificate, CreateDate, DateLastModified, DefaultSchema, HasDBAccess, ID, IsSystemObject, Login, LoginType, Sid, UserType, Name | 
+        Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseUsers -AutoCreateTable
 
 #Export-DbaLogin -SqlInstance $SqlInstances -Path \\gohixsql02\migration\Logins

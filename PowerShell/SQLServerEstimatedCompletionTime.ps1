@@ -10,5 +10,5 @@ $SqlInstances = (Invoke-DbaQuery -SqlInstance $managementServer -Database $manag
 # Retrieve active BACKUP jobs
 Get-DbaEstimatedCompletionTime -SqlInstance $SqlInstances | 
     Where-Object { $_.Command -like "BACKUP*" } | 
-    Select-Object ComputerName,InstanceName,Command,Database,Login,StartTime,RunningTime,EstimatedTimeToGo,PercentComplete | 
-    Format-Table -AutoSize
+        Select-Object ComputerName, InstanceName, Command, Database, Login, StartTime, RunningTime, EstimatedTimeToGo, PercentComplete | 
+            Format-Table -AutoSize
