@@ -14,8 +14,8 @@ Get-DbaDiskSpace -ComputerName $ComputerNames | Write-DbaDataTable -SqlInstance 
 foreach ($instance in $SqlInstances) {    
     $infoObj = Get-DbaInstanceProperty -SqlInstance $instance
 
-    $version = ($infoObj | where {$_.Name -eq "VersionString"}).Value
-    $edition = ($infoObj | where {$_.Name -eq "Edition"}).Value
+    $version = ($infoObj | Where-Object { $_.Name -eq "VersionString" }).Value
+    $edition = ($infoObj | Where-Object { $_.Name -eq "Edition" }).Value
 
     Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "UPDATE dbo.SqlInstances SET Timestamp = GETDATE(), SqlVersion = '$version', SqlEdition = '$edition' WHERE SqlInstance = '$instance';"
 }
@@ -32,10 +32,10 @@ foreach ($computer in $ComputerNames) {
 }
 
 # Update version field of instance records
-(Get-DbaInstanceProperty -SqlInstance gpsql01 | where {$_.Name -eq "VersionString"}).Value
+(Get-DbaInstanceProperty -SqlInstance gpsql01 | Where-Object { $_.Name -eq "VersionString" }).Value
 
 # Retrieve errorlog info
-Get-DbaErrorLog -SqlInstance $SqlInstances -After (Get-Date).AddDays(-1) | Select-Object ComputerName,InstanceName,SqlInstance,LogDate,Source,Text | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ErrorLogs -AutoCreateTable
+Get-DbaErrorLog -SqlInstance $SqlInstances -After (Get-Date).AddDays(-1) | Select-Object ComputerName, InstanceName, SqlInstance, LogDate, Source, Text | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ErrorLogs -AutoCreateTable
 
 # Retrieve failed agent jobs from all instances and store them in DBA.dbo.FailedJobHistory
 Get-DbaAgentJobHistory -SqlInstance $SqlInstances -StartDate (Get-Date).AddDays(-1) -OutcomeType Failed | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table FailedJobHistory -AutoCreateTable
@@ -44,7 +44,7 @@ Get-DbaAgentJobHistory -SqlInstance $SqlInstances -StartDate (Get-Date).AddDays(
 Get-DbaDatabase -SqlInstance $SqlInstances | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table Databases -AutoCreateTable
 
 # Retrieve disk speed
-Test-DbaDiskSpeed -SqlInstance $SqlInstances | select-object SqlInstance,Database,SizeGB,FileName,FileID,FileType,DiskLocation,Reads,AverageReadStall,ReadPerformance,Writes,AverageWriteStall,WritePerformance,"Avg Overall Latency","Avg Bytes/Read","Avg Bytes/Write","Avg Bytes/Transfer" | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DiskSpeedTests -AutoCreateTable
+Test-DbaDiskSpeed -SqlInstance $SqlInstances | Select-Object SqlInstance, Database, SizeGB, FileName, FileID, FileType, DiskLocation, Reads, AverageReadStall, ReadPerformance, Writes, AverageWriteStall, WritePerformance, "Avg Overall Latency", "Avg Bytes/Read", "Avg Bytes/Write", "Avg Bytes/Transfer" | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DiskSpeedTests -AutoCreateTable
 
 # Retrieve default trace info
 $dt = (Get-Date).AddDays(-1)
@@ -57,9 +57,9 @@ and ApplicationName not like 'SQLAgent - TSQL JobStep %' ESCAPE '\'"
 $SqlInstances | Get-DbaTrace -Id 1 | Read-DbaTraceFile -Where $where | Select-Object SqlInstance, LoginName, HostName, DatabaseName, ApplicationName, StartTime, TextData | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DefaultTraceEntries -AutoCreateTable
 
 # Retrieve all logins
-Get-DbaLogin -SqlInstance $SqlInstances | Select-Object ComputerName,InstanceName,SqlInstance,LastLogin,AsymmetricKey,Certificate,CreateDate,Credential,DateLastModified,DefaultDatabase,DenyWindowsLogin,HasAccess,ID,IsDisabled,IsLocked,IsPasswordExpired,IsSystemObject,LoginType,MustChangePassword,PasswordExpirationEnabled,PasswordHashAlgorithm,PasswordPolicyEnforced,Sid,WindowsLoginAccessType,Name | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ServerLogins -AutoCreateTable
+Get-DbaLogin -SqlInstance $SqlInstances | Select-Object ComputerName, InstanceName, SqlInstance, LastLogin, AsymmetricKey, Certificate, CreateDate, Credential, DateLastModified, DefaultDatabase, DenyWindowsLogin, HasAccess, ID, IsDisabled, IsLocked, IsPasswordExpired, IsSystemObject, LoginType, MustChangePassword, PasswordExpirationEnabled, PasswordHashAlgorithm, PasswordPolicyEnforced, Sid, WindowsLoginAccessType, Name | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ServerLogins -AutoCreateTable
 
 # Retrieve all database users
-Get-DbaDbUser -SqlInstance $SqlInstances | Select-Object ComputerName,InstanceName,SqlInstance,Database,Parent,AsymmetricKey,AuthenticationType,Certificate,CreateDate,DateLastModified,DefaultSchema,HasDBAccess,ID,IsSystemObject,Login,LoginType,Sid,UserType,Name | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseUsers -AutoCreateTable
+Get-DbaDbUser -SqlInstance $SqlInstances | Select-Object ComputerName, InstanceName, SqlInstance, Database, Parent, AsymmetricKey, AuthenticationType, Certificate, CreateDate, DateLastModified, DefaultSchema, HasDBAccess, ID, IsSystemObject, Login, LoginType, Sid, UserType, Name | Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseUsers -AutoCreateTable
 
 #Export-DbaLogin -SqlInstance $SqlInstances -Path \\gohixsql02\migration\Logins
