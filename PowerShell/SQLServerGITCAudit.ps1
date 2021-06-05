@@ -7,9 +7,9 @@ $SqlInstances = (Invoke-DbaQuery -SqlInstance $managementServer -Database $manag
 $Today = (Get-Date -Format "yyyy-MM-dd")
 
 ## Alle instances
-$SqlInstances | Get-GITCAuditDbRoleMembers | Export-Excel -Path "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\GITC\$Today-DatabaseRoleMembers.xlsx" -AutoSize -FreezeTopRow -AutoFilter -BoldTopRow -TableStyle Medium6
-$SqlInstances | Get-GITCAuditServerRoleMembers | Export-Excel -Path "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\GITC\$Today-ServerRoleMembers.xlsx" -AutoSize -FreezeTopRow -AutoFilter -BoldTopRow -TableStyle Medium6
-$SqlInstances | Get-GITCAuditGenericAccount | Export-Excel -Path "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\GITC\$Today-GeneriekeAccounts.xlsx" -AutoSize -FreezeTopRow -AutoFilter -BoldTopRow -TableStyle Medium6
+$SqlInstances | Get-GITCAuditDbRoleMembers | Export-Excel -Path "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\GITC\$Today-DatabaseRoleMembers.xlsx" -AutoSize -FreezeTopRow -AutoFilter -BoldTopRow -TableStyle Medium2
+$SqlInstances | Get-GITCAuditServerRoleMembers | Export-Excel -Path "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\GITC\$Today-ServerRoleMembers.xlsx" -AutoSize -FreezeTopRow -AutoFilter -BoldTopRow -TableStyle Medium2
+$SqlInstances | Get-GITCAuditGenericAccount | Export-Excel -Path "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\GITC\$Today-GeneriekeAccounts.xlsx" -AutoSize -FreezeTopRow -AutoFilter -BoldTopRow -TableStyle Medium2
 
 ## AX4Health
 #Get-GITCAuditDbRoleMembers -SqlInstance GPAX4HSQL02 | Export-Excel -Path "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\GITC\$Today-GPAX4HSQL02-DatabaseRoleMembers.xlsx" -AutoSize -FreezeTopRow -AutoFilter -BoldTopRow -TableStyle Medium6
