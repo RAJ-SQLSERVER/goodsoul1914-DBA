@@ -14,7 +14,7 @@ SET NOCOUNT ON;
 
 -- Change @OperatorName as needed
 
-DECLARE @OperatorName sysname = N'TAB';
+DECLARE @OperatorName sysname = N'DBA';
 -- Change @CategoryName as needed
 
 DECLARE @CategoryName sysname = N'SQL Server Agent Alerts';
