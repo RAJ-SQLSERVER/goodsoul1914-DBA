@@ -78,20 +78,20 @@ li a:hover {
 "@
 
 $instances = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwSqlInstances ORDER BY SqlInstance;" | 
-    SELECT SqlInstance,SqlEdition,SqlVersion,ProcessorInfo,PhysicalMemory,Scan,Owner,UpdatedAt | ConvertTo-Html -Fragment
+    Select-Object SqlInstance, SqlEdition, SqlVersion, ProcessorInfo, PhysicalMemory, Scan, Owner, UpdatedAt | ConvertTo-Html -Fragment
 
 $errors = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwErrorLogLatest ORDER BY SqlInstance, Count DESC;" | 
-    SELECT SqlInstance, Text, Count | ConvertTo-Html -Fragment
+    Select-Object SqlInstance, Text, Count | ConvertTo-Html -Fragment
 
 $jobs = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT Server,RunDate,JobName,StepID,StepName,RunDuration,SqlMessageID,SqlSeverity,Message FROM vwFailedAgentJobsLatest;" | 
-    SELECT Server,RunDate,JobName,StepID,StepName,RunDuration,Message | ConvertTo-Html -Fragment
+    Select-Object Server, RunDate, JobName, StepID, StepName, RunDuration, Message | ConvertTo-Html -Fragment
 
 $cpu = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwHighCPUTimeLatest ORDER BY Count DESC" | 
-    SELECT SqlInstance, Count | ConvertTo-Html -Fragment
+    Select-Object SqlInstance, Count | ConvertTo-Html -Fragment
 
 $diskspace = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwDiskSpaceLatest" | 
-    SELECT ComputerName,Name,Capacity,Free,PercentFree,DriveType,SizeInKB,FreeInKB,SizeInMB,FreeInMB,SizeInGB,FreeInGB,SizeInTB,FreeInTB | 
-    ConvertTo-Html -Fragment
+    Select-Object ComputerName, Name, Capacity, Free, PercentFree, DriveType, SizeInKB, FreeInKB, SizeInMB, FreeInMB, SizeInGB, FreeInGB, SizeInTB, FreeInTB | 
+        ConvertTo-Html -Fragment
 
 $body = @"
 <h1>Bravis SQL Server rapportage van $today</h1>
