@@ -1,105 +1,80 @@
-/****************************************
- Shows internal fragmentation of an index
-****************************************/
-SELECT IX.name AS 'Name',
-	PS.index_level AS 'Level',
-	PS.page_count AS 'Pages',
-	PS.avg_page_space_used_in_percent AS 'Page Fullness (%)'
-FROM sys.dm_db_index_physical_stats(DB_ID(), OBJECT_ID('Sales.SalesOrderDetail'), DEFAULT, DEFAULT, 'DETAILED') AS PS
-JOIN sys.indexes AS IX ON IX.OBJECT_ID = PS.OBJECT_ID
-	AND IX.index_id = PS.index_id
-WHERE IX.name = 'PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID';
-GO
+/*
+Check Index Fragmentation in all databases
+==========================================
+Author: Eitan Blumin | Madeira Data Solutions
+Date: 2020-09-14
 
-/****************************************
- Shows external fragmentation of an index
-****************************************/
-SELECT IX.name AS 'Name',
-	PS.index_level AS 'Level',
-	PS.page_count AS 'Pages',
-	PS.avg_fragmentation_in_percent AS 'External Fragmentation (%)',
-	PS.fragment_count AS 'Fragments',
-	PS.avg_fragment_size_in_pages AS 'Avg Fragment Size'
-FROM sys.dm_db_index_physical_stats(DB_ID(), OBJECT_ID('Sales.SalesOrderDetail'), DEFAULT, DEFAULT, 'LIMITED') AS PS
-JOIN sys.indexes AS IX ON IX.OBJECT_ID = PS.OBJECT_ID
-	AND IX.index_id = PS.index_id
-WHERE IX.name = 'PK_SalesOrderDetail_SalesOrderID_SalesOrderDetailID';
-GO
+https://www.madeiradata.com
+https://www.eitanblumin.com
+*/
+DECLARE
+	 @SampleMode		VARCHAR(25) = NULL -- Valid inputs are DEFAULT, NULL, LIMITED, SAMPLED, or DETAILED. The default (NULL) is LIMITED.
+	,@MinFragmentation	INT = 20
+	,@MinPageCount		INT = 1000
+	,@IncludeHeaps		BIT = 0 -- Set to 1 to also check heap tables
 
-/*********************************************************
-Get fragmentation for indexes (including rebuild statement
-*********************************************************/
-SELECT GETDATE() AS [Date],
-	ROW_NUMBER() OVER (
-		ORDER BY indexstats.avg_fragmentation_in_percent DESC
-		) AS RowNumber,
-	DB_NAME() AS Databasename,
-	dbtables.name AS 'Table',
-	dbindexes.name AS 'Index',
-	indexstats.page_count AS Pages,
-	indexstats.avg_fragmentation_in_percent AS AVG_Fragmentation,
-	'ALTER INDEX ' + dbindexes.name + ' ON ' + DB_NAME() + '.' + dbschemas.name + '.' + dbtables.name + ' REBUILD WITH (FILLFACTOR = 90, ONLINE = ON, SORT_IN_TEMPDB = ON);' AS SqlCommand,
-	fill_factor AS Fill_Factor
-FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, NULL) AS indexstats
-INNER JOIN sys.tables AS dbtables ON dbtables.object_id = indexstats.object_id
-INNER JOIN sys.schemas AS dbschemas ON dbtables.schema_id = dbschemas.schema_id
-INNER JOIN sys.indexes AS dbindexes ON dbindexes.object_id = indexstats.object_id
-	AND indexstats.index_id = dbindexes.index_id
-WHERE indexstats.database_id = DB_ID()
-	--and indexstats.avg_fragmentation_in_percent >= 60
-	AND indexstats.page_count > 100
-	AND dbindexes.name IS NOT NULL
-ORDER BY indexstats.avg_fragmentation_in_percent DESC;
-GO
+SET ARITHABORT, XACT_ABORT, NOCOUNT ON;
 
-/*****************************************************************
- Shows detailed index fragmentation for all indexes in a database 
-*****************************************************************/
-SELECT DB_NAME(ps.database_id) AS [Database Name],
-	SCHEMA_NAME(o.schema_id) AS [Schema Name],
-	OBJECT_NAME(ps.OBJECT_ID) AS [Object Name],
-	i.name AS [Index Name],
-	ps.index_id,
-	ps.index_type_desc,
-	ps.avg_fragmentation_in_percent,
-	ps.fragment_count,
-	ps.page_count,
-	i.fill_factor,
-	i.has_filter,
-	i.filter_definition,
-	i.allow_page_locks
-FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, N'LIMITED') AS ps
-INNER JOIN sys.indexes AS i WITH (NOLOCK) ON ps.object_id = i.object_id
-	AND ps.index_id = i.index_id
-INNER JOIN sys.objects AS o WITH (NOLOCK) ON i.object_id = o.object_id
-WHERE ps.database_id = DB_ID()
---and ps.page_count > 2500
-ORDER BY ps.avg_fragmentation_in_percent DESC
-OPTION (RECOMPILE);
-GO
+IF OBJECT_ID('tempdb..#results') IS NOT NULL DROP TABLE #results;
+CREATE TABLE #results
+(
+	databaseName SYSNAME NULL,
+	schemaName SYSNAME NULL,
+	tableName SYSNAME NULL,
+	indexName SYSNAME NULL,
+	indexType SYSNAME NULL,
+	lastStatsUpdate DATETIME NULL,
+	avg_fragmentation_in_percent FLOAT NULL,
+	record_count INT NULL,
+	page_count INT NULL,
+	compressed_page_count INT NULL
+);
 
-/*************************************************************
- Shows detailed index information of all indexes in a database
-*************************************************************/
-SELECT '[' + DB_NAME() + '].[' + OBJECT_SCHEMA_NAME(ddips.object_id, DB_ID()) + '].[' + OBJECT_NAME(ddips.object_id, DB_ID()) + ']' AS [statement],
-	i.name AS index_name,
-	ddips.index_type_desc,
-	ddips.partition_number,
-	ddips.alloc_unit_type_desc,
-	ddips.index_depth,
-	ddips.index_level,
-	CAST(ddips.avg_fragmentation_in_percent AS SMALLINT) AS [avg_frag_%],
-	CAST(ddips.avg_fragment_size_in_pages AS SMALLINT) AS avg_frag_size_in_pages,
-	ddips.fragment_count,
-	ddips.page_count
-FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, 'limited') AS ddips
-INNER JOIN sys.indexes AS i ON ddips.object_id = i.object_id
-	AND ddips.index_id = i.index_id
-WHERE ddips.avg_fragmentation_in_percent > 15
-	AND ddips.page_count > 500
-ORDER BY ddips.avg_fragmentation_in_percent,
-	OBJECT_NAME(ddips.object_id, DB_ID()),
-	i.name;
-GO
+DECLARE @cmd NVARCHAR(MAX)
+SET @cmd = CONCAT(N'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+IF DATABASEPROPERTYEX(''?'', ''Updateability'') = ''READ_WRITE'' AND DATABASEPROPERTYEX(''?'', ''Status'') = ''ONLINE''
+BEGIN
+	USE [?];
+	DECLARE @TimeString VARCHAR(25), @RCount INT
+	SET @TimeString = CONVERT(VARCHAR, GETDATE(), 121);
 
+	RAISERROR(N''[%s] Checking fragmentation in "?"...'',0,1,@TimeString) WITH NOWAIT;
 
+	INSERT INTO #results
+	SELECT
+	  DB_NAME() AS databaseName
+	 ,s.[name] AS schemaName
+	 ,t.[name] AS tableName
+	 ,i.[name] AS indexName
+	 ,index_type_desc
+	 ,STATS_DATE(t.object_id, i.index_id) AS lastStatsUpdate
+	 ,avg_fragmentation_in_percent
+	 ,record_count
+	 ,page_count
+	 ,compressed_page_count
+	FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, '
+		+ ISNULL(QUOTENAME(NULLIF(NULLIF(@SampleMode, 'NULL'), 'DEFAULT'), ''''), N'NULL') 
+		+ N') ips
+	INNER JOIN sys.tables t on t.[object_id] = ips.[object_id]
+	INNER JOIN sys.schemas s on t.[schema_id] = s.[schema_id]
+	INNER JOIN sys.indexes i ON (ips.object_id = i.object_id) AND (ips.index_id = i.index_id)
+	WHERE
+		avg_fragmentation_in_percent > ', @MinFragmentation, N'
+	AND page_count > ', @MinPageCount, N'
+	AND t.is_ms_shipped = 0'
+	+ CASE WHEN @IncludeHeaps = 1 THEN N'' ELSE N'
+	AND i.index_id >= 1' END + N'
+
+	SET @RCount = @@ROWCOUNT;
+	SET @TimeString = CONVERT(VARCHAR, GETDATE(), 121);
+	RAISERROR(N''[%s] Found %d fragmented items in "?"'',0,1, @TimeString, @RCount);
+END')
+EXEC sp_MSforeachdb @cmd;
+
+SELECT 
+	CONCAT(QUOTENAME(databaseName), '.', QUOTENAME(schemaName), '.', QUOTENAME(tableName)) AS full_table_name
+	,*
+FROM
+	#results
+ORDER BY
+	avg_fragmentation_in_percent DESC
