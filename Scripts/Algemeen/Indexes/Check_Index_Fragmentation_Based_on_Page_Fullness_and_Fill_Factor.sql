@@ -27,7 +27,7 @@
     <script crossorigin="anonymous" defer="defer" integrity="sha512-IK3YFahDBTuoENbqq3ZAfDZnBrfSC3qdiUEGdRdDqm2HTSj2s9YynLxdZPgRJ5LXTvPR9jVkBCkz8PQRvaXb/A==" type="application/javascript" src="https://github.githubassets.com/assets/chunk-frameworks-20add815.js"></script>
     <script crossorigin="anonymous" defer="defer" integrity="sha512-YufdcMb4hh5uM2JSDx/MEATxourBQILRY0+74aM14JruGbjAyRYNY7hr/9+MOvY/ItDDo5pyqG/MHZr+5zZKHg==" type="application/javascript" src="https://github.githubassets.com/assets/chunk-vendor-62e7dd70.js"></script>
   
-  <script crossorigin="anonymous" defer="defer" integrity="sha512-uvDUNPOd6a3Mdtl9AoeCPQ254LI4GCRd18o5/j/VskxRWx4oc7/6gSASYD+3/hrcK2FAUV9WuUCnZtuiPC1fZw==" type="application/javascript" src="https://github.githubassets.com/assets/behaviors-baf0d434.js"></script>
+  <script crossorigin="anonymous" defer="defer" integrity="sha512-PsOLfdq6hGTzhE8a2IM8J1MyLGWBQj5m6+uGm5j+ypqMbR7sbGOo+NRMUPLqDBSwusFBeG38TXtz8WyGyszMJg==" type="application/javascript" src="https://github.githubassets.com/assets/behaviors-3ec38b7d.js"></script>
   
     <script crossorigin="anonymous" defer="defer" integrity="sha512-VuP/2HeHlwuxYb9sV0y9/hgN869dWIQDX2WZrvh4VAQjo6tb7PXzbBz0nOYROez0xFLxRc/u6sVU6fuYgcpN8w==" type="application/javascript" data-module-id="./chunk-animate-on-scroll.js" data-src="https://github.githubassets.com/assets/chunk-animate-on-scroll-56e3ffd8.js"></script>
     <script crossorigin="anonymous" defer="defer" integrity="sha512-ct3QiK2mvpg7zor9R2psdWnNMM2K32RU4RGRB/7yA5FyZ8H4iY6SNynXc7UaJqzBx6NaReg3GsWJPwW3kgAAig==" type="application/javascript" data-module-id="./chunk-codemirror.js" data-src="https://github.githubassets.com/assets/chunk-codemirror-72ddd088.js"></script>
@@ -60,7 +60,7 @@
 
   <meta name="viewport" content="width=device-width">
   
-  <title>MadeiraToolbox/fix_all_orphan_users.sql at master · MadeiraData/MadeiraToolbox</title>
+  <title>MadeiraToolbox/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql at master · MadeiraData/MadeiraToolbox</title>
     <meta name="description" content="Toolbox repository for Madeira&#39;s consultant team. Contribute to MadeiraData/MadeiraToolbox development by creating an account on GitHub.">
     <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="GitHub">
   <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub">
@@ -74,11 +74,11 @@
     
 
   <link rel="assets" href="https://github.githubassets.com/">
-    <link rel="shared-web-socket" href="wss://alive.github.com/_sockets/u/166929/ws?session=eyJ2IjoiVjMiLCJ1IjoxNjY5MjksInMiOjY4NDY2ODI3NiwiYyI6MzMzNTM1OTY1OCwidCI6MTYyMzA5ODg2OH0=--a6b2ae57f8f49e5f10d204f32257e9e78f59bff30b4b7d455a59426e6863488c" data-refresh-url="/_alive" data-session-id="51865ce0e0d639e78d14abe6722adce69b33d0c6300ba51fc1fb78e46d3a6b1b">
+    <link rel="shared-web-socket" href="wss://alive.github.com/_sockets/u/166929/ws?session=eyJ2IjoiVjMiLCJ1IjoxNjY5MjksInMiOjY4NDY2ODI3NiwiYyI6MjE2NjcyOTI3NiwidCI6MTYyMzA5ODk1Nn0=--52e086249d68c0e38357f2a8fa3ac3db118e090d3bc9fdd5a12bee8333d2fecf" data-refresh-url="/_alive" data-session-id="51865ce0e0d639e78d14abe6722adce69b33d0c6300ba51fc1fb78e46d3a6b1b">
     <link rel="shared-web-socket-src" href="/socket-worker-3f088aa2.js">
   <link rel="sudo-modal" href="/sessions/sudo_modal">
 
-  <meta name="request-id" content="FBFE:4315:3336C49:35AEDAB:60BE85F0" data-pjax-transient="true" /><meta name="html-safe-nonce" content="106d58f2a2ad453b42f17074fff766466c0000dd551e70c31cfb02acfb5fb7dd" data-pjax-transient="true" /><meta name="visitor-payload" content="eyJyZWZlcnJlciI6Imh0dHBzOi8vZ2l0aHViLmNvbS9NYWRlaXJhRGF0YS9NYWRlaXJhVG9vbGJveC90cmVlL21hc3Rlci9VdGlsaXR5JTIwU2NyaXB0cyIsInJlcXVlc3RfaWQiOiJGQkZFOjQzMTU6MzMzNkM0OTozNUFFREFCOjYwQkU4NUYwIiwidmlzaXRvcl9pZCI6IjMwMDcwNjk3MTU0NjQ3Nzg0MDIiLCJyZWdpb25fZWRnZSI6ImZyYSIsInJlZ2lvbl9yZW5kZXIiOiJpYWQifQ==" data-pjax-transient="true" /><meta name="visitor-hmac" content="b1d074c998468c12010368eb90b14fb2a22b2cbab9831b514a691b48f7204533" data-pjax-transient="true" />
+  <meta name="request-id" content="FBFE:4315:333A899:35B2C7B:60BE8632" data-pjax-transient="true" /><meta name="html-safe-nonce" content="106d58f2a2ad453b42f17074fff766466c0000dd551e70c31cfb02acfb5fb7dd" data-pjax-transient="true" /><meta name="visitor-payload" content="eyJyZWZlcnJlciI6Imh0dHBzOi8vZ2l0aHViLmNvbS9NYWRlaXJhRGF0YS9NYWRlaXJhVG9vbGJveC90cmVlL21hc3Rlci9VdGlsaXR5JTIwU2NyaXB0cyIsInJlcXVlc3RfaWQiOiJGQkZFOjQzMTU6MzMzQTg5OTozNUIyQzdCOjYwQkU4NjMyIiwidmlzaXRvcl9pZCI6IjMwMDcwNjk3MTU0NjQ3Nzg0MDIiLCJyZWdpb25fZWRnZSI6ImZyYSIsInJlZ2lvbl9yZW5kZXIiOiJpYWQifQ==" data-pjax-transient="true" /><meta name="visitor-hmac" content="ce86513db13061eff1338d587baff7f3b7702684e95ea3636e938bea07c8bd9e" data-pjax-transient="true" />
 
     <meta name="hovercard-subject-tag" content="repository:256747265" data-pjax-transient>
 
@@ -117,7 +117,7 @@
 
       <meta name="expected-hostname" content="github.com">
 
-      <meta name="js-proxy-site-detection-payload" content="OTQzMjZhNzA3NGI5ZWMwNzkwMzMxZDlhMjI0NmUyODliY2RmZjIyYmQ1MzgzNDBkMjk0ZmI3NzZjMDJkYzdhOXx7InJlbW90ZV9hZGRyZXNzIjoiODEuMjA2LjEzNS4yNDUiLCJyZXF1ZXN0X2lkIjoiRkJGRTo0MzE1OjMzMzZDNDk6MzVBRURBQjo2MEJFODVGMCIsInRpbWVzdGFtcCI6MTYyMzA5ODg2OCwiaG9zdCI6ImdpdGh1Yi5jb20ifQ==">
+      <meta name="js-proxy-site-detection-payload" content="MTZjMGRkYWNhNmI5YjIwMDg2ZmQwMmFlMWE2M2QzYjg1ZGI2YTRhYTM0NDFjY2MxYTBiNzBlNTI1NTk1ZjY5OXx7InJlbW90ZV9hZGRyZXNzIjoiODEuMjA2LjEzNS4yNDUiLCJyZXF1ZXN0X2lkIjoiRkJGRTo0MzE1OjMzM0E4OTk6MzVCMkM3Qjo2MEJFODYzMiIsInRpbWVzdGFtcCI6MTYyMzA5ODk1NiwiaG9zdCI6ImdpdGh1Yi5jb20ifQ==">
 
     <meta name="enabled-features" content="MARKETPLACE_PENDING_INSTALLATIONS,AUTOCOMPLETE_EMOJIS_IN_MARKDOWN_EDITOR,GITHUB_TOKEN_PERMISSION">
 
@@ -131,7 +131,7 @@
 
 
 
-    <link rel="canonical" href="https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/fix_all_orphan_users.sql" data-pjax-transient>
+    <link rel="canonical" href="https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" data-pjax-transient>
 
 
   <meta name="browser-stats-url" content="https://api.github.com/_private/browser/stats">
@@ -213,7 +213,7 @@
             spellcheck="false"
             autocomplete="off"
           >
-          <input type="hidden" value="ILS+Qa0oUXG2I2HtaibODAA+HxhsJ7ooFPUuyD913pZDAymu9XDnWEJ2mcMe07irYh0jUwyerwwvAsCkatJs6A==" data-csrf="true" class="js-data-jump-to-suggestions-path-csrf" />
+          <input type="hidden" value="d+3pO5s2XSb5Y5iERHsFnUfpgivb/nYmQdjAQPJg7DsUWn7Uw27rDw02YKowjnM6Jcq+YLtHYwJ6Ly4sp8deRQ==" data-csrf="true" class="js-data-jump-to-suggestions-path-csrf" />
           <input type="hidden" class="js-site-search-type-field" name="type" >
               <img src="https://github.githubassets.com/images/search-key-slash.svg" alt="" class="mr-2 header-search-key-slash">
 
@@ -392,7 +392,7 @@
     <a class="js-selected-navigation-item Header-link d-block d-md-none py-2 py-md-3 border-top border-md-top-0 border-white-fade-15" data-ga-click="Header, click, Nav menu - item:workspaces context:user" data-selected-links="/codespaces /codespaces" href="/codespaces">
       Codespaces
 </a>
-      <a class="js-selected-navigation-item Header-link d-block d-md-none py-2 py-md-3 border-top border-md-top-0 border-white-fade-15" data-ga-click="Header, click, Nav menu - item:Sponsors" data-hydro-click="{&quot;event_type&quot;:&quot;sponsors.button_click&quot;,&quot;payload&quot;:{&quot;button&quot;:&quot;HEADER_SPONSORS_DASHBOARD&quot;,&quot;sponsorable_login&quot;:&quot;mb2o&quot;,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/fix_all_orphan_users.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="1a089b990038373c17c647c59da62e1cd5b10a75849596b1919bc44cf0fa37ed" data-selected-links=" /sponsors/accounts" href="/sponsors/accounts">Sponsors</a>
+      <a class="js-selected-navigation-item Header-link d-block d-md-none py-2 py-md-3 border-top border-md-top-0 border-white-fade-15" data-ga-click="Header, click, Nav menu - item:Sponsors" data-hydro-click="{&quot;event_type&quot;:&quot;sponsors.button_click&quot;,&quot;payload&quot;:{&quot;button&quot;:&quot;HEADER_SPONSORS_DASHBOARD&quot;,&quot;sponsorable_login&quot;:&quot;mb2o&quot;,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="c3b1cb93b019288592a270eba0003ac75f86ec6dc29fb18e78896b7dc0cee2f0" data-selected-links=" /sponsors/accounts" href="/sponsors/accounts">Sponsors</a>
 
     <a class="Header-link d-block d-md-none mr-0 mr-md-3 py-2 py-md-3 border-top border-md-top-0 border-white-fade-15" href="/settings/profile">
       Settings
@@ -401,7 +401,7 @@
       <img class="avatar avatar-user" src="https://avatars.githubusercontent.com/u/166929?s=40&amp;v=4" width="20" height="20" alt="@mb2o" />
       mb2o
 </a>
-    <!-- '"` --><!-- </textarea></xmp> --></option></form><form action="/logout" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="Ecb+PN+mzzabtZd5jZkoP9b8EVL85QsZpEKLdpsdP5FMuGy2Yh6TZiSeANwKZ/+ICmMt1UZTC/DDpBObNNvxOw==" />
+    <!-- '"` --><!-- </textarea></xmp> --></option></form><form action="/logout" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="/z151w+pRwn+Yd6pi0N5+CXjUv+i/A/C+mLYPl97LjyiQ+tdshEbWUFKSQwMva5P+XxueBhKDyudhEDT8L3glg==" />
       <button type="submit" class="Header-link mr-0 mr-md-3 py-2 py-md-3 border-top border-md-top-0 border-white-fade-15 d-md-none btn-link d-block width-full text-left" data-ga-click="Header, sign out, icon:logout" style="padding-left: 2px;">
         <svg class="octicon octicon-sign-out v-align-middle" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M2 2.75C2 1.784 2.784 1 3.75 1h2.5a.75.75 0 010 1.5h-2.5a.25.25 0 00-.25.25v10.5c0 .138.112.25.25.25h2.5a.75.75 0 010 1.5h-2.5A1.75 1.75 0 012 13.25V2.75zm10.44 4.5H6.75a.75.75 0 000 1.5h5.69l-1.97 1.97a.75.75 0 101.06 1.06l3.25-3.25a.75.75 0 000-1.06l-3.25-3.25a.75.75 0 10-1.06 1.06l1.97 1.97z"></path></svg>
         Sign out
@@ -425,7 +425,7 @@
       <notification-indicator
         class="js-socket-channel"
         data-test-selector="notifications-indicator"
-        data-channel="eyJjIjoibm90aWZpY2F0aW9uLWNoYW5nZWQ6MTY2OTI5IiwidCI6MTYyMzA5ODg2OH0=--a3042e380319e74d419498da463349a233448f291937bee1dbdefd1f2d9f7eeb">
+        data-channel="eyJjIjoibm90aWZpY2F0aW9uLWNoYW5nZWQ6MTY2OTI5IiwidCI6MTYyMzA5ODk1Nn0=--53611e7fb257157849103a6e5e867b9fae6594df034a5713e3b5285ba2892d02">
         <a href="/notifications"
           class="Header-link notification-indicator position-relative tooltipped tooltipped-sw"
           
@@ -597,7 +597,7 @@
         data-action="toggle:notifications-list-subscription-form#detailsToggled"
       >
 
-      <summary class="btn btn-sm rounded-right-0" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;WATCH_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/fix_all_orphan_users.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="7465fb1ecef332b4321099b97266654fcdd9f92e01f562b941d1e4ff42e73bff" data-ga-click="Repository, click Watch settings, action:blob#show" aria-label="Notifications settings">
+      <summary class="btn btn-sm rounded-right-0" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;WATCH_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="cfa0b7aae60ee883013c07cec196d2ce39dacfc81997624db9e7b31ec2b27daf" data-ga-click="Repository, click Watch settings, action:blob#show" aria-label="Notifications settings">
           <span data-menu-button>
             <span
               hidden
@@ -649,7 +649,7 @@
             </header>
 
             <div class="SelectMenu-list">
-              <form data-target="notifications-list-subscription-form.form" data-action="submit:notifications-list-subscription-form#submitForm" action="/notifications/subscribe" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="pvfrufHrFJC/D22+14smT0zB7YaESwdh6AxFHZ6nSk8Uj7Sny2MWWoH6B0JDkPAhRBO5RQawYdnOTmF4xdKGIA==" />
+              <form data-target="notifications-list-subscription-form.form" data-action="submit:notifications-list-subscription-form#submitForm" action="/notifications/subscribe" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="JByDDKMJ5gw+c2qNWPjdGrBdTpf1q8L5NA9TySzskcGWZNwSmYHkxgCGAHHM4wt0uI8aVHdQpEESTXesd5ldrg==" />
 
                 <input type="hidden" name="repository_id" value="256747265">
 
@@ -761,7 +761,7 @@
 
         <details-dialog class="notifications-component-dialog " data-target="notifications-list-subscription-form.customDialog" hidden>
           <div class="SelectMenu-modal notifications-component-dialog-modal overflow-visible">
-            <form data-target="notifications-list-subscription-form.customform" data-action="submit:notifications-list-subscription-form#submitCustomForm" action="/notifications/subscribe" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="+wBMxqkn6Rg4VH2sWMVk5BBSodFY9eNWcmtbbtFnXZdJeBPYk6/r0gahF1DM3rKKGID1EtoOhe5UKX8LihKR+A==" />
+            <form data-target="notifications-list-subscription-form.customform" data-action="submit:notifications-list-subscription-form#submitCustomForm" action="/notifications/subscribe" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="x0ZUsWjRZMjQH8c+DsRw25VT88ootyLwRZMOLlK3/QJ1PguvUllmAu7qrcKa36a1nYGnCapMREhj0SpLCcIxbQ==" />
 
               <input type="hidden" name="repository_id" value="256747265">
 
@@ -919,9 +919,9 @@
 
   <li>
         <div class="d-block js-toggler-container js-social-container starring-container ">
-    <form class="starred js-social-form" action="/MadeiraData/MadeiraToolbox/unstar" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="QwVv2bMrQaB9jsPaxHYyDiVJXpPe0IB3w9gL9PjJ584ELoKaWybpPYLAYcz+0J4Z9sq0//Bxs0ikRZul681Jcw==" />
+    <form class="starred js-social-form" action="/MadeiraData/MadeiraToolbox/unstar" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="TO4vJQ2f5TDAfdpP8bqbh2kVGZLdaVjPUwRgviD1nywLxcJm5ZJNrT8zeFnLHDeQupbz/vPIa/A0mfDvM/ExkQ==" />
       <input type="hidden" name="context" value="repository">
-      <button type="submit" class="btn btn-sm btn-with-count  js-toggler-target" aria-label="Unstar this repository" title="Unstar MadeiraData/MadeiraToolbox" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;UNSTAR_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/fix_all_orphan_users.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="2d8d9a316deb5a6d75d50fffa78c17dc766688f42828467442b234a70abbe1b4" data-ga-click="Repository, click unstar button, action:blob#show; text:Unstar">        <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-star-fill mr-1">
+      <button type="submit" class="btn btn-sm btn-with-count  js-toggler-target" aria-label="Unstar this repository" title="Unstar MadeiraData/MadeiraToolbox" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;UNSTAR_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="1e3079fe4f553184d4f2bcd6c3a416b4905255577e93ad1b5c74b2f408ad0e4e" data-ga-click="Repository, click unstar button, action:blob#show; text:Unstar">        <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-star-fill mr-1">
     <path fill-rule="evenodd" d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"></path>
 </svg>
         <span data-view-component="true">
@@ -931,9 +931,9 @@
            32
         </a>
 </form>
-    <form class="unstarred js-social-form" action="/MadeiraData/MadeiraToolbox/star" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="P/71Wt3Ke39J/DYXdwD2UkZr5ve8RQ9Vw8jWMjo6GQ35KTzswIZyG080Vvc7dfiMXdFHglz0GsqR5N6aZfuhYA==" />
+    <form class="unstarred js-social-form" action="/MadeiraData/MadeiraToolbox/star" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="spb79DxK3YAkzJibfPzXxU4OD8RwyyFXwhaEfzMeBs90QTJCIQbU5CIE+HswidkbVbSusZB6NMiQOozXbN++og==" />
       <input type="hidden" name="context" value="repository">
-      <button type="submit" class="btn btn-sm btn-with-count  js-toggler-target" aria-label="Unstar this repository" title="Star MadeiraData/MadeiraToolbox" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;STAR_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/fix_all_orphan_users.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="88ea5f4a77082e61fe955b1f8027824690fd45c4d5d272cf65ca661271fb2622" data-ga-click="Repository, click star button, action:blob#show; text:Star">        <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-star mr-1">
+      <button type="submit" class="btn btn-sm btn-with-count  js-toggler-target" aria-label="Unstar this repository" title="Star MadeiraData/MadeiraToolbox" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;STAR_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="ded7c90f5a418b188ddced2f81a3b3deca9dfd53d03bcb2676dd260aa15d85ab" data-ga-click="Repository, click star button, action:blob#show; text:Star">        <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-star mr-1">
     <path fill-rule="evenodd" d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25zm0 2.445L6.615 5.5a.75.75 0 01-.564.41l-3.097.45 2.24 2.184a.75.75 0 01.216.664l-.528 3.084 2.769-1.456a.75.75 0 01.698 0l2.77 1.456-.53-3.084a.75.75 0 01.216-.664l2.24-2.183-3.096-.45a.75.75 0 01-.564-.41L8 2.694v.001z"></path>
 </svg>
         <span data-view-component="true">
@@ -947,8 +947,8 @@
   </li>
 
   <li>
-            <!-- '"` --><!-- </textarea></xmp> --></option></form><form class="btn-with-count" action="/MadeiraData/MadeiraToolbox/fork" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="olaSIRKCl2OMFIk0ihMkqw3eOD4AQISDTaPPEy6KDwI44rgxFcBRMfANrIIN2FJ7do62vM+u+A/pjDKLF7RpKg==" />
-              <button class="btn btn-sm btn-with-count" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;FORK_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/fix_all_orphan_users.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="6eaf5096c8e9168ef4e3d5540ab0e4667abd815b7d2a08264c2039c3af32cf42" data-ga-click="Repository, show fork modal, action:blob#show; text:Fork" type="submit" title="Fork your own copy of MadeiraData/MadeiraToolbox to your account" aria-label="Fork your own copy of MadeiraData/MadeiraToolbox to your account">                <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-repo-forked">
+            <!-- '"` --><!-- </textarea></xmp> --></option></form><form class="btn-with-count" action="/MadeiraData/MadeiraToolbox/fork" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="Qs46y/l1XW1KsOfjMMjG3PfKg4LUVAQJX7bcQF9NiyfYehDb/jebPzapwlW3A7AMjJoNABu6eIX7mSHYZnPtDw==" />
+              <button class="btn btn-sm btn-with-count" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;FORK_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="73d603e41b1199a2ccaddc681044020208703da428db151cb5dd1059f47179f0" data-ga-click="Repository, show fork modal, action:blob#show; text:Fork" type="submit" title="Fork your own copy of MadeiraData/MadeiraToolbox to your account" aria-label="Fork your own copy of MadeiraData/MadeiraToolbox to your account">                <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-repo-forked">
     <path fill-rule="evenodd" d="M5 3.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm0 2.122a2.25 2.25 0 10-1.5 0v.878A2.25 2.25 0 005.75 8.5h1.5v2.128a2.251 2.251 0 101.5 0V8.5h1.5a2.25 2.25 0 002.25-2.25v-.878a2.25 2.25 0 10-1.5 0v.878a.75.75 0 01-.75.75h-4.5A.75.75 0 015 6.25v-.878zm3.75 7.378a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm3-8.75a.75.75 0 100-1.5.75.75 0 000 1.5z"></path>
 </svg>
                 Fork
@@ -1075,9 +1075,9 @@
   
 
 
-    <a class="d-none js-permalink-shortcut" data-hotkey="y" href="/MadeiraData/MadeiraToolbox/blob/bf56c476bb79dfcef286ea5999fc86533a00e6ff/Utility%20Scripts/fix_all_orphan_users.sql">Permalink</a>
+    <a class="d-none js-permalink-shortcut" data-hotkey="y" href="/MadeiraData/MadeiraToolbox/blob/bf56c476bb79dfcef286ea5999fc86533a00e6ff/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql">Permalink</a>
 
-    <!-- blob contrib key: blob_contributors:v22:5fbc2e64cd0237a70a51a17b900cf1723fe54d33ac43b52ae3062620318ed8ce -->
+    <!-- blob contrib key: blob_contributors:v22:24c0aa5cf623ec4f31886d7310c775366fd359ac834dfc5e69d3b61b6d8e5541 -->
 
     <div class="d-flex flex-items-start flex-shrink-0 pb-3 flex-wrap flex-md-nowrap flex-justify-between flex-md-justify-start">
       
@@ -1161,7 +1161,7 @@
             </div>
 
               <template data-target="ref-selector.itemTemplate">
-  <a href="https://github.com/MadeiraData/MadeiraToolbox/blob/{{ urlEncodedRefName }}/Utility%20Scripts/fix_all_orphan_users.sql" class="SelectMenu-item" role="menuitemradio" rel="nofollow" aria-checked="{{ isCurrent }}" data-index="{{ index }}">
+  <a href="https://github.com/MadeiraData/MadeiraToolbox/blob/{{ urlEncodedRefName }}/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" class="SelectMenu-item" role="menuitemradio" rel="nofollow" aria-checked="{{ isCurrent }}" data-index="{{ index }}">
     <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-check SelectMenu-icon SelectMenu-icon--check">
     <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path>
 </svg>
@@ -1201,7 +1201,7 @@
             </template>
 
               <template data-target="ref-selector.itemTemplate">
-  <a href="https://github.com/MadeiraData/MadeiraToolbox/blob/{{ urlEncodedRefName }}/Utility%20Scripts/fix_all_orphan_users.sql" class="SelectMenu-item" role="menuitemradio" rel="nofollow" aria-checked="{{ isCurrent }}" data-index="{{ index }}">
+  <a href="https://github.com/MadeiraData/MadeiraToolbox/blob/{{ urlEncodedRefName }}/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" class="SelectMenu-item" role="menuitemradio" rel="nofollow" aria-checked="{{ isCurrent }}" data-index="{{ index }}">
     <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-check SelectMenu-icon SelectMenu-icon--check">
     <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path>
 </svg>
@@ -1232,7 +1232,7 @@
 </div>
 
       <h2 id="blob-path" class="breadcrumb flex-auto flex-self-center min-width-0 text-normal mx-2 width-full width-md-auto flex-order-1 flex-md-order-none mt-3 mt-md-0">
-        <span class="js-repo-root text-bold"><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="true" href="/MadeiraData/MadeiraToolbox"><span>MadeiraToolbox</span></a></span></span><span class="separator">/</span><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="true" href="/MadeiraData/MadeiraToolbox/tree/master/Utility%20Scripts"><span>Utility Scripts</span></a></span><span class="separator">/</span><strong class="final-path">fix_all_orphan_users.sql</strong>
+        <span class="js-repo-root text-bold"><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="true" href="/MadeiraData/MadeiraToolbox"><span>MadeiraToolbox</span></a></span></span><span class="separator">/</span><span class="js-path-segment d-inline-block wb-break-all"><a data-pjax="true" href="/MadeiraData/MadeiraToolbox/tree/master/Utility%20Scripts"><span>Utility Scripts</span></a></span><span class="separator">/</span><strong class="final-path">Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql</strong>
       </h2>
       <a href="/MadeiraData/MadeiraToolbox/find/master"
             class="js-pjax-capture-input btn mr-2 d-none d-md-block"
@@ -1253,7 +1253,7 @@
 </summary>
   <div data-view-component="true">          <ul class="dropdown-menu dropdown-menu-sw">
             <li class="d-block d-md-none">
-              <a class="dropdown-item d-flex flex-items-baseline" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;FIND_FILE_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/fix_all_orphan_users.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="8801f78e3ed88301e56a3016702cbdf2312439578ba651a6152c8e8b4a5aebb9" data-ga-click="Repository, find file, location:repo overview" data-hotkey="t" data-pjax="true" href="/MadeiraData/MadeiraToolbox/find/master">
+              <a class="dropdown-item d-flex flex-items-baseline" data-hydro-click="{&quot;event_type&quot;:&quot;repository.click&quot;,&quot;payload&quot;:{&quot;target&quot;:&quot;FIND_FILE_BUTTON&quot;,&quot;repository_id&quot;:256747265,&quot;originating_url&quot;:&quot;https://github.com/MadeiraData/MadeiraToolbox/blob/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql&quot;,&quot;user_id&quot;:166929}}" data-hydro-click-hmac="bc65c95f538cda526da1b53d2f8ee9dae03578311a12604b384400f799ecd0c4" data-ga-click="Repository, find file, location:repo overview" data-hotkey="t" data-pjax="true" href="/MadeiraData/MadeiraToolbox/find/master">
                 <span class="flex-auto">Go to file</span>
                 <span class="text-small color-text-secondary" aria-hidden="true">T</span>
 </a>            </li>
@@ -1267,12 +1267,12 @@
             </li>
             <li class="dropdown-divider" role="none"></li>
             <li>
-              <clipboard-copy value="Utility Scripts/fix_all_orphan_users.sql" class="dropdown-item cursor-pointer" data-toggle-for="blob-more-options-details">
+              <clipboard-copy value="Utility Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" class="dropdown-item cursor-pointer" data-toggle-for="blob-more-options-details">
                 Copy path
               </clipboard-copy>
             </li>
             <li>
-              <clipboard-copy value="https://github.com/MadeiraData/MadeiraToolbox/blob/bf56c476bb79dfcef286ea5999fc86533a00e6ff/Utility%20Scripts/fix_all_orphan_users.sql" class="dropdown-item cursor-pointer" data-toggle-for="blob-more-options-details" >
+              <clipboard-copy value="https://github.com/MadeiraData/MadeiraToolbox/blob/bf56c476bb79dfcef286ea5999fc86533a00e6ff/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" class="dropdown-item cursor-pointer" data-toggle-for="blob-more-options-details" >
                 <span class="d-flex flex-items-baseline">
                   <span class="flex-auto">Copy permalink</span>
                 </span>
@@ -1285,7 +1285,7 @@
 
 
     <div class="Box d-flex flex-column flex-shrink-0 mb-3">
-      <include-fragment src="/MadeiraData/MadeiraToolbox/contributors/master/Utility%20Scripts/fix_all_orphan_users.sql" class="commit-loader">
+      <include-fragment src="/MadeiraData/MadeiraToolbox/contributors/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" class="commit-loader">
         <div class="Box-header Box-header--blue d-flex flex-items-center">
           <div class="Skeleton avatar avatar-user flex-shrink-0 ml-n1 mr-n1 mt-n1 mb-n1" style="width:24px;height:24px;"></div>
           <div class="Skeleton Skeleton--text col-5 ml-2">&nbsp;</div>
@@ -1320,21 +1320,21 @@
 
   <div class="text-mono f6 flex-auto pr-3 flex-order-2 flex-md-order-1">
 
-      85 lines (72 sloc)
+      118 lines (107 sloc)
       <span class="file-info-divider"></span>
-    3.26 KB
+    3.98 KB
   </div>
 
   <div class="d-flex py-1 py-md-0 flex-auto flex-order-1 flex-md-order-2 flex-sm-grow-0 flex-justify-between hide-sm hide-md">
 
     <div class="BtnGroup">
-      <a href="/MadeiraData/MadeiraToolbox/raw/master/Utility%20Scripts/fix_all_orphan_users.sql" id="raw-url" role="button" data-view-component="true" class="btn-sm btn BtnGroup-item">
+      <a href="/MadeiraData/MadeiraToolbox/raw/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" id="raw-url" role="button" data-view-component="true" class="btn-sm btn BtnGroup-item">
   
   Raw
   
 
 </a>
-        <a href="/MadeiraData/MadeiraToolbox/blame/master/Utility%20Scripts/fix_all_orphan_users.sql" data-hotkey="b" role="button" data-view-component="true" class="js-update-url-with-hash btn-sm btn BtnGroup-item">
+        <a href="/MadeiraData/MadeiraToolbox/blame/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" data-hotkey="b" role="button" data-view-component="true" class="js-update-url-with-hash btn-sm btn BtnGroup-item">
   
   Blame
   
@@ -1345,7 +1345,7 @@
     <div>
           <a class="btn-octicon tooltipped tooltipped-nw js-remove-unless-platform"
              data-platforms="windows,mac"
-             href="x-github-client://openRepo/https://github.com/MadeiraData/MadeiraToolbox?branch=master&amp;filepath=Utility%20Scripts%2Ffix_all_orphan_users.sql"
+             href="x-github-client://openRepo/https://github.com/MadeiraData/MadeiraToolbox?branch=master&amp;filepath=Utility%20Scripts%2FCheck_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql"
              aria-label="Open this file in GitHub Desktop"
              data-ga-click="Repository, open with desktop">
               <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-device-desktop">
@@ -1353,7 +1353,7 @@
 </svg>
           </a>
 
-          <!-- '"` --><!-- </textarea></xmp> --></option></form><form class="inline-form js-update-url-with-hash" action="/MadeiraData/MadeiraToolbox/edit/master/Utility%20Scripts/fix_all_orphan_users.sql" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="J6YVhRQvERjF4oOw8dZgGoWTaeJdwShshSc5sE7sD2lyqiRGDtTaDVeNUymRK9kMSkkfFJ6e8DWjkJvjht0CYg==" />
+          <!-- '"` --><!-- </textarea></xmp> --></option></form><form class="inline-form js-update-url-with-hash" action="/MadeiraData/MadeiraToolbox/edit/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="ADChSE5dKfgY8oHHClEjh/jsff9pWRFOtWWN9kBDGehmHo/HsvQUODMdyKmksELzsUlc47pOaPKLkVECxtfA9g==" />
             <button class="btn-octicon tooltipped tooltipped-nw" type="submit"
               aria-label="Fork this project and edit the file" data-hotkey="e" data-disable-with>
               <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-pencil">
@@ -1361,7 +1361,7 @@
 </svg>
             </button>
 </form>
-          <!-- '"` --><!-- </textarea></xmp> --></option></form><form class="inline-form" action="/MadeiraData/MadeiraToolbox/delete/master/Utility%20Scripts/fix_all_orphan_users.sql" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="LDx0PgmZVztYp8wAlyd/HvWtqa3EevpUC+EjjUHbu4mG5Hy7R+PeJzr962bVh8nuDZ5vV/B1gLBYDNjfVkA8aA==" />
+          <!-- '"` --><!-- </textarea></xmp> --></option></form><form class="inline-form" action="/MadeiraData/MadeiraToolbox/delete/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql" accept-charset="UTF-8" method="post"><input type="hidden" name="authenticity_token" value="JEGuaIsEbMgDC8Va41QeGxB/Q2QMD5hd2sWWQqnRd/ZnZ5XV2anL784pgauP5Dgh+/dbN54aSmPyoPuF0F/t8Q==" />
             <button class="btn-octicon btn-octicon-danger tooltipped tooltipped-nw" type="submit"
               aria-label="Fork this project and delete the file" data-disable-with>
               <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" data-view-component="true" height="16" width="16" class="octicon octicon-trash">
@@ -1383,28 +1383,28 @@
             <li>
                 <a class="dropdown-item tooltipped tooltipped-nw js-remove-unless-platform"
                    data-platforms="windows,mac"
-                   href="x-github-client://openRepo/https://github.com/MadeiraData/MadeiraToolbox?branch=master&amp;filepath=Utility%20Scripts%2Ffix_all_orphan_users.sql"
+                   href="x-github-client://openRepo/https://github.com/MadeiraData/MadeiraToolbox?branch=master&amp;filepath=Utility%20Scripts%2FCheck_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql"
                    data-ga-click="Repository, open with desktop">
                   Open with Desktop
                 </a>
             </li>
           <li>
-            <a class="dropdown-item" href="/MadeiraData/MadeiraToolbox/raw/master/Utility%20Scripts/fix_all_orphan_users.sql">
+            <a class="dropdown-item" href="/MadeiraData/MadeiraToolbox/raw/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql">
               View raw
             </a>
           </li>
             <li>
-              <a class="dropdown-item" href="/MadeiraData/MadeiraToolbox/blame/master/Utility%20Scripts/fix_all_orphan_users.sql">
+              <a class="dropdown-item" href="/MadeiraData/MadeiraToolbox/blame/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql">
                 View blame
               </a>
             </li>
 
               <li class="dropdown-divider" role="none"></li>
               <li>
-                <a class="dropdown-item" href="/MadeiraData/MadeiraToolbox/edit/master/Utility%20Scripts/fix_all_orphan_users.sql">Edit file</a>
+                <a class="dropdown-item" href="/MadeiraData/MadeiraToolbox/edit/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql">Edit file</a>
               </li>
               <li>
-                <a class="dropdown-item menu-item-danger" href="/MadeiraData/MadeiraToolbox/delete/master/Utility%20Scripts/fix_all_orphan_users.sql">Delete file</a>
+                <a class="dropdown-item menu-item-danger" href="/MadeiraData/MadeiraToolbox/delete/master/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql">Delete file</a>
               </li>
         </ul>
       </details>
@@ -1418,354 +1418,483 @@
 <table class="highlight tab-size js-file-line-container" data-tab-size="8" data-paste-markdown-skip>
       <tr>
         <td id="L1" class="blob-num js-line-number" data-line-number="1"></td>
-        <td id="LC1" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">/*</span></span></td>
+        <td id="LC1" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">/*</span>*************************************************************************</span></td>
       </tr>
       <tr>
         <td id="L2" class="blob-num js-line-number" data-line-number="2"></td>
-        <td id="LC2" class="blob-code blob-code-inner js-file-line"><span class="pl-c">Author: Eitan Blumin | https://eitanblumin.com</span></td>
+        <td id="LC2" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	Check Index Fragmentation based on Page Fullness and Fill Factor</span></td>
       </tr>
       <tr>
         <td id="L3" class="blob-num js-line-number" data-line-number="3"></td>
-        <td id="LC3" class="blob-code blob-code-inner js-file-line"><span class="pl-c">Date Created: 2018-01-02</span></td>
+        <td id="LC3" class="blob-code blob-code-inner js-file-line"><span class="pl-c">***************************************************************************</span></td>
       </tr>
       <tr>
         <td id="L4" class="blob-num js-line-number" data-line-number="4"></td>
-        <td id="LC4" class="blob-code blob-code-inner js-file-line"><span class="pl-c">Last Update: 2020-03-30</span></td>
+        <td id="LC4" class="blob-code blob-code-inner js-file-line"><span class="pl-c">Author: Eitan Blumin | https://www.eitanblumin.com</span></td>
       </tr>
       <tr>
         <td id="L5" class="blob-num js-line-number" data-line-number="5"></td>
-        <td id="LC5" class="blob-code blob-code-inner js-file-line"><span class="pl-c">Description:</span></td>
+        <td id="LC5" class="blob-code blob-code-inner js-file-line"><span class="pl-c">Version History:</span></td>
       </tr>
       <tr>
         <td id="L6" class="blob-num js-line-number" data-line-number="6"></td>
-        <td id="LC6" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	Fix All Orphaned Users Within Current Database, or all databases in the instance.</span></td>
+        <td id="LC6" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	2020-10-20	Added @MaxDOP parameter, and better comments &amp; indentation</span></td>
       </tr>
       <tr>
         <td id="L7" class="blob-num js-line-number" data-line-number="7"></td>
-        <td id="LC7" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	Handles 3 possible use-cases:</span></td>
+        <td id="LC7" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	2020-01-07	First version</span></td>
       </tr>
       <tr>
         <td id="L8" class="blob-num js-line-number" data-line-number="8"></td>
-        <td id="LC8" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	1. Login with same name as user exists - generate ALTER LOGIN to map the user to the login.</span></td>
+        <td id="LC8" class="blob-code blob-code-inner js-file-line"><span class="pl-c"></span></td>
       </tr>
       <tr>
         <td id="L9" class="blob-num js-line-number" data-line-number="9"></td>
-        <td id="LC9" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	2. No login with same name exists - generate DROP USER to delete the orphan user.</span></td>
+        <td id="LC9" class="blob-code blob-code-inner js-file-line"><span class="pl-c">Description:</span></td>
       </tr>
       <tr>
         <td id="L10" class="blob-num js-line-number" data-line-number="10"></td>
-        <td id="LC10" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	3. Orphan user is [dbo] - change the database owner to SA (or whatever SA was renamed to)</span></td>
+        <td id="LC10" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	This script was inspired by Erik Darling&#39;s blog post here:</span></td>
       </tr>
       <tr>
         <td id="L11" class="blob-num js-line-number" data-line-number="11"></td>
-        <td id="LC11" class="blob-code blob-code-inner js-file-line"><span class="pl-c"></span></td>
+        <td id="LC11" class="blob-code blob-code-inner js-file-line"><span class="pl-c">https://www.erikdarlingdata.com/2019/10/because-your-index-maintenance-script-is-measuring-the-wrong-thing/</span></td>
       </tr>
       <tr>
         <td id="L12" class="blob-num js-line-number" data-line-number="12"></td>
-        <td id="LC12" class="blob-code blob-code-inner js-file-line"><span class="pl-c">More info: https://eitanblumin.com/2018/10/31/t-sql-script-to-fix-orphaned-db-users-easily/</span></td>
+        <td id="LC12" class="blob-code blob-code-inner js-file-line"><span class="pl-c"></span></td>
       </tr>
       <tr>
         <td id="L13" class="blob-num js-line-number" data-line-number="13"></td>
-        <td id="LC13" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">*/</span></span></td>
+        <td id="LC13" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	!!! THIS SCRIPT MUST BE RUN IN THE CONTEXT OF THE DATABASE TO CHECK !!!</span></td>
       </tr>
       <tr>
         <td id="L14" class="blob-num js-line-number" data-line-number="14"></td>
-        <td id="LC14" class="blob-code blob-code-inner js-file-line"><span class="pl-k">DECLARE</span></td>
+        <td id="LC14" class="blob-code blob-code-inner js-file-line"><span class="pl-c">	</span></td>
       </tr>
       <tr>
         <td id="L15" class="blob-num js-line-number" data-line-number="15"></td>
-        <td id="LC15" class="blob-code blob-code-inner js-file-line">	 @Database	<span class="pl-k">SYSNAME</span>		<span class="pl-k">=</span> <span class="pl-k">NULL</span>	<span class="pl-c"><span class="pl-c">--</span> Filter by a specific database. Leave NULL for all databases.</span></td>
+        <td id="LC15" class="blob-code blob-code-inner js-file-line"><span class="pl-c">				-----------------</span></td>
       </tr>
       <tr>
         <td id="L16" class="blob-num js-line-number" data-line-number="16"></td>
-        <td id="LC16" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC16" class="blob-code blob-code-inner js-file-line"><span class="pl-c">				!!!  WARNING  !!!</span></td>
       </tr>
       <tr>
         <td id="L17" class="blob-num js-line-number" data-line-number="17"></td>
-        <td id="LC17" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC17" class="blob-code blob-code-inner js-file-line"><span class="pl-c">				-----------------</span></td>
       </tr>
       <tr>
         <td id="L18" class="blob-num js-line-number" data-line-number="18"></td>
-        <td id="LC18" class="blob-code blob-code-inner js-file-line"><span class="pl-k">SET</span> <span class="pl-k">NOCOUNT</span> <span class="pl-k">ON</span>;</td>
+        <td id="LC18" class="blob-code blob-code-inner js-file-line"><span class="pl-c">		This script uses &quot;SAMPLED&quot; mode for checking fragmentation,</span></td>
       </tr>
       <tr>
         <td id="L19" class="blob-num js-line-number" data-line-number="19"></td>
-        <td id="LC19" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC19" class="blob-code blob-code-inner js-file-line"><span class="pl-c">		which can potentially cause significant IO stress on a</span></td>
       </tr>
       <tr>
         <td id="L20" class="blob-num js-line-number" data-line-number="20"></td>
-        <td id="LC20" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">--</span> Variable declaration</span></td>
+        <td id="LC20" class="blob-code blob-code-inner js-file-line"><span class="pl-c">		large production server.</span></td>
       </tr>
       <tr>
         <td id="L21" class="blob-num js-line-number" data-line-number="21"></td>
-        <td id="LC21" class="blob-code blob-code-inner js-file-line"><span class="pl-k">DECLARE</span> @user <span class="pl-k">NVARCHAR</span>(<span class="pl-c1">MAX</span>), @loginExists <span class="pl-k">BIT</span>, @saName <span class="pl-k">SYSNAME</span>, @ownedSchemas <span class="pl-k">NVARCHAR</span>(<span class="pl-c1">MAX</span>);</td>
+        <td id="LC21" class="blob-code blob-code-inner js-file-line"><span class="pl-c">		Use at your own risk!</span></td>
       </tr>
       <tr>
         <td id="L22" class="blob-num js-line-number" data-line-number="22"></td>
-        <td id="LC22" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC22" class="blob-code blob-code-inner js-file-line"><span class="pl-c">*************************************************************************<span class="pl-c">*/</span></span></td>
       </tr>
       <tr>
         <td id="L23" class="blob-num js-line-number" data-line-number="23"></td>
-        <td id="LC23" class="blob-code blob-code-inner js-file-line"><span class="pl-c"><span class="pl-c">--</span> Find the actual name of the &quot;sa&quot; login</span></td>
+        <td id="LC23" class="blob-code blob-code-inner js-file-line"><span class="pl-k">DECLARE</span></td>
       </tr>
       <tr>
         <td id="L24" class="blob-num js-line-number" data-line-number="24"></td>
-        <td id="LC24" class="blob-code blob-code-inner js-file-line"><span class="pl-k">SELECT</span> @saName <span class="pl-k">=</span> [name] <span class="pl-k">FROM</span> <span class="pl-c1">sys</span>.<span class="pl-c1">server_principals</span> <span class="pl-k">WHERE</span> <span class="pl-k">sid</span> <span class="pl-k">=</span> 0x01;</td>
+        <td id="LC24" class="blob-code blob-code-inner js-file-line">	<span class="pl-c"><span class="pl-c">--</span> Parameters to limit which tables/indexes to check:</span></td>
       </tr>
       <tr>
         <td id="L25" class="blob-num js-line-number" data-line-number="25"></td>
-        <td id="LC25" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC25" class="blob-code blob-code-inner js-file-line">	 @MinPageCount					<span class="pl-k">INT</span> <span class="pl-k">=</span> <span class="pl-c1">1000</span></td>
       </tr>
       <tr>
         <td id="L26" class="blob-num js-line-number" data-line-number="26"></td>
-        <td id="LC26" class="blob-code blob-code-inner js-file-line"><span class="pl-k">IF</span> <span class="pl-c1">OBJECT_ID</span>(<span class="pl-s"><span class="pl-pds">&#39;</span>tempdb..#tmp&#39;</span>) <span class="pl-k">IS</span> <span class="pl-k">NOT</span> <span class="pl-k">NULL</span> <span class="pl-k">DROP</span> <span class="pl-k">TABLE</span> #tmp;</td>
+        <td id="LC26" class="blob-code blob-code-inner js-file-line">	,@MinUserUpdates				<span class="pl-k">INT</span> <span class="pl-k">=</span> <span class="pl-c1">1000</span></td>
       </tr>
       <tr>
         <td id="L27" class="blob-num js-line-number" data-line-number="27"></td>
-        <td id="LC27" class="blob-code blob-code-inner js-file-line"><span class="pl-k">CREATE</span> <span class="pl-k">TABLE</span> #tmp (DBName <span class="pl-k">SYSNAME</span> <span class="pl-k">NULL</span>, UserName <span class="pl-k">NVARCHAR</span>(<span class="pl-c1">MAX</span>), LoginExists <span class="pl-k">BIT</span>, OwnedSchemas <span class="pl-k">NVARCHAR</span>(<span class="pl-c1">MAX</span>));</td>
+        <td id="LC27" class="blob-code blob-code-inner js-file-line">
+</td>
       </tr>
       <tr>
         <td id="L28" class="blob-num js-line-number" data-line-number="28"></td>
-        <td id="LC28" class="blob-code blob-code-inner js-file-line"><span class="pl-k">exec</span> sp_MSforeachdb <span class="pl-s"><span class="pl-pds">&#39;</span>IF DATABASEPROPERTYEX(&#39;<span class="pl-pds">&#39;</span>?&#39;<span class="pl-pds">&#39;</span>, &#39;<span class="pl-pds">&#39;</span>Status&#39;<span class="pl-pds">&#39;</span>) = &#39;<span class="pl-pds">&#39;</span>ONLINE&#39;<span class="pl-pds">&#39;</span> AND DATABASEPROPERTYEX(&#39;<span class="pl-pds">&#39;</span>?&#39;<span class="pl-pds">&#39;</span>, &#39;<span class="pl-pds">&#39;</span>Updateability&#39;<span class="pl-pds">&#39;</span>) = &#39;<span class="pl-pds">&#39;</span>READ_WRITE&#39;<span class="pl-pds">&#39;</span></span></td>
+        <td id="LC28" class="blob-code blob-code-inner js-file-line">	<span class="pl-c"><span class="pl-c">--</span> Parameters to control when to change the FILLFACTOR:</span></td>
       </tr>
       <tr>
         <td id="L29" class="blob-num js-line-number" data-line-number="29"></td>
-        <td id="LC29" class="blob-code blob-code-inner js-file-line"><span class="pl-s">INSERT INTO #tmp</span></td>
+        <td id="LC29" class="blob-code blob-code-inner js-file-line">	,@MinFragmentationToReduceFillFactor100		<span class="pl-k">INT</span> <span class="pl-k">=</span> <span class="pl-c1">50</span></td>
       </tr>
       <tr>
         <td id="L30" class="blob-num js-line-number" data-line-number="30"></td>
-        <td id="LC30" class="blob-code blob-code-inner js-file-line"><span class="pl-s">SELECT <span class="pl-pds">&#39;&#39;</span>?&#39;<span class="pl-pds">&#39;</span>, dp.name AS user_name</span></td>
+        <td id="LC30" class="blob-code blob-code-inner js-file-line">	,@MaxFragmentationToSetFillFactor100		<span class="pl-k">INT</span> <span class="pl-k">=</span> <span class="pl-c1">20</span></td>
       </tr>
       <tr>
         <td id="L31" class="blob-num js-line-number" data-line-number="31"></td>
-        <td id="LC31" class="blob-code blob-code-inner js-file-line"><span class="pl-s">, CASE WHEN dp.name IN (SELECT name COLLATE database_default FROM sys.server_principals) THEN 1 ELSE 0 END AS LoginExists</span></td>
+        <td id="LC31" class="blob-code blob-code-inner js-file-line">
+</td>
       </tr>
       <tr>
         <td id="L32" class="blob-num js-line-number" data-line-number="32"></td>
-        <td id="LC32" class="blob-code blob-code-inner js-file-line"><span class="pl-s">, OwnedSchemas = (</span></td>
+        <td id="LC32" class="blob-code blob-code-inner js-file-line">	<span class="pl-c"><span class="pl-c">--</span> Parameters to control when to recommend REBUILD commands:</span></td>
       </tr>
       <tr>
         <td id="L33" class="blob-num js-line-number" data-line-number="33"></td>
-        <td id="LC33" class="blob-code blob-code-inner js-file-line"><span class="pl-s">SELECT cmd + N<span class="pl-pds">&#39;&#39;</span>; &#39;<span class="pl-pds">&#39;</span></span></td>
+        <td id="LC33" class="blob-code blob-code-inner js-file-line">	,@MaxSpaceUsedForFillFactor100			<span class="pl-k">INT</span> <span class="pl-k">=</span> <span class="pl-c1">90</span></td>
       </tr>
       <tr>
         <td id="L34" class="blob-num js-line-number" data-line-number="34"></td>
-        <td id="LC34" class="blob-code blob-code-inner js-file-line"><span class="pl-s">FROM</span></td>
+        <td id="LC34" class="blob-code blob-code-inner js-file-line">	,@MaxSpaceUsedForFillFactorLessThan100		<span class="pl-k">INT</span> <span class="pl-k">=</span> <span class="pl-c1">75</span></td>
       </tr>
       <tr>
         <td id="L35" class="blob-num js-line-number" data-line-number="35"></td>
-        <td id="LC35" class="blob-code blob-code-inner js-file-line"><span class="pl-s">(</span></td>
+        <td id="LC35" class="blob-code blob-code-inner js-file-line">
+</td>
       </tr>
       <tr>
         <td id="L36" class="blob-num js-line-number" data-line-number="36"></td>
-        <td id="LC36" class="blob-code blob-code-inner js-file-line"><span class="pl-s">SELECT cmd = <span class="pl-pds">&#39;&#39;</span>ALTER AUTHORIZATION ON SCHEMA::&#39;<span class="pl-pds">&#39;</span> + QUOTENAME(sch.name) + N&#39;<span class="pl-pds">&#39;</span> TO [dbo]&#39;<span class="pl-pds">&#39;</span></span></td>
+        <td id="LC36" class="blob-code blob-code-inner js-file-line">	<span class="pl-c"><span class="pl-c">--</span> Parameters to control settings of remediation (REBUILD) commands:</span></td>
       </tr>
       <tr>
         <td id="L37" class="blob-num js-line-number" data-line-number="37"></td>
-        <td id="LC37" class="blob-code blob-code-inner js-file-line"><span class="pl-s">FROM [?].sys.schemas AS sch</span></td>
+        <td id="LC37" class="blob-code blob-code-inner js-file-line">	,@OnlineRebuild					<span class="pl-k">BIT</span> <span class="pl-k">=</span> <span class="pl-c1">0</span></td>
       </tr>
       <tr>
         <td id="L38" class="blob-num js-line-number" data-line-number="38"></td>
-        <td id="LC38" class="blob-code blob-code-inner js-file-line"><span class="pl-s">WHERE sch.principal_id = dp.principal_id</span></td>
+        <td id="LC38" class="blob-code blob-code-inner js-file-line">	,@SortInTempDB					<span class="pl-k">BIT</span> <span class="pl-k">=</span> <span class="pl-c1">0</span></td>
       </tr>
       <tr>
         <td id="L39" class="blob-num js-line-number" data-line-number="39"></td>
-        <td id="LC39" class="blob-code blob-code-inner js-file-line"><span class="pl-s">AND EXISTS (SELECT NULL FROM [?].sys.objects AS obj WHERE obj.schema_id = sch.schema_id)</span></td>
+        <td id="LC39" class="blob-code blob-code-inner js-file-line">	,@MaxDOP					<span class="pl-k">TINYINT</span> <span class="pl-k">=</span> <span class="pl-k">NULL</span> <span class="pl-c"><span class="pl-c">--</span> change to a value to limit DOP (e.g. MAXDOP=1 to disable parallelism)</span></td>
       </tr>
       <tr>
         <td id="L40" class="blob-num js-line-number" data-line-number="40"></td>
-        <td id="LC40" class="blob-code blob-code-inner js-file-line"><span class="pl-s">UNION ALL</span></td>
+        <td id="LC40" class="blob-code blob-code-inner js-file-line">
+</td>
       </tr>
       <tr>
         <td id="L41" class="blob-num js-line-number" data-line-number="41"></td>
-        <td id="LC41" class="blob-code blob-code-inner js-file-line"><span class="pl-s">SELECT <span class="pl-pds">&#39;&#39;</span>DROP SCHEMA &#39;<span class="pl-pds">&#39;</span> + QUOTENAME(sch.name)</span></td>
+        <td id="LC41" class="blob-code blob-code-inner js-file-line"><span class="pl-k">SET</span> <span class="pl-k">TRANSACTION</span> <span class="pl-k">ISOLATION</span> <span class="pl-k">LEVEL</span> <span class="pl-k">READ</span> <span class="pl-k">UNCOMMITTED</span>;</td>
       </tr>
       <tr>
         <td id="L42" class="blob-num js-line-number" data-line-number="42"></td>
-        <td id="LC42" class="blob-code blob-code-inner js-file-line"><span class="pl-s">FROM [?].sys.schemas AS sch</span></td>
+        <td id="LC42" class="blob-code blob-code-inner js-file-line"><span class="pl-k">SET</span> <span class="pl-k">NOCOUNT</span>, <span class="pl-k">ARITHABORT</span>, <span class="pl-k">XACT_ABORT</span> <span class="pl-k">ON</span>;</td>
       </tr>
       <tr>
         <td id="L43" class="blob-num js-line-number" data-line-number="43"></td>
-        <td id="LC43" class="blob-code blob-code-inner js-file-line"><span class="pl-s">WHERE sch.principal_id = dp.principal_id</span></td>
+        <td id="LC43" class="blob-code blob-code-inner js-file-line">
+</td>
       </tr>
       <tr>
         <td id="L44" class="blob-num js-line-number" data-line-number="44"></td>
-        <td id="LC44" class="blob-code blob-code-inner js-file-line"><span class="pl-s">AND NOT EXISTS (SELECT NULL FROM [?].sys.objects AS obj WHERE obj.schema_id = sch.schema_id)</span></td>
+        <td id="LC44" class="blob-code blob-code-inner js-file-line"><span class="pl-k">IF</span> @OnlineRebuild <span class="pl-k">=</span> <span class="pl-c1">1</span> <span class="pl-k">AND</span> <span class="pl-c1">ISNULL</span>(<span class="pl-c1">CONVERT</span>(<span class="pl-k">int</span>, SERVERPROPERTY(<span class="pl-s"><span class="pl-pds">&#39;</span>EngineEdition&#39;</span>)),<span class="pl-c1">0</span>) <span class="pl-k">NOT</span> <span class="pl-k">IN</span> (<span class="pl-c1">3</span>,<span class="pl-c1">5</span>,<span class="pl-c1">8</span>)</td>
       </tr>
       <tr>
         <td id="L45" class="blob-num js-line-number" data-line-number="45"></td>
-        <td id="LC45" class="blob-code blob-code-inner js-file-line"><span class="pl-s">) AS s</span></td>
+        <td id="LC45" class="blob-code blob-code-inner js-file-line"><span class="pl-k">BEGIN</span></td>
       </tr>
       <tr>
         <td id="L46" class="blob-num js-line-number" data-line-number="46"></td>
-        <td id="LC46" class="blob-code blob-code-inner js-file-line"><span class="pl-s">FOR XML PATH (<span class="pl-pds">&#39;&#39;</span>&#39;<span class="pl-pds">&#39;</span>)</span></td>
+        <td id="LC46" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">RAISERROR</span>(<span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>Online Rebuild is not supported in this SQL Server edition.&#39;</span>,<span class="pl-c1">16</span>,<span class="pl-c1">1</span>);</td>
       </tr>
       <tr>
         <td id="L47" class="blob-num js-line-number" data-line-number="47"></td>
-        <td id="LC47" class="blob-code blob-code-inner js-file-line"><span class="pl-s">)</span></td>
+        <td id="LC47" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">GOTO</span> Quit;</td>
       </tr>
       <tr>
         <td id="L48" class="blob-num js-line-number" data-line-number="48"></td>
-        <td id="LC48" class="blob-code blob-code-inner js-file-line"><span class="pl-s">FROM [?].sys.database_principals AS dp </span></td>
+        <td id="LC48" class="blob-code blob-code-inner js-file-line"><span class="pl-k">END</span></td>
       </tr>
       <tr>
         <td id="L49" class="blob-num js-line-number" data-line-number="49"></td>
-        <td id="LC49" class="blob-code blob-code-inner js-file-line"><span class="pl-s">LEFT JOIN sys.server_principals AS sp ON dp.SID = sp.SID </span></td>
+        <td id="LC49" class="blob-code blob-code-inner js-file-line">
+</td>
       </tr>
       <tr>
         <td id="L50" class="blob-num js-line-number" data-line-number="50"></td>
-        <td id="LC50" class="blob-code blob-code-inner js-file-line"><span class="pl-s">WHERE sp.SID IS NULL </span></td>
+        <td id="LC50" class="blob-code blob-code-inner js-file-line"><span class="pl-k">DECLARE</span> @CommandTemplate <span class="pl-k">NVARCHAR</span>(<span class="pl-c1">MAX</span>)</td>
       </tr>
       <tr>
         <td id="L51" class="blob-num js-line-number" data-line-number="51"></td>
-        <td id="LC51" class="blob-code blob-code-inner js-file-line"><span class="pl-s">AND authentication_type_desc IN (<span class="pl-pds">&#39;&#39;</span>INSTANCE&#39;<span class="pl-pds">&#39;</span>,&#39;<span class="pl-pds">&#39;</span>WINDOWS&#39;<span class="pl-pds">&#39;</span>)</span></td>
+        <td id="LC51" class="blob-code blob-code-inner js-file-line"><span class="pl-k">SET</span> @CommandTemplate <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>RAISERROR(N&#39;<span class="pl-pds">&#39;</span>{DATABASE}.{TABLE} - {INDEX}&#39;<span class="pl-pds">&#39;</span>,0,1) WITH NOWAIT;</span></td>
       </tr>
       <tr>
         <td id="L52" class="blob-num js-line-number" data-line-number="52"></td>
-        <td id="LC52" class="blob-code blob-code-inner js-file-line"><span class="pl-s">AND DATABASEPROPERTYEX(<span class="pl-pds">&#39;&#39;</span>?&#39;<span class="pl-pds">&#39;</span>,&#39;<span class="pl-pds">&#39;</span>Updateability&#39;<span class="pl-pds">&#39;</span>) = &#39;<span class="pl-pds">&#39;</span>READ_WRITE&#39;<span class="pl-pds">&#39;</span>;&#39;</span></td>
+        <td id="LC52" class="blob-code blob-code-inner js-file-line"><span class="pl-s">ALTER INDEX {INDEX} ON {TABLE}</span></td>
       </tr>
       <tr>
         <td id="L53" class="blob-num js-line-number" data-line-number="53"></td>
-        <td id="LC53" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC53" class="blob-code blob-code-inner js-file-line"><span class="pl-s">REBUILD WITH(SORT_IN_TEMPDB=<span class="pl-pds">&#39;</span></span> </td>
       </tr>
       <tr>
         <td id="L54" class="blob-num js-line-number" data-line-number="54"></td>
-        <td id="LC54" class="blob-code blob-code-inner js-file-line"><span class="pl-k">IF</span> <span class="pl-k">EXISTS</span> (<span class="pl-k">SELECT</span> <span class="pl-k">NULL</span> <span class="pl-k">FROM</span> #tmp <span class="pl-k">WHERE</span> DBName <span class="pl-k">=</span> @Database <span class="pl-k">OR</span> @Database <span class="pl-k">IS</span> <span class="pl-k">NULL</span>)</td>
+        <td id="LC54" class="blob-code blob-code-inner js-file-line"><span class="pl-k">+</span> <span class="pl-k">CASE</span> <span class="pl-k">WHEN</span> @SortInTempDB <span class="pl-k">=</span> <span class="pl-c1">1</span> <span class="pl-k">THEN</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>ON&#39;</span> <span class="pl-k">ELSE</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>OFF&#39;</span> <span class="pl-k">END</span> </td>
       </tr>
       <tr>
         <td id="L55" class="blob-num js-line-number" data-line-number="55"></td>
-        <td id="LC55" class="blob-code blob-code-inner js-file-line"><span class="pl-k">BEGIN</span></td>
+        <td id="LC55" class="blob-code blob-code-inner js-file-line"><span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>, ONLINE=&#39;</span> <span class="pl-k">+</span> <span class="pl-k">CASE</span> <span class="pl-k">WHEN</span> @OnlineRebuild <span class="pl-k">=</span> <span class="pl-c1">1</span> <span class="pl-k">THEN</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>ON&#39;</span> <span class="pl-k">ELSE</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>OFF&#39;</span> <span class="pl-k">END</span></td>
       </tr>
       <tr>
         <td id="L56" class="blob-num js-line-number" data-line-number="56"></td>
-        <td id="LC56" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">DECLARE</span> Orphans <span class="pl-k">CURSOR</span> <span class="pl-k">FOR</span></td>
+        <td id="LC56" class="blob-code blob-code-inner js-file-line"><span class="pl-k">+</span> <span class="pl-k">CASE</span> <span class="pl-k">WHEN</span> @MaxDOP <span class="pl-k">IS</span> <span class="pl-k">NOT</span> <span class="pl-k">NULL</span> <span class="pl-k">THEN</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>, MAXDOP=&#39;</span> <span class="pl-k">+</span> <span class="pl-c1">CONVERT</span>(<span class="pl-k">nvarchar</span>,@MaxDOP) <span class="pl-k">ELSE</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>&#39;</span> <span class="pl-k">END</span></td>
       </tr>
       <tr>
         <td id="L57" class="blob-num js-line-number" data-line-number="57"></td>
-        <td id="LC57" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">SELECT</span> DBName, UserName, LoginExists, OwnedSchemas</td>
+        <td id="LC57" class="blob-code blob-code-inner js-file-line"><span class="pl-k">+</span> N<span class="pl-s"><span class="pl-pds">&#39;</span>{FILLFACTOR});</span></td>
       </tr>
       <tr>
         <td id="L58" class="blob-num js-line-number" data-line-number="58"></td>
-        <td id="LC58" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">FROM</span> #tmp</td>
+        <td id="LC58" class="blob-code blob-code-inner js-file-line"><span class="pl-s">GO<span class="pl-pds">&#39;</span></span></td>
       </tr>
       <tr>
         <td id="L59" class="blob-num js-line-number" data-line-number="59"></td>
-        <td id="LC59" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">WHERE</span> DBName <span class="pl-k">=</span> @Database <span class="pl-k">OR</span> @Database <span class="pl-k">IS</span> <span class="pl-k">NULL</span>;</td>
+        <td id="LC59" class="blob-code blob-code-inner js-file-line">
+</td>
       </tr>
       <tr>
         <td id="L60" class="blob-num js-line-number" data-line-number="60"></td>
-        <td id="LC60" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC60" class="blob-code blob-code-inner js-file-line"><span class="pl-k">SELECT</span></td>
       </tr>
       <tr>
         <td id="L61" class="blob-num js-line-number" data-line-number="61"></td>
-        <td id="LC61" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">OPEN</span> Orphans</td>
+        <td id="LC61" class="blob-code blob-code-inner js-file-line">  DatabaseName <span class="pl-k">=</span> <span class="pl-c1">DB_NAME</span>()</td>
       </tr>
       <tr>
         <td id="L62" class="blob-num js-line-number" data-line-number="62"></td>
-        <td id="LC62" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">FETCH</span> <span class="pl-k">NEXT</span> <span class="pl-k">FROM</span> Orphans <span class="pl-k">INTO</span> @Database, @user, @loginExists, @ownedSchemas</td>
+        <td id="LC62" class="blob-code blob-code-inner js-file-line">, SchemaName <span class="pl-k">=</span> <span class="pl-c1">OBJECT_SCHEMA_NAME</span>(<span class="pl-c1">t</span>.<span class="pl-c1">object_id</span>)</td>
       </tr>
       <tr>
         <td id="L63" class="blob-num js-line-number" data-line-number="63"></td>
-        <td id="LC63" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC63" class="blob-code blob-code-inner js-file-line">, TableName <span class="pl-k">=</span> <span class="pl-c1">t</span>.<span class="pl-c1">name</span></td>
       </tr>
       <tr>
         <td id="L64" class="blob-num js-line-number" data-line-number="64"></td>
-        <td id="LC64" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">WHILE</span> <span class="pl-c1">@@FETCH_STATUS</span> <span class="pl-k">=</span> <span class="pl-c1">0</span></td>
+        <td id="LC64" class="blob-code blob-code-inner js-file-line">, IndexName <span class="pl-k">=</span> <span class="pl-c1">ix</span>.<span class="pl-c1">name</span></td>
       </tr>
       <tr>
         <td id="L65" class="blob-num js-line-number" data-line-number="65"></td>
-        <td id="LC65" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">BEGIN</span></td>
+        <td id="LC65" class="blob-code blob-code-inner js-file-line">, Remediation <span class="pl-k">=</span></td>
       </tr>
       <tr>
         <td id="L66" class="blob-num js-line-number" data-line-number="66"></td>
-        <td id="LC66" class="blob-code blob-code-inner js-file-line">	 <span class="pl-k">DECLARE</span> @Command <span class="pl-k">NVARCHAR</span>(<span class="pl-c1">MAX</span>)</td>
+        <td id="LC66" class="blob-code blob-code-inner js-file-line">	<span class="pl-c1">REPLACE</span>(<span class="pl-c1">REPLACE</span>(<span class="pl-c1">REPLACE</span>(<span class="pl-c1">REPLACE</span>(@CommandTemplate</td>
       </tr>
       <tr>
         <td id="L67" class="blob-num js-line-number" data-line-number="67"></td>
-        <td id="LC67" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC67" class="blob-code blob-code-inner js-file-line">	, <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>{DATABASE}&#39;</span>, <span class="pl-c1">QUOTENAME</span>(<span class="pl-c1">DB_NAME</span>()))</td>
       </tr>
       <tr>
         <td id="L68" class="blob-num js-line-number" data-line-number="68"></td>
-        <td id="LC68" class="blob-code blob-code-inner js-file-line">	 <span class="pl-k">IF</span> @user <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&#39;</span>dbo&#39;</span></td>
+        <td id="LC68" class="blob-code blob-code-inner js-file-line">	, <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>{TABLE}&#39;</span>, <span class="pl-c1">QUOTENAME</span>(<span class="pl-c1">OBJECT_SCHEMA_NAME</span>(<span class="pl-c1">t</span>.<span class="pl-c1">object_id</span>)) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>.&#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(<span class="pl-c1">t</span>.<span class="pl-c1">name</span>))</td>
       </tr>
       <tr>
         <td id="L69" class="blob-num js-line-number" data-line-number="69"></td>
-        <td id="LC69" class="blob-code blob-code-inner js-file-line">		<span class="pl-k">SET</span> @Command <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>USE &#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(@Database) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>; ALTER AUTHORIZATION ON DATABASE::&#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(@Database) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span> TO &#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(@saName) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span> -- assign orphaned [dbo] to [sa]&#39;</span></td>
+        <td id="LC69" class="blob-code blob-code-inner js-file-line">	, <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>{INDEX}&#39;</span>, <span class="pl-c1">QUOTENAME</span>(<span class="pl-c1">ix</span>.<span class="pl-c1">name</span>))</td>
       </tr>
       <tr>
         <td id="L70" class="blob-num js-line-number" data-line-number="70"></td>
-        <td id="LC70" class="blob-code blob-code-inner js-file-line">	 <span class="pl-k">ELSE</span> <span class="pl-k">IF</span> @loginExists <span class="pl-k">=</span> <span class="pl-c1">0</span></td>
+        <td id="LC70" class="blob-code blob-code-inner js-file-line">	, <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>{FILLFACTOR}&#39;</span>, </td>
       </tr>
       <tr>
         <td id="L71" class="blob-num js-line-number" data-line-number="71"></td>
-        <td id="LC71" class="blob-code blob-code-inner js-file-line">		<span class="pl-k">SET</span> @Command <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>USE &#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(@Database) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>; &#39;</span> <span class="pl-k">+</span> <span class="pl-c1">ISNULL</span>(@ownedSchemas, <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>&#39;</span>) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span> DROP USER &#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(@user) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span> -- no existing login found&#39;</span></td>
+        <td id="LC71" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">CASE</span></td>
       </tr>
       <tr>
         <td id="L72" class="blob-num js-line-number" data-line-number="72"></td>
-        <td id="LC72" class="blob-code blob-code-inner js-file-line">	 <span class="pl-k">ELSE</span></td>
+        <td id="LC72" class="blob-code blob-code-inner js-file-line">		<span class="pl-k">WHEN</span> <span class="pl-c1">ix</span>.<span class="pl-c1">fill_factor</span> <span class="pl-k">=</span> <span class="pl-c1">0</span> <span class="pl-k">AND</span> <span class="pl-c1">ps</span>.<span class="pl-c1">avg_fragmentation_in_percent</span> <span class="pl-k">&gt;=</span> @MinFragmentationToReduceFillFactor100 </td>
       </tr>
       <tr>
         <td id="L73" class="blob-num js-line-number" data-line-number="73"></td>
-        <td id="LC73" class="blob-code blob-code-inner js-file-line">		<span class="pl-k">SET</span> @Command <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>USE &#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(@Database) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>; ALTER USER &#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(@user) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span> WITH LOGIN = &#39;</span> <span class="pl-k">+</span> <span class="pl-c1">QUOTENAME</span>(@user) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span> -- existing login found&#39;</span></td>
+        <td id="LC73" class="blob-code blob-code-inner js-file-line">			<span class="pl-k">THEN</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>, FILLFACTOR=90&#39;</span> </td>
       </tr>
       <tr>
         <td id="L74" class="blob-num js-line-number" data-line-number="74"></td>
-        <td id="LC74" class="blob-code blob-code-inner js-file-line"> </td>
+        <td id="LC74" class="blob-code blob-code-inner js-file-line">		<span class="pl-k">WHEN</span> <span class="pl-c1">ix</span>.<span class="pl-c1">fill_factor</span> <span class="pl-k">&gt;</span> <span class="pl-c1">0</span> <span class="pl-k">AND</span> <span class="pl-c1">ps</span>.<span class="pl-c1">avg_fragmentation_in_percent</span> <span class="pl-k">&lt;=</span> @MaxFragmentationToSetFillFactor100 </td>
       </tr>
       <tr>
         <td id="L75" class="blob-num js-line-number" data-line-number="75"></td>
-        <td id="LC75" class="blob-code blob-code-inner js-file-line">	 <span class="pl-k">PRINT</span> @Command;</td>
+        <td id="LC75" class="blob-code blob-code-inner js-file-line">			<span class="pl-k">THEN</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>, FILLFACTOR=100&#39;</span> </td>
       </tr>
       <tr>
         <td id="L76" class="blob-num js-line-number" data-line-number="76"></td>
-        <td id="LC76" class="blob-code blob-code-inner js-file-line">	 <span class="pl-c"><span class="pl-c">--</span>EXEC (@Command);</span></td>
+        <td id="LC76" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">ELSE</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>&#39;</span></td>
       </tr>
       <tr>
         <td id="L77" class="blob-num js-line-number" data-line-number="77"></td>
-        <td id="LC77" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC77" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">END</span>)</td>
       </tr>
       <tr>
         <td id="L78" class="blob-num js-line-number" data-line-number="78"></td>
-        <td id="LC78" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">FETCH</span> <span class="pl-k">NEXT</span> <span class="pl-k">FROM</span> Orphans <span class="pl-k">INTO</span> @Database, @user, @loginExists, @ownedSchemas</td>
+        <td id="LC78" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">ix</span>.<span class="pl-c1">fill_factor</span></td>
       </tr>
       <tr>
         <td id="L79" class="blob-num js-line-number" data-line-number="79"></td>
-        <td id="LC79" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">END</span></td>
+        <td id="LC79" class="blob-code blob-code-inner js-file-line">, RowsCount <span class="pl-k">=</span> (<span class="pl-k">SELECT</span> <span class="pl-c1">SUM</span>(<span class="pl-k">rows</span>) <span class="pl-k">FROM</span> <span class="pl-c1">sys</span>.<span class="pl-c1">partitions</span> <span class="pl-k">AS</span> p <span class="pl-k">WHERE</span> <span class="pl-c1">p</span>.<span class="pl-c1">object_id</span> <span class="pl-k">=</span> <span class="pl-c1">t</span>.<span class="pl-c1">object_id</span> <span class="pl-k">AND</span> <span class="pl-c1">p</span>.<span class="pl-c1">index_id</span> <span class="pl-k">=</span> <span class="pl-c1">ix</span>.<span class="pl-c1">index_id</span>)</td>
       </tr>
       <tr>
         <td id="L80" class="blob-num js-line-number" data-line-number="80"></td>
-        <td id="LC80" class="blob-code blob-code-inner js-file-line">
-</td>
+        <td id="LC80" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">us</span>.<span class="pl-c1">user_updates</span></td>
       </tr>
       <tr>
         <td id="L81" class="blob-num js-line-number" data-line-number="81"></td>
-        <td id="LC81" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">CLOSE</span> Orphans</td>
+        <td id="LC81" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">us</span>.<span class="pl-c1">last_user_update</span></td>
       </tr>
       <tr>
         <td id="L82" class="blob-num js-line-number" data-line-number="82"></td>
-        <td id="LC82" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">DEALLOCATE</span> Orphans</td>
+        <td id="LC82" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">ps</span>.<span class="pl-c1">avg_fragmentation_in_percent</span></td>
       </tr>
       <tr>
         <td id="L83" class="blob-num js-line-number" data-line-number="83"></td>
-        <td id="LC83" class="blob-code blob-code-inner js-file-line"><span class="pl-k">END</span></td>
+        <td id="LC83" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">ps</span>.<span class="pl-c1">avg_page_space_used_in_percent</span></td>
       </tr>
       <tr>
         <td id="L84" class="blob-num js-line-number" data-line-number="84"></td>
-        <td id="LC84" class="blob-code blob-code-inner js-file-line"><span class="pl-k">ELSE</span></td>
+        <td id="LC84" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">ps</span>.<span class="pl-c1">record_count</span></td>
       </tr>
       <tr>
         <td id="L85" class="blob-num js-line-number" data-line-number="85"></td>
-        <td id="LC85" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">PRINT</span> <span class="pl-s"><span class="pl-pds">N</span><span class="pl-pds">&#39;</span>No orphan users found!&#39;</span></td>
+        <td id="LC85" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">ps</span>.<span class="pl-c1">page_count</span></td>
+      </tr>
+      <tr>
+        <td id="L86" class="blob-num js-line-number" data-line-number="86"></td>
+        <td id="LC86" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">ps</span>.<span class="pl-c1">compressed_page_count</span></td>
+      </tr>
+      <tr>
+        <td id="L87" class="blob-num js-line-number" data-line-number="87"></td>
+        <td id="LC87" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">t</span>.<span class="pl-c1">object_id</span></td>
+      </tr>
+      <tr>
+        <td id="L88" class="blob-num js-line-number" data-line-number="88"></td>
+        <td id="LC88" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">ix</span>.<span class="pl-c1">index_id</span></td>
+      </tr>
+      <tr>
+        <td id="L89" class="blob-num js-line-number" data-line-number="89"></td>
+        <td id="LC89" class="blob-code blob-code-inner js-file-line">, <span class="pl-c1">ps</span>.<span class="pl-c1">partition_number</span></td>
+      </tr>
+      <tr>
+        <td id="L90" class="blob-num js-line-number" data-line-number="90"></td>
+        <td id="LC90" class="blob-code blob-code-inner js-file-line"><span class="pl-k">FROM</span></td>
+      </tr>
+      <tr>
+        <td id="L91" class="blob-num js-line-number" data-line-number="91"></td>
+        <td id="LC91" class="blob-code blob-code-inner js-file-line">	<span class="pl-c1">sys</span>.<span class="pl-c1">dm_db_index_usage_stats</span> <span class="pl-k">AS</span> us</td>
+      </tr>
+      <tr>
+        <td id="L92" class="blob-num js-line-number" data-line-number="92"></td>
+        <td id="LC92" class="blob-code blob-code-inner js-file-line"><span class="pl-k">INNER JOIN</span></td>
+      </tr>
+      <tr>
+        <td id="L93" class="blob-num js-line-number" data-line-number="93"></td>
+        <td id="LC93" class="blob-code blob-code-inner js-file-line">	<span class="pl-c1">sys</span>.<span class="pl-c1">tables</span> <span class="pl-k">AS</span> t <span class="pl-k">ON</span> <span class="pl-c1">us</span>.<span class="pl-c1">object_id</span> <span class="pl-k">=</span> <span class="pl-c1">t</span>.<span class="pl-c1">object_id</span></td>
+      </tr>
+      <tr>
+        <td id="L94" class="blob-num js-line-number" data-line-number="94"></td>
+        <td id="LC94" class="blob-code blob-code-inner js-file-line"><span class="pl-k">INNER JOIN</span></td>
+      </tr>
+      <tr>
+        <td id="L95" class="blob-num js-line-number" data-line-number="95"></td>
+        <td id="LC95" class="blob-code blob-code-inner js-file-line">	<span class="pl-c1">sys</span>.<span class="pl-c1">indexes</span> <span class="pl-k">AS</span> ix <span class="pl-k">ON</span> <span class="pl-c1">ix</span>.<span class="pl-c1">object_id</span> <span class="pl-k">=</span> <span class="pl-c1">t</span>.<span class="pl-c1">object_id</span> <span class="pl-k">AND</span> <span class="pl-c1">ix</span>.<span class="pl-c1">index_id</span> <span class="pl-k">=</span> <span class="pl-c1">us</span>.<span class="pl-c1">index_id</span></td>
+      </tr>
+      <tr>
+        <td id="L96" class="blob-num js-line-number" data-line-number="96"></td>
+        <td id="LC96" class="blob-code blob-code-inner js-file-line"><span class="pl-k">CROSS</span> <span class="pl-k">APPLY</span></td>
+      </tr>
+      <tr>
+        <td id="L97" class="blob-num js-line-number" data-line-number="97"></td>
+        <td id="LC97" class="blob-code blob-code-inner js-file-line">	<span class="pl-c1">sys</span>.<span class="pl-c1">dm_db_index_physical_stats</span>(<span class="pl-c1">DB_ID</span>(), <span class="pl-c1">t</span>.<span class="pl-c1">object_id</span>, <span class="pl-c1">ix</span>.<span class="pl-c1">index_id</span>, <span class="pl-k">NULL</span>, <span class="pl-s"><span class="pl-pds">&#39;</span>SAMPLED&#39;</span>) <span class="pl-k">AS</span> ps</td>
+      </tr>
+      <tr>
+        <td id="L98" class="blob-num js-line-number" data-line-number="98"></td>
+        <td id="LC98" class="blob-code blob-code-inner js-file-line"><span class="pl-k">WHERE</span></td>
+      </tr>
+      <tr>
+        <td id="L99" class="blob-num js-line-number" data-line-number="99"></td>
+        <td id="LC99" class="blob-code blob-code-inner js-file-line">    <span class="pl-c1">us</span>.<span class="pl-c1">database_id</span> <span class="pl-k">=</span> <span class="pl-c1">DB_ID</span>()</td>
+      </tr>
+      <tr>
+        <td id="L100" class="blob-num js-line-number" data-line-number="100"></td>
+        <td id="LC100" class="blob-code blob-code-inner js-file-line"><span class="pl-k">AND</span> <span class="pl-c1">ps</span>.<span class="pl-c1">alloc_unit_type_desc</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&#39;</span>IN_ROW_DATA&#39;</span></td>
+      </tr>
+      <tr>
+        <td id="L101" class="blob-num js-line-number" data-line-number="101"></td>
+        <td id="LC101" class="blob-code blob-code-inner js-file-line"><span class="pl-k">AND</span> <span class="pl-c1">t</span>.<span class="pl-c1">is_ms_shipped</span> <span class="pl-k">=</span> <span class="pl-c1">0</span></td>
+      </tr>
+      <tr>
+        <td id="L102" class="blob-num js-line-number" data-line-number="102"></td>
+        <td id="LC102" class="blob-code blob-code-inner js-file-line"><span class="pl-k">AND</span> <span class="pl-c1">us</span>.<span class="pl-c1">user_updates</span> <span class="pl-k">&gt;=</span> @MinUserUpdates</td>
+      </tr>
+      <tr>
+        <td id="L103" class="blob-num js-line-number" data-line-number="103"></td>
+        <td id="LC103" class="blob-code blob-code-inner js-file-line"><span class="pl-k">AND</span> <span class="pl-c1">ps</span>.<span class="pl-c1">page_count</span> <span class="pl-k">&gt;=</span> @MinPageCount</td>
+      </tr>
+      <tr>
+        <td id="L104" class="blob-num js-line-number" data-line-number="104"></td>
+        <td id="LC104" class="blob-code blob-code-inner js-file-line"><span class="pl-k">AND</span> </td>
+      </tr>
+      <tr>
+        <td id="L105" class="blob-num js-line-number" data-line-number="105"></td>
+        <td id="LC105" class="blob-code blob-code-inner js-file-line">(</td>
+      </tr>
+      <tr>
+        <td id="L106" class="blob-num js-line-number" data-line-number="106"></td>
+        <td id="LC106" class="blob-code blob-code-inner js-file-line">	(</td>
+      </tr>
+      <tr>
+        <td id="L107" class="blob-num js-line-number" data-line-number="107"></td>
+        <td id="LC107" class="blob-code blob-code-inner js-file-line">		<span class="pl-c1">ix</span>.<span class="pl-c1">fill_factor</span> <span class="pl-k">&lt;&gt;</span> <span class="pl-c1">0</span></td>
+      </tr>
+      <tr>
+        <td id="L108" class="blob-num js-line-number" data-line-number="108"></td>
+        <td id="LC108" class="blob-code blob-code-inner js-file-line">		<span class="pl-k">AND</span> <span class="pl-c1">ps</span>.<span class="pl-c1">avg_page_space_used_in_percent</span> <span class="pl-k">&lt;=</span> @MaxSpaceUsedForFillFactorLessThan100</td>
+      </tr>
+      <tr>
+        <td id="L109" class="blob-num js-line-number" data-line-number="109"></td>
+        <td id="LC109" class="blob-code blob-code-inner js-file-line">	)</td>
+      </tr>
+      <tr>
+        <td id="L110" class="blob-num js-line-number" data-line-number="110"></td>
+        <td id="LC110" class="blob-code blob-code-inner js-file-line">	<span class="pl-k">OR</span></td>
+      </tr>
+      <tr>
+        <td id="L111" class="blob-num js-line-number" data-line-number="111"></td>
+        <td id="LC111" class="blob-code blob-code-inner js-file-line">	(</td>
+      </tr>
+      <tr>
+        <td id="L112" class="blob-num js-line-number" data-line-number="112"></td>
+        <td id="LC112" class="blob-code blob-code-inner js-file-line">		<span class="pl-c1">ix</span>.<span class="pl-c1">fill_factor</span> <span class="pl-k">=</span> <span class="pl-c1">0</span></td>
+      </tr>
+      <tr>
+        <td id="L113" class="blob-num js-line-number" data-line-number="113"></td>
+        <td id="LC113" class="blob-code blob-code-inner js-file-line">		<span class="pl-k">AND</span> <span class="pl-c1">ps</span>.<span class="pl-c1">avg_page_space_used_in_percent</span> <span class="pl-k">&lt;=</span> @MaxSpaceUsedForFillFactor100</td>
+      </tr>
+      <tr>
+        <td id="L114" class="blob-num js-line-number" data-line-number="114"></td>
+        <td id="LC114" class="blob-code blob-code-inner js-file-line">	)</td>
+      </tr>
+      <tr>
+        <td id="L115" class="blob-num js-line-number" data-line-number="115"></td>
+        <td id="LC115" class="blob-code blob-code-inner js-file-line">)</td>
+      </tr>
+      <tr>
+        <td id="L116" class="blob-num js-line-number" data-line-number="116"></td>
+        <td id="LC116" class="blob-code blob-code-inner js-file-line"><span class="pl-k">OPTION</span>(<span class="pl-k">MAXDOP</span> <span class="pl-c1">1</span>);</td>
+      </tr>
+      <tr>
+        <td id="L117" class="blob-num js-line-number" data-line-number="117"></td>
+        <td id="LC117" class="blob-code blob-code-inner js-file-line">
+</td>
+      </tr>
+      <tr>
+        <td id="L118" class="blob-num js-line-number" data-line-number="118"></td>
+        <td id="LC118" class="blob-code blob-code-inner js-file-line">Quit:</td>
       </tr>
 </table>
 
@@ -1787,7 +1916,7 @@
             Copy permalink
           </clipboard-copy>
         </li>
-        <li><a class="dropdown-item js-update-url-with-hash" id="js-view-git-blame" role="menuitem" href="/MadeiraData/MadeiraToolbox/blame/bf56c476bb79dfcef286ea5999fc86533a00e6ff/Utility%20Scripts/fix_all_orphan_users.sql">View git blame</a></li>
+        <li><a class="dropdown-item js-update-url-with-hash" id="js-view-git-blame" role="menuitem" href="/MadeiraData/MadeiraToolbox/blame/bf56c476bb79dfcef286ea5999fc86533a00e6ff/Utility%20Scripts/Check_Index_Fragmentation_Based_on_Page_Fullness_and_Fill_Factor.sql">View git blame</a></li>
           <li><a class="dropdown-item" id="js-new-issue" role="menuitem" href="/MadeiraData/MadeiraToolbox/issues/new">Reference in new issue</a></li>
       </ul>
     </details-menu>
