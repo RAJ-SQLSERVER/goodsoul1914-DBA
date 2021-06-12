@@ -78,20 +78,33 @@ li a:hover {
 "@
 
 $instances = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwSqlInstances ORDER BY SqlInstance;" | 
-    Select-Object SqlInstance, SqlEdition, SqlVersion, ProcessorInfo, PhysicalMemory, Scan, Owner, UpdatedAt | ConvertTo-Html -Fragment
+    SELECT SqlInstance,SqlEdition,SqlVersion,ProcessorInfo,PhysicalMemory,Scan,Owner,UpdatedAt | 
+    ConvertTo-Html -Fragment
 
 $errors = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwErrorLogLatest ORDER BY SqlInstance, Count DESC;" | 
-    Select-Object SqlInstance, Text, Count | ConvertTo-Html -Fragment
+    SELECT SqlInstance, Text, Count | 
+    ConvertTo-Html -Fragment
 
 $jobs = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT Server,RunDate,JobName,StepID,StepName,RunDuration,SqlMessageID,SqlSeverity,Message FROM vwFailedAgentJobsLatest;" | 
-    Select-Object Server, RunDate, JobName, StepID, StepName, RunDuration, Message | ConvertTo-Html -Fragment
+    SELECT Server,RunDate,JobName,StepID,StepName,RunDuration,Message | 
+    ConvertTo-Html -Fragment
 
-$cpu = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwHighCPUTimeLatest ORDER BY Count DESC" | 
-    Select-Object SqlInstance, Count | ConvertTo-Html -Fragment
+$cpu = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwHighCPUUtilizationLatestGrouped ORDER BY Count DESC" | 
+    SELECT SqlInstance, Count | 
+    ConvertTo-Html -Fragment
 
 $diskspace = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwDiskSpaceLatest" | 
-    Select-Object ComputerName, Name, Capacity, Free, PercentFree, DriveType, SizeInKB, FreeInKB, SizeInMB, FreeInMB, SizeInGB, FreeInGB, SizeInTB, FreeInTB | 
-        ConvertTo-Html -Fragment
+    SELECT ComputerName,Name,Capacity,Free,PercentFree,DriveType,SizeInKB,FreeInKB,SizeInMB,FreeInMB,SizeInGB,FreeInGB,SizeInTB,FreeInTB | 
+    ConvertTo-Html -Fragment
+
+$newLogins = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwNewServerLoginsLatest ORDER BY SqlInstance" | 
+    SELECT SqlInstance,Name,Type,DefaultDatabase,DenyWindowsLogin,IsDisabled,IsLocked,IsPasswordExpired,MustChangePassword,PasswordExpirationEnabled,PasswordPolicyEnforced | 
+    ConvertTo-Html -Fragment
+
+$growEvents = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM DBA.dbo.vwDatabaseGrowEventsLatestGrouped ORDER BY GrowEvents DESC" | 
+    SELECT SqlInstance,DatabaseName,GrowEvents | 
+    ConvertTo-Html -Fragment
+
 
 $body = @"
 <h1>Bravis SQL Server rapportage van $today</h1>
@@ -101,6 +114,8 @@ $body = @"
     <li><a href="#jobs">Agentlogs</a></li>
     <li><a href="#cpu">Hoge CPU belasting</a></li>
     <li><a href="#diskspace">Schijfruimte</a></li>
+    <li><a href="#newlogins">Logins</a></li>
+    <li><a href="#growEvents">Groei</a></li>
 </ul>
 
 <div id="content">
@@ -118,7 +133,13 @@ $body = @"
 
     <h2 id="diskspace">Schijfruimte</h2>
     $diskspace
+
+    <h2 id="newlogins">Nieuwe Server Logins</h2>
+    $newLogins
+
+    <h2 id="growEvents">Database Groei</h2>
+    $growEvents
 </div>
 "@
 
-ConvertTo-Html -Body $body -Head $head | Out-File "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\$today.html"
+ConvertTo-Html -Body $body -Head $head | Out-File "\\zkh.local\zkh\Automatisering\TAB\MarkT\SQL Server\Reports\DBA\$today.html"

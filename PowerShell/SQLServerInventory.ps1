@@ -7,10 +7,6 @@ $SqlInstances = (Invoke-DbaQuery -SqlInstance $managementServer -Database $manag
 ## Retrieve all unique computernames from the management database
 $ComputerNames = (Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT DISTINCT ComputerName FROM dbo.SqlInstances ORDER BY ComputerName;").ComputerName
 
-## Retrieve diskspace info
-Get-DbaDiskSpace -ComputerName $ComputerNames | 
-    Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DiskSpace -AutoCreateTable
-
 ## Update some fields of instance records
 foreach ($instance in $SqlInstances) {    
     $infoObj = Get-DbaInstanceProperty -SqlInstance $instance
@@ -32,9 +28,6 @@ foreach ($computer in $ComputerNames) {
     Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "UPDATE dbo.SqlInstances SET Timestamp = GETDATE(), ProcessorInfo = '$cpuPhysicalCount / $cpuLogicalCount', PhysicalMemory = '$memPhysical' WHERE ComputerName = '$computer';"
 }
 
-## Update version field of instance records
-(Get-DbaInstanceProperty -SqlInstance gpsql01 | where {$_.Name -eq "VersionString"}).Value
-
 ## Retrieve errorlog info
 Get-DbaErrorLog -SqlInstance $SqlInstances -After (Get-Date).AddDays(-1) | 
     Select-Object ComputerName,InstanceName,SqlInstance,LogDate,Source,Text | 
@@ -46,7 +39,12 @@ Get-DbaAgentJobHistory -SqlInstance $SqlInstances -StartDate (Get-Date).AddDays(
 
 ## Retrieve database info
 Get-DbaDatabase -SqlInstance $SqlInstances | 
-    Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table Databases -AutoCreateTable
+    Select SqlInstance,Name,SizeMB,Compatibility,LastFullBackup,LastDiffBackup,LastLogBackup,ActiveConnections,Collation,ContainmentType,CreateDate,DataSpaceUsage,FilestreamDirectoryName,IndexSpaceUsage,LogReuseWaitStatus,PageVerify,PrimaryFilePath,ReadOnly,RecoveryModel,Size,SnapshotIsolationState,SpaceAvailable,MaxDop,ServerVersion | 
+        Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table Databases -AutoCreateTable
+
+## Retrieve diskspace info
+Get-DbaDiskSpace -ComputerName $ComputerNames | 
+    Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DiskSpace -AutoCreateTable
 
 ## Retrieve disk speed
 Test-DbaDiskSpeed -SqlInstance $SqlInstances | 
@@ -63,6 +61,21 @@ Get-DbaDbRoleMember -SqlInstance $SqlInstances -ExcludeDatabase tempdb,model |
     Select-Object ComputerName,InstanceName,SqlInstance,Database,Role,UserName,Login,IsSystemObject,LoginType | 
         Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseRoleMembers -AutoCreateTable
 
+## Retrieve all database role members
+Get-DbaServerRoleMember -SqlInstance $SqlInstances | 
+    Select-Object ComputerName,InstanceName,SqlInstance,Database,Role,Name | 
+        Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ServerRoleMembers -AutoCreateTable
+
+## Retrieve database space info
+Get-DbaDbSpace -SqlInstance $SqlInstances | 
+    Select-Object ComputerName,InstanceName,SqlInstance,Database,FileName,FileGroup,PhysicalName,FileType,UsedSpace,FreeSpace,FileSize,PercentUsed,AutoGrowth,AutoGrowType,SpaceUntilMaxSize,AutoGrowthPossible,UnusableSpace | 
+        Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseSpace -AutoCreateTable
+
+## Retrieve all growth events
+Find-DbaDbGrowthEvent -SqlInstance $SqlInstances -UseLocalTime | 
+    Where-Object {$_.StartTime -ge (Get-Date).AddDays(-1)} | 
+        Select-Object SqlInstance,DatabaseName,FileName,Duration,StartTime,EndTime,ChangeInSize,ApplicationName,HostName,SessionLoginName |
+            Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseGrowthEvents -AutoCreateTable
 
 ## Generate a report
-.\SQLServerReport.ps1
+powershell.exe -File "C:\temp\SQLServerReport.ps1"

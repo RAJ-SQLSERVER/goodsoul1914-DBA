@@ -12,1170 +12,1611 @@ CREATE DATABASE DBA CONTAINMENT = NONE ON PRIMARY (
 
 GO
 
-USE [DBA]
+USE DBA;
 GO
-	/****** Object:  Table [dbo].[DiskSpeedTests]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  Table [dbo].[DefaultTraceEntries]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[DiskSpeedTests] (
-		[CheckDate] [datetime2](7) NULL,
-		[SqlInstance] [nvarchar](max) NULL,
-		[Database] [nvarchar](max) NULL,
-		[SizeGB] [decimal](38, 5) NULL,
-		[FileName] [nvarchar](max) NULL,
-		[FileID] [smallint] NULL,
-		[FileType] [nvarchar](max) NULL,
-		[DiskLocation] [nvarchar](max) NULL,
-		[Reads] [bigint] NULL,
-		[AverageReadStall] [int] NULL,
-		[ReadPerformance] [nvarchar](max) NULL,
-		[Writes] [bigint] NULL,
-		[AverageWriteStall] [int] NULL,
-		[WritePerformance] [nvarchar](max) NULL,
-		[Avg Overall Latency] [bigint] NULL,
-		[Avg Bytes/Read] [bigint] NULL,
-		[Avg Bytes/Write] [bigint] NULL,
-		[Avg Bytes/Transfer] [bigint] NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE TABLE dbo.DefaultTraceEntries (
+    SqlInstance     NVARCHAR(MAX) NULL,
+    LoginName       NVARCHAR(MAX) NULL,
+    HostName        NVARCHAR(MAX) NULL,
+    DatabaseName    NVARCHAR(MAX) NULL,
+    ApplicationName NVARCHAR(MAX) NULL,
+    StartTime       DATETIME2(7)  NULL,
+    TextData        NVARCHAR(MAX) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
 GO
-	/****** Object:  View [dbo].[vwDiskSpeedTestsLatest]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwDefaultTrace]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-CREATE VIEW [dbo].[vwDiskSpeedTestsLatest] AS
-SELECT
-	SqlInstance,
-	[Database],
-	SizeGB,
-	FileName,
-	DiskLocation,
-	Reads,
-	AverageReadStall,
-	ReadPerformance,
-	Writes,
-	AverageWriteStall,
-	WritePerformance,
-	[Avg Overall Latency],
-	[Avg Bytes/Read],
-	[Avg Bytes/Write],
-	[Avg Bytes/Transfer]
-FROM
-	DBA.dbo.DiskSpeedTests
-WHERE
-	CheckDate >= GETDATE () - 1
+CREATE VIEW dbo.vwDefaultTrace
+AS
+    SELECT StartTime,
+           SqlInstance,
+           LoginName,
+           HostName,
+           DatabaseName,
+           ApplicationName,
+           TextData
+    FROM dbo.DefaultTraceEntries
+    WHERE (ApplicationName NOT LIKE 'dbatools%')
+          AND (ApplicationName NOT LIKE 'oversight')
+          AND (ApplicationName NOT LIKE 'Red Gate Software%')
+          AND (TextData NOT LIKE '%DBCC %')
+          AND (TextData NOT LIKE 'No STATS:%')
+          AND (TextData NOT LIKE 'Login failed%')
+          AND (TextData NOT LIKE 'dbcc show_stat%')
+          AND (TextData NOT LIKE 'RESTORE DATABASE%');
 GO
-	/****** Object:  Table [dbo].[FailedJobHistory]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  Table [dbo].[ErrorLogs]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[FailedJobHistory] (
-		[InstanceID] [int] NULL,
-		[SqlMessageID] [int] NULL,
-		[Message] [nvarchar](max) NULL,
-		[StepID] [int] NULL,
-		[StepName] [nvarchar](max) NULL,
-		[SqlSeverity] [int] NULL,
-		[JobID] [uniqueidentifier] NULL,
-		[JobName] [nvarchar](max) NULL,
-		[RunStatus] [int] NULL,
-		[RunDate] [datetime2](7) NULL,
-		[RunDuration] [int] NULL,
-		[OperatorEmailed] [nvarchar](max) NULL,
-		[OperatorNetsent] [nvarchar](max) NULL,
-		[OperatorPaged] [nvarchar](max) NULL,
-		[RetriesAttempted] [int] NULL,
-		[Server] [nvarchar](max) NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE TABLE dbo.ErrorLogs (
+    ComputerName NVARCHAR(MAX) NULL,
+    InstanceName NVARCHAR(MAX) NULL,
+    SqlInstance  NVARCHAR(MAX) NULL,
+    LogDate      DATETIME2(7)  NULL,
+    Source       NVARCHAR(MAX) NULL,
+    Text         NVARCHAR(MAX) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
 GO
-	/****** Object:  View [dbo].[vwFailedAgentJobsLatest]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwErrorLogLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE VIEW [dbo].[vwFailedAgentJobsLatest] AS
-SELECT
-	Server,
-	RunDate,
-	JobName,
-	StepID,
-	StepName,
-	RunDuration,
-	SqlMessageID,
-	SqlSeverity,
-	Message,
-	OperatorEmailed
-FROM
-	dbo.FailedJobHistory
-WHERE
-	(RunDate >= DATEADD(DAY, - 1, GETDATE()))
-	AND (StepName <> '(Job outcome)')
+CREATE VIEW dbo.vwErrorLogLatest
+AS
+    SELECT SqlInstance,
+           Text,
+           COUNT (*) AS Count
+    FROM dbo.ErrorLogs
+    WHERE (Text NOT LIKE 'Login succeeded for %')
+          AND (Text NOT LIKE 'Log was backed up%')
+          AND (Text NOT LIKE 'Log was restored.%')
+          AND (Text NOT LIKE 'BACKUP DATABASE successfully%')
+          AND (Text NOT LIKE 'RESTORE DATABASE successfully%')
+          AND (Text NOT LIKE 'Database backed up.%')
+          AND (Text NOT LIKE 'Database was restored%')
+          AND (Text NOT LIKE 'Restore is complete %')
+          AND (Text NOT LIKE '%without errors%')
+          AND (Text NOT LIKE '%0 errors%')
+          AND (Text NOT LIKE 'Starting up database%')
+          AND (Text NOT LIKE 'Parallel redo is %')
+          AND (Text NOT LIKE 'This instance of SQL Server%')
+          AND (Text NOT LIKE 'Error: %, Severity:%')
+          AND (Text NOT LIKE 'Setting database option %')
+          AND (Text NOT LIKE 'Recovery is writing a checkpoint%')
+          AND (Text NOT LIKE 'Process ID % was killed by hostname %')
+          AND (Text NOT LIKE 'The database % is marked RESTORING and is in a state that does not allow recovery to be run.')
+          AND (Text NOT LIKE '%informational message only%')
+          AND (Text NOT LIKE 'I/O is frozen on database%')
+          AND (Text NOT LIKE 'I/O was resumed on database%')
+          AND (Text NOT LIKE 'The error log has been reinitialized%')
+          AND LogDate >= DATEADD (D, -1, GETDATE ())
+    GROUP BY SqlInstance,
+             Text;
 GO
-	/****** Object:  Table [dbo].[ErrorLogs]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwDefaultTraceLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[ErrorLogs] (
-		[ComputerName] [nvarchar](max) NULL,
-		[InstanceName] [nvarchar](max) NULL,
-		[SqlInstance] [nvarchar](max) NULL,
-		[LogDate] [datetime2](7) NULL,
-		[Source] [nvarchar](max) NULL,
-		[Text] [nvarchar](max) NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE VIEW dbo.vwDefaultTraceLatest
+AS
+    SELECT StartTime,
+           SqlInstance,
+           LoginName,
+           HostName,
+           DatabaseName,
+           ApplicationName,
+           TextData
+    FROM dbo.DefaultTraceEntries
+    WHERE (ApplicationName NOT LIKE 'dbatools%')
+          AND (ApplicationName NOT LIKE 'oversight')
+          AND (ApplicationName NOT LIKE 'Red Gate Software%')
+          AND (TextData NOT LIKE '%DBCC %')
+          AND (TextData NOT LIKE 'No STATS:%')
+          AND (TextData NOT LIKE 'Login failed%')
+          AND (TextData NOT LIKE 'dbcc show_stat%')
+          AND (TextData NOT LIKE 'RESTORE DATABASE%')
+          AND StartTime >= DATEADD (D, -1, GETDATE ());
 GO
-	/****** Object:  View [dbo].[vwErrorLogs]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  Table [dbo].[DiskSpeedTests]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE VIEW [dbo].[vwErrorLogs] AS
-SELECT
-	SqlInstance,
-	LogDate,
-	Source,
-	Text
-FROM
-	dbo.ErrorLogs
-WHERE
-	(Text NOT LIKE 'Login succeeded for %')
-	AND (Text NOT LIKE 'Log was backed up%')
-	AND (Text NOT LIKE 'Log was restored.%')
-	AND (Text NOT LIKE 'BACKUP DATABASE successfully%')
-	AND (Text NOT LIKE 'RESTORE DATABASE successfully%')
-	AND (Text NOT LIKE 'Database backed up.%')
-	AND (Text NOT LIKE 'Database was restored%')
-	AND (Text NOT LIKE 'Restore is complete %')
-	AND (Text NOT LIKE '%without errors%')
-	AND (Text NOT LIKE '%0 errors%')
-	AND (Text NOT LIKE 'Starting up database%')
-	AND (Text NOT LIKE 'Parallel redo is %')
-	AND (Text NOT LIKE 'This instance of SQL Server%')
-	AND (Text NOT LIKE 'Error: %, Severity:%')
-	AND (Text NOT LIKE 'Setting database option %')
-	AND (
-		Text NOT LIKE 'Recovery is writing a checkpoint%'
-	)
-	AND (
-		Text NOT LIKE 'Process ID % was killed by hostname %'
-	)
-	AND (
-		Text NOT LIKE 'The database % is marked RESTORING and is in a state that does not allow recovery to be run.'
-	)
-	AND (Text NOT LIKE '%informational message only%')
-	AND (Text NOT LIKE 'I/O is frozen on database%')
-	AND (Text NOT LIKE 'I/O was resumed on database%')
-	AND (
-		Text NOT LIKE 'The error log has been reinitialized%'
-	)
+CREATE TABLE dbo.DiskSpeedTests (
+    CheckDate             DATETIME2(7)   NULL,
+    SqlInstance           NVARCHAR(MAX)  NULL,
+    [Database]            NVARCHAR(MAX)  NULL,
+    SizeGB                DECIMAL(38, 5) NULL,
+    FileName              NVARCHAR(MAX)  NULL,
+    FileID                SMALLINT       NULL,
+    FileType              NVARCHAR(MAX)  NULL,
+    DiskLocation          NVARCHAR(MAX)  NULL,
+    Reads                 BIGINT         NULL,
+    AverageReadStall      INT            NULL,
+    ReadPerformance       NVARCHAR(MAX)  NULL,
+    Writes                BIGINT         NULL,
+    AverageWriteStall     INT            NULL,
+    WritePerformance      NVARCHAR(MAX)  NULL,
+    [Avg Overall Latency] BIGINT         NULL,
+    [Avg Bytes/Read]      BIGINT         NULL,
+    [Avg Bytes/Write]     BIGINT         NULL,
+    [Avg Bytes/Transfer]  BIGINT         NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
 GO
-	/****** Object:  Table [dbo].[CPURingBuffers]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwDiskSpeedTestsLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[CPURingBuffers] (
-		[ComputerName] [nvarchar](max) NULL,
-		[InstanceName] [nvarchar](max) NULL,
-		[SqlInstance] [nvarchar](max) NULL,
-		[RecordId] [int] NULL,
-		[EventTime] [datetime2](7) NULL,
-		[SQLProcessUtilization] [int] NULL,
-		[OtherProcessUtilization] [int] NULL,
-		[SystemIdle] [int] NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE VIEW dbo.vwDiskSpeedTestsLatest
+AS
+    SELECT SqlInstance,
+           [Database],
+           FileName,
+           DiskLocation,
+           Reads,
+           AverageReadStall,
+           Writes,
+           AverageWriteStall,
+           [Avg Overall Latency]
+    FROM dbo.DiskSpeedTests
+    WHERE CheckDate >= DATEADD (DAY, -1, GETDATE ())
+          AND (
+              ReadPerformance NOT IN ( 'OK', 'Very Good' )
+              OR (WritePerformance NOT IN ( 'OK', 'Very Good' ))
+          );
 GO
-	/****** Object:  View [dbo].[vwHighCPUUtilization]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  Table [dbo].[DiskSpace]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE VIEW [dbo].[vwHighCPUUtilization] AS
-SELECT
-	SqlInstance,
-	RecordId,
-	EventTime,
-	SQLProcessUtilization,
-	OtherProcessUtilization,
-	SystemIdle
-FROM
-	DBA.dbo.CPURingBuffers
-WHERE
-	SQLProcessUtilization > 50
+CREATE TABLE dbo.DiskSpace (
+    CheckDate    DATETIME2(7)  NULL,
+    ComputerName NVARCHAR(MAX) NULL,
+    Name         NVARCHAR(MAX) NULL,
+    Label        NVARCHAR(MAX) NULL,
+    Capacity     BIGINT        NULL,
+    Free         BIGINT        NULL,
+    PercentFree  FLOAT         NULL,
+    BlockSize    INT           NULL,
+    FileSystem   NVARCHAR(MAX) NULL,
+    Type         NVARCHAR(MAX) NULL,
+    IsSqlDisk    NVARCHAR(MAX) NULL,
+    Server       NVARCHAR(MAX) NULL,
+    DriveType    NVARCHAR(MAX) NULL,
+    SizeInBytes  FLOAT         NULL,
+    FreeInBytes  FLOAT         NULL,
+    SizeInKB     FLOAT         NULL,
+    FreeInKB     FLOAT         NULL,
+    SizeInMB     FLOAT         NULL,
+    FreeInMB     FLOAT         NULL,
+    SizeInGB     FLOAT         NULL,
+    FreeInGB     FLOAT         NULL,
+    SizeInTB     FLOAT         NULL,
+    FreeInTB     FLOAT         NULL,
+    SizeInPB     FLOAT         NULL,
+    FreeInPB     FLOAT         NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
 GO
-	/****** Object:  View [dbo].[vwRecentIOBottlenecks]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwDiskSpaceLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE VIEW [dbo].[vwRecentIOBottlenecks] AS
-SELECT
-	CheckDate,
-	SqlInstance,
-	[Database],
-	SizeGB,
-	FileName,
-	FileID,
-	DiskLocation,
-	Reads,
-	AverageReadStall,
-	ReadPerformance,
-	Writes,
-	AverageWriteStall,
-	WritePerformance,
-	[Avg Overall Latency],
-	[Avg Bytes/Read],
-	[Avg Bytes/Write],
-	[Avg Bytes/Transfer]
-FROM
-	DBA.dbo.DiskSpeedTests
-WHERE
-	ReadPerformance NOT IN ('OK', 'Very Good')
-	OR WritePerformance NOT IN ('OK', 'Very Good')
-	AND CheckDate >= DATEADD(DAY, -1, GETDATE())
+CREATE VIEW dbo.vwDiskSpaceLatest
+AS
+    SELECT ComputerName,
+           Name,
+           Label,
+           Capacity,
+           Free,
+           PercentFree,
+           BlockSize,
+           FileSystem,
+           DriveType,
+           SizeInBytes,
+           FreeInBytes,
+           SizeInKB,
+           FreeInKB,
+           SizeInMB,
+           FreeInMB,
+           SizeInGB,
+           FreeInGB,
+           SizeInTB,
+           FreeInTB,
+           SizeInPB,
+           FreeInPB
+    FROM DBA.dbo.DiskSpace
+    WHERE CheckDate >= DATEADD (D, -1, GETDATE ())
+          AND (FreeInGB <= 5 AND PercentFree <= 10)
+          AND Label <> 'Page file';
 GO
-	/****** Object:  View [dbo].[vwAllScannedSqlInstances]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  Table [dbo].[SqlInstances]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE VIEW [dbo].[vwAllScannedSqlInstances] AS
-SELECT
-	SqlInstance
-FROM
-	DBA.dbo.SqlInstances
-WHERE
-	Scan = 1;
+CREATE TABLE dbo.SqlInstances (
+    Timestamp      DATETIME2(7) NULL,
+    ComputerName   VARCHAR(255) NULL,
+    SqlInstance    VARCHAR(255) NULL,
+    SqlEdition     VARCHAR(255) NULL,
+    SqlVersion     VARCHAR(255) NULL,
+    ProcessorInfo  VARCHAR(50)  NULL,
+    PhysicalMemory VARCHAR(50)  NULL,
+    Scan           BIT          NULL,
+    Owner          VARCHAR(255) NULL
+) ON [PRIMARY];
+GO
+/****** Object:  View [dbo].[vwSqlInstances]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE VIEW dbo.vwSqlInstances
+AS
+    SELECT SqlInstance,
+           SqlEdition,
+           SqlVersion,
+           ProcessorInfo,
+           PhysicalMemory,
+           Scan,
+           Owner,
+           CONVERT (NVARCHAR(30), Timestamp, 120) AS UpdatedAt
+    FROM dbo.SqlInstances;
+GO
+/****** Object:  Table [dbo].[ServerLogins]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE TABLE dbo.ServerLogins (
+    CheckDate                 DATETIME2(7)   NULL,
+    ComputerName              NVARCHAR(MAX)  NULL,
+    InstanceName              NVARCHAR(MAX)  NULL,
+    SqlInstance               NVARCHAR(MAX)  NULL,
+    LastLogin                 NVARCHAR(MAX)  NULL,
+    AsymmetricKey             NVARCHAR(MAX)  NULL,
+    Certificate               NVARCHAR(MAX)  NULL,
+    CreateDate                DATETIME2(7)   NULL,
+    Credential                NVARCHAR(MAX)  NULL,
+    DateLastModified          DATETIME2(7)   NULL,
+    DefaultDatabase           NVARCHAR(MAX)  NULL,
+    DenyWindowsLogin          BIT            NULL,
+    HasAccess                 BIT            NULL,
+    ID                        INT            NULL,
+    IsDisabled                BIT            NULL,
+    IsLocked                  BIT            NULL,
+    IsPasswordExpired         BIT            NULL,
+    IsSystemObject            BIT            NULL,
+    LoginType                 NVARCHAR(MAX)  NULL,
+    MustChangePassword        BIT            NULL,
+    PasswordExpirationEnabled BIT            NULL,
+    PasswordHashAlgorithm     NVARCHAR(MAX)  NULL,
+    PasswordPolicyEnforced    BIT            NULL,
+    Sid                       VARBINARY(MAX) NULL,
+    WindowsLoginAccessType    NVARCHAR(MAX)  NULL,
+    Name                      NVARCHAR(MAX)  NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
+GO
+/****** Object:  View [dbo].[vwServerLoginsLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE VIEW dbo.vwServerLoginsLatest
+AS
+    SELECT SqlInstance,
+           Name,
+           LoginType,
+           LastLogin,
+           CreateDate,
+           DateLastModified,
+           DefaultDatabase,
+           DenyWindowsLogin,
+           HasAccess,
+           IsDisabled,
+           IsLocked,
+           IsPasswordExpired,
+           IsSystemObject,
+           MustChangePassword,
+           PasswordExpirationEnabled,
+           PasswordPolicyEnforced,
+           WindowsLoginAccessType
+    FROM DBA.dbo.ServerLogins
+    WHERE Name NOT LIKE 'NT %'
+          AND Name NOT LIKE '##%'
+          AND CheckDate >= DATEADD (DAY, -1, GETDATE ());
+GO
+/****** Object:  Table [dbo].[DatabaseRoleMembers]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE TABLE dbo.DatabaseRoleMembers (
+    CheckDate      DATETIME2(7)  NULL,
+    ComputerName   NVARCHAR(MAX) NULL,
+    InstanceName   NVARCHAR(MAX) NULL,
+    SqlInstance    NVARCHAR(MAX) NULL,
+    [Database]     NVARCHAR(MAX) NULL,
+    Role           NVARCHAR(MAX) NULL,
+    UserName       NVARCHAR(MAX) NULL,
+    Login          NVARCHAR(MAX) NULL,
+    IsSystemObject BIT           NULL,
+    LoginType      NVARCHAR(MAX) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
+GO
+/****** Object:  View [dbo].[vwDatabaseRoleMembersLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE VIEW dbo.vwDatabaseRoleMembersLatest
+AS
+    SELECT CheckDate,
+           SqlInstance,
+           [Database],
+           Role,
+           UserName,
+           Login,
+           LoginType
+    FROM DBA.dbo.DatabaseRoleMembers
+    WHERE CheckDate >= DATEADD (DAY, -1, GETDATE ())
+          AND UserName NOT LIKE '##%'
+          AND UserName <> 'MS_DataCollectorInternalUser'
+          AND UserName <> 'AllSchemaOwner';
+GO
+/****** Object:  Table [dbo].[ServerRoleMembers]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE TABLE dbo.ServerRoleMembers (
+    CheckDate    DATETIME2(7)  NULL,
+    ComputerName NVARCHAR(MAX) NULL,
+    InstanceName NVARCHAR(MAX) NULL,
+    SqlInstance  NVARCHAR(MAX) NULL,
+    [Database]   NVARCHAR(MAX) NULL,
+    Role         NVARCHAR(MAX) NULL,
+    Name         NVARCHAR(MAX) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
+GO
+/****** Object:  View [dbo].[vwServerRoleMembersLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE VIEW dbo.vwServerRoleMembersLatest
+AS
+    SELECT CheckDate,
+           SqlInstance,
+           Role,
+           Name
+    FROM dbo.ServerRoleMembers
+    WHERE (CheckDate >= DATEADD (DAY, -1, GETDATE ()));
+GO
+/****** Object:  Table [dbo].[Databases]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE TABLE dbo.Databases (
+    CheckDate               DATETIME2(7)  NULL,
+    SqlInstance             NVARCHAR(MAX) NULL,
+    Name                    NVARCHAR(MAX) NULL,
+    SizeMB                  FLOAT         NULL,
+    Compatibility           NVARCHAR(MAX) NULL,
+    LastFullBackup          DATETIME2(7)  NULL,
+    LastDiffBackup          DATETIME2(7)  NULL,
+    LastLogBackup           DATETIME2(7)  NULL,
+    ActiveConnections       INT           NULL,
+    Collation               NVARCHAR(MAX) NULL,
+    ContainmentType         NVARCHAR(MAX) NULL,
+    CreateDate              DATETIME2(7)  NULL,
+    DataSpaceUsage          FLOAT         NULL,
+    FilestreamDirectoryName NVARCHAR(MAX) NULL,
+    IndexSpaceUsage         FLOAT         NULL,
+    LogReuseWaitStatus      NVARCHAR(MAX) NULL,
+    PageVerify              NVARCHAR(MAX) NULL,
+    PrimaryFilePath         NVARCHAR(MAX) NULL,
+    ReadOnly                BIT           NULL,
+    RecoveryModel           NVARCHAR(MAX) NULL,
+    Size                    FLOAT         NULL,
+    SnapshotIsolationState  NVARCHAR(MAX) NULL,
+    SpaceAvailable          FLOAT         NULL,
+    MaxDop                  INT           NULL,
+    ServerVersion           NVARCHAR(MAX) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
+GO
+/****** Object:  View [dbo].[vwDatabasesLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE VIEW dbo.vwDatabasesLatest
+AS
+    SELECT SqlInstance,
+           Name,
+           SizeMB,
+           DataSpaceUsage / 1024 AS DataSpaceUsageMB,
+           IndexSpaceUsage / 1024 AS IndexSpaceUsageMB,
+           SpaceAvailable / 1024 AS SpaceAvailableMB,
+           LogReuseWaitStatus,
+           LastFullBackup,
+           LastDiffBackup,
+           LastLogBackup,
+           RecoveryModel,
+           SnapshotIsolationState,
+           ActiveConnections,
+           Collation,
+           ContainmentType,
+           CreateDate,
+           FilestreamDirectoryName,
+           PageVerify,
+           PrimaryFilePath,
+           ReadOnly,
+           MaxDop,
+           ServerVersion
+    FROM dbo.Databases
+    WHERE (CheckDate >= DATEADD (DAY, -1, GETDATE ()));
+GO
+/****** Object:  Table [dbo].[DatabaseSpace]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE TABLE dbo.DatabaseSpace (
+    CheckDate          DATETIME2(7)  NULL,
+    ComputerName       NVARCHAR(MAX) NULL,
+    InstanceName       NVARCHAR(MAX) NULL,
+    SqlInstance        NVARCHAR(MAX) NULL,
+    [Database]         NVARCHAR(MAX) NULL,
+    FileName           NVARCHAR(MAX) NULL,
+    FileGroup          NVARCHAR(MAX) NULL,
+    PhysicalName       NVARCHAR(MAX) NULL,
+    FileType           NVARCHAR(MAX) NULL,
+    UsedSpace          BIGINT        NULL,
+    FreeSpace          BIGINT        NULL,
+    FileSize           BIGINT        NULL,
+    PercentUsed        FLOAT         NULL,
+    AutoGrowth         BIGINT        NULL,
+    AutoGrowType       NVARCHAR(MAX) NULL,
+    SpaceUntilMaxSize  BIGINT        NULL,
+    AutoGrowthPossible BIGINT        NULL,
+    UnusableSpace      BIGINT        NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
+GO
+/****** Object:  View [dbo].[vwDatabaseSpaceLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE VIEW dbo.vwDatabaseSpaceLatest
+AS
+    SELECT SqlInstance,
+           [Database],
+           FileName,
+           FileGroup,
+           PhysicalName,
+           FileType,
+           FileSize / 1024 AS FileSizeKB,
+           UsedSpace / 1024 AS UsedSpaceKB,
+           FreeSpace / 1024 AS FreeSpaceKB,
+           PercentUsed,
+           AutoGrowth,
+           AutoGrowType
+    FROM dbo.DatabaseSpace
+    WHERE (CheckDate >= DATEADD (DAY, -1, GETDATE ()));
+GO
+/****** Object:  View [dbo].[vwNoRecentFullBackup]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+CREATE VIEW dbo.vwNoRecentFullBackup
+AS
+    SELECT SqlInstance,
+           Name,
+           LastFullBackup
+    FROM dbo.Databases
+    WHERE CheckDate >= DATEADD (DAY, -1, GETDATE ())
+          AND (LastFullBackup <= DATEADD (DAY, -2, GETDATE ()))
+          AND (SqlInstance LIKE 'GP%')
+          AND (SqlInstance NOT IN ( 'GPWOSQL02', 'GPPIICIXSQL01', 'GPMVISION01', 'GPAX4HSQL01', 'GPAX4HHIS01' ))
+          AND (Name NOT IN ( 'tempdb', 'model' ));
+GO
+/****** Object:  View [dbo].[vwNoRecentLogBackup]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
+GO
+SET QUOTED_IDENTIFIER ON;
+GO
+
+CREATE VIEW dbo.vwNoRecentLogBackup
+AS
+    SELECT SqlInstance,
+           Name,
+           LastLogBackup
+    FROM dbo.Databases
+    WHERE CheckDate >= DATEADD (DAY, -1, GETDATE ())
+          AND (LastLogBackup <= DATEADD (DAY, -2, GETDATE ()))
+          AND RecoveryModel <> 'Simple'
+          AND (SqlInstance LIKE 'GP%')
+          AND (SqlInstance NOT IN ( 'GPWOSQL02', 'GPPIICIXSQL01', 'GPMVISION01', 'GPAX4HSQL01', 'GPAX4HHIS01' ))
+          AND (Name NOT IN ( 'tempdb', 'model' ));
 
 GO
-	/****** Object:  Table [dbo].[Certificates]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  Table [dbo].[CPURingBuffers]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[Certificates] (
-		[PSComputerName] [nvarchar](max) NULL,
-		[DnsNameList] [nvarchar](max) NULL,
-		[NotAfter] [datetime2](7) NULL,
-		[NotBefore] [datetime2](7) NULL,
-		[HasPrivateKey] [bit] NULL,
-		[SerialNumber] [nvarchar](max) NULL,
-		[Version] [int] NULL,
-		[Issuer] [nvarchar](max) NULL,
-		[Subject] [nvarchar](max) NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE TABLE dbo.CPURingBuffers (
+    ComputerName            NVARCHAR(MAX) NULL,
+    InstanceName            NVARCHAR(MAX) NULL,
+    SqlInstance             NVARCHAR(MAX) NULL,
+    RecordId                INT           NULL,
+    EventTime               DATETIME2(7)  NULL,
+    SQLProcessUtilization   INT           NULL,
+    OtherProcessUtilization INT           NULL,
+    SystemIdle              INT           NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
 GO
-	/****** Object:  Table [dbo].[Databases]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwHighCPUUtilizationLatestGrouped]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[Databases] (
-		[CheckDate] [datetime] NOT NULL,
-		[BackupStatus] [nvarchar](max) NULL,
-		[ComputerName] [nvarchar](max) NULL,
-		[InstanceName] [nvarchar](max) NULL,
-		[SqlInstance] [nvarchar](max) NULL,
-		[LastRead] [nvarchar](max) NULL,
-		[LastWrite] [nvarchar](max) NULL,
-		[SizeMB] [float] NULL,
-		[Compatibility] [nvarchar](max) NULL,
-		[LastFullBackup] [datetime2](7) NULL,
-		[LastDiffBackup] [datetime2](7) NULL,
-		[LastLogBackup] [datetime2](7) NULL,
-		[Parent] [nvarchar](max) NULL,
-		[ActiveConnections] [int] NULL,
-		[AnsiNullDefault] [bit] NULL,
-		[AnsiNullsEnabled] [bit] NULL,
-		[AnsiPaddingEnabled] [bit] NULL,
-		[AnsiWarningsEnabled] [bit] NULL,
-		[ArithmeticAbortEnabled] [bit] NULL,
-		[AutoClose] [bit] NULL,
-		[AutoCreateIncrementalStatisticsEnabled] [bit] NULL,
-		[AutoCreateStatisticsEnabled] [bit] NULL,
-		[AutoShrink] [bit] NULL,
-		[AutoUpdateStatisticsAsync] [bit] NULL,
-		[AutoUpdateStatisticsEnabled] [bit] NULL,
-		[AvailabilityDatabaseSynchronizationState] [nvarchar](max) NULL,
-		[AvailabilityGroupName] [nvarchar](max) NULL,
-		[BrokerEnabled] [bit] NULL,
-		[CaseSensitive] [bit] NULL,
-		[ChangeTrackingAutoCleanUp] [bit] NULL,
-		[ChangeTrackingEnabled] [bit] NULL,
-		[ChangeTrackingRetentionPeriod] [int] NULL,
-		[ChangeTrackingRetentionPeriodUnits] [nvarchar](max) NULL,
-		[CloseCursorsOnCommitEnabled] [bit] NULL,
-		[Collation] [nvarchar](max) NULL,
-		[CompatibilityLevel] [nvarchar](max) NULL,
-		[ConcatenateNullYieldsNull] [bit] NULL,
-		[ContainmentType] [nvarchar](max) NULL,
-		[CreateDate] [datetime2](7) NULL,
-		[DatabaseGuid] [uniqueidentifier] NULL,
-		[DatabaseSnapshotBaseName] [nvarchar](max) NULL,
-		[DataSpaceUsage] [float] NULL,
-		[DateCorrelationOptimization] [bit] NULL,
-		[DboLogin] [bit] NULL,
-		[DefaultFileGroup] [nvarchar](max) NULL,
-		[DefaultFileStreamFileGroup] [nvarchar](max) NULL,
-		[DefaultFullTextCatalog] [nvarchar](max) NULL,
-		[DefaultSchema] [nvarchar](max) NULL,
-		[DelayedDurability] [nvarchar](max) NULL,
-		[EncryptionEnabled] [bit] NULL,
-		[FilestreamDirectoryName] [nvarchar](max) NULL,
-		[FilestreamNonTransactedAccess] [nvarchar](max) NULL,
-		[HasFileInCloud] [bit] NULL,
-		[HasMemoryOptimizedObjects] [bit] NULL,
-		[HonorBrokerPriority] [bit] NULL,
-		[ID] [int] NULL,
-		[IndexSpaceUsage] [float] NULL,
-		[IsAccessible] [bit] NULL,
-		[IsDatabaseSnapshot] [bit] NULL,
-		[IsDatabaseSnapshotBase] [bit] NULL,
-		[IsDbAccessAdmin] [bit] NULL,
-		[IsDbBackupOperator] [bit] NULL,
-		[IsDbDatareader] [bit] NULL,
-		[IsDbDatawriter] [bit] NULL,
-		[IsDbDdlAdmin] [bit] NULL,
-		[IsDbDenyDatareader] [bit] NULL,
-		[IsDbDenyDatawriter] [bit] NULL,
-		[IsDbOwner] [bit] NULL,
-		[IsDbSecurityAdmin] [bit] NULL,
-		[IsFullTextEnabled] [bit] NULL,
-		[IsMailHost] [bit] NULL,
-		[IsManagementDataWarehouse] [bit] NULL,
-		[IsMirroringEnabled] [bit] NULL,
-		[IsParameterizationForced] [bit] NULL,
-		[IsReadCommittedSnapshotOn] [bit] NULL,
-		[IsSqlDw] [bit] NULL,
-		[IsSystemObject] [bit] NULL,
-		[IsUpdateable] [bit] NULL,
-		[LastBackupDate] [datetime2](7) NULL,
-		[LastDifferentialBackupDate] [datetime2](7) NULL,
-		[LastGoodCheckDbTime] [datetime2](7) NULL,
-		[LastLogBackupDate] [datetime2](7) NULL,
-		[LocalCursorsDefault] [bit] NULL,
-		[LogReuseWaitStatus] [nvarchar](max) NULL,
-		[MemoryAllocatedToMemoryOptimizedObjectsInKB] [float] NULL,
-		[MemoryUsedByMemoryOptimizedObjectsInKB] [float] NULL,
-		[MirroringFailoverLogSequenceNumber] [decimal](38, 5) NULL,
-		[MirroringID] [uniqueidentifier] NULL,
-		[MirroringPartner] [nvarchar](max) NULL,
-		[MirroringPartnerInstance] [nvarchar](max) NULL,
-		[MirroringRedoQueueMaxSize] [int] NULL,
-		[MirroringRoleSequence] [int] NULL,
-		[MirroringSafetyLevel] [nvarchar](max) NULL,
-		[MirroringSafetySequence] [int] NULL,
-		[MirroringStatus] [nvarchar](max) NULL,
-		[MirroringTimeout] [int] NULL,
-		[MirroringWitness] [nvarchar](max) NULL,
-		[MirroringWitnessStatus] [nvarchar](max) NULL,
-		[NestedTriggersEnabled] [bit] NULL,
-		[NumericRoundAbortEnabled] [bit] NULL,
-		[Owner] [nvarchar](max) NULL,
-		[PageVerify] [nvarchar](max) NULL,
-		[PrimaryFilePath] [nvarchar](max) NULL,
-		[QuotedIdentifiersEnabled] [bit] NULL,
-		[ReadOnly] [bit] NULL,
-		[RecoveryForkGuid] [uniqueidentifier] NULL,
-		[RecoveryModel] [nvarchar](max) NULL,
-		[RecursiveTriggersEnabled] [bit] NULL,
-		[RemoteDataArchiveCredential] [nvarchar](max) NULL,
-		[RemoteDataArchiveEnabled] [bit] NULL,
-		[RemoteDataArchiveEndpoint] [nvarchar](max) NULL,
-		[RemoteDataArchiveLinkedServer] [nvarchar](max) NULL,
-		[RemoteDataArchiveUseFederatedServiceAccount] [bit] NULL,
-		[RemoteDatabaseName] [nvarchar](max) NULL,
-		[ReplicationOptions] [nvarchar](max) NULL,
-		[ServiceBrokerGuid] [uniqueidentifier] NULL,
-		[Size] [float] NULL,
-		[SnapshotIsolationState] [nvarchar](max) NULL,
-		[SpaceAvailable] [float] NULL,
-		[Status] [nvarchar](max) NULL,
-		[TargetRecoveryTime] [int] NULL,
-		[TransformNoiseWords] [bit] NULL,
-		[Trustworthy] [bit] NULL,
-		[TwoDigitYearCutoff] [int] NULL,
-		[UserAccess] [nvarchar](max) NULL,
-		[UserName] [nvarchar](max) NULL,
-		[Version] [int] NULL,
-		[AzureEdition] [nvarchar](max) NULL,
-		[AzureServiceObjective] [nvarchar](max) NULL,
-		[IsDbManager] [bit] NULL,
-		[IsLoginManager] [bit] NULL,
-		[IsSqlDwEdition] [bit] NULL,
-		[MaxSizeInBytes] [float] NULL,
-		[TemporalHistoryRetentionEnabled] [bit] NULL,
-		[Events] [nvarchar](max) NULL,
-		[ExecutionManager] [nvarchar](max) NULL,
-		[DatabaseEngineType] [nvarchar](max) NULL,
-		[DatabaseEngineEdition] [nvarchar](max) NULL,
-		[Name] [nvarchar](max) NULL,
-		[WarnOnRename] [bit] NULL,
-		[DatabaseOwnershipChaining] [bit] NULL,
-		[CatalogCollation] [nvarchar](max) NULL,
-		[ExtendedProperties] [nvarchar](max) NULL,
-		[DatabaseOptions] [nvarchar](max) NULL,
-		[QueryStoreOptions] [nvarchar](max) NULL,
-		[Synonyms] [nvarchar](max) NULL,
-		[Sequences] [nvarchar](max) NULL,
-		[Tables] [nvarchar](max) NULL,
-		[DatabaseScopedCredentials] [nvarchar](max) NULL,
-		[StoredProcedures] [nvarchar](max) NULL,
-		[Assemblies] [nvarchar](max) NULL,
-		[ExternalLibraries] [nvarchar](max) NULL,
-		[UserDefinedTypes] [nvarchar](max) NULL,
-		[UserDefinedAggregates] [nvarchar](max) NULL,
-		[FullTextCatalogs] [nvarchar](max) NULL,
-		[FullTextStopLists] [nvarchar](max) NULL,
-		[SearchPropertyLists] [nvarchar](max) NULL,
-		[SecurityPolicies] [nvarchar](max) NULL,
-		[DatabaseScopedConfigurations] [nvarchar](max) NULL,
-		[ExternalDataSources] [nvarchar](max) NULL,
-		[ExternalFileFormats] [nvarchar](max) NULL,
-		[Certificates] [nvarchar](max) NULL,
-		[ColumnMasterKeys] [nvarchar](max) NULL,
-		[ColumnEncryptionKeys] [nvarchar](max) NULL,
-		[SymmetricKeys] [nvarchar](max) NULL,
-		[AsymmetricKeys] [nvarchar](max) NULL,
-		[DatabaseEncryptionKey] [nvarchar](max) NULL,
-		[ExtendedStoredProcedures] [nvarchar](max) NULL,
-		[UserDefinedFunctions] [nvarchar](max) NULL,
-		[Views] [nvarchar](max) NULL,
-		[Users] [nvarchar](max) NULL,
-		[DatabaseAuditSpecifications] [nvarchar](max) NULL,
-		[Schemas] [nvarchar](max) NULL,
-		[Roles] [nvarchar](max) NULL,
-		[ApplicationRoles] [nvarchar](max) NULL,
-		[LogFiles] [nvarchar](max) NULL,
-		[FileGroups] [nvarchar](max) NULL,
-		[PlanGuides] [nvarchar](max) NULL,
-		[Defaults] [nvarchar](max) NULL,
-		[Rules] [nvarchar](max) NULL,
-		[UserDefinedDataTypes] [nvarchar](max) NULL,
-		[UserDefinedTableTypes] [nvarchar](max) NULL,
-		[XmlSchemaCollections] [nvarchar](max) NULL,
-		[PartitionFunctions] [nvarchar](max) NULL,
-		[PartitionSchemes] [nvarchar](max) NULL,
-		[ActiveDirectory] [nvarchar](max) NULL,
-		[MasterKey] [nvarchar](max) NULL,
-		[Triggers] [nvarchar](max) NULL,
-		[DefaultLanguage] [nvarchar](max) NULL,
-		[DefaultFullTextLanguage] [nvarchar](max) NULL,
-		[ServiceBroker] [nvarchar](max) NULL,
-		[MaxDop] [int] NULL,
-		[MaxDopForSecondary] [nvarchar](max) NULL,
-		[LegacyCardinalityEstimation] [nvarchar](max) NULL,
-		[LegacyCardinalityEstimationForSecondary] [nvarchar](max) NULL,
-		[ParameterSniffing] [nvarchar](max) NULL,
-		[ParameterSniffingForSecondary] [nvarchar](max) NULL,
-		[QueryOptimizerHotfixes] [nvarchar](max) NULL,
-		[QueryOptimizerHotfixesForSecondary] [nvarchar](max) NULL,
-		[IsVarDecimalStorageFormatSupported] [bit] NULL,
-		[IsVarDecimalStorageFormatEnabled] [bit] NULL,
-		[ParentCollection] [nvarchar](max) NULL,
-		[Urn] [nvarchar](max) NULL,
-		[Properties] [nvarchar](max) NULL,
-		[ServerVersion] [nvarchar](max) NULL,
-		[UserData] [nvarchar](max) NULL,
-		[State] [nvarchar](max) NULL,
-		[IsDesignMode] [bit] NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE VIEW dbo.vwHighCPUUtilizationLatestGrouped
+AS
+    SELECT SqlInstance,
+           COUNT (*) AS Count
+    FROM dbo.CPURingBuffers
+    WHERE (SQLProcessUtilization > 80)
+          AND (EventTime >= DATEADD (D, -1, GETDATE ()))
+    GROUP BY SqlInstance;
 GO
-	/****** Object:  Table [dbo].[DatabaseUsers]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwNewServerLoginsLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[DatabaseUsers] (
-		[CheckDate] [datetime2](7) NULL,
-		[ComputerName] [nvarchar](max) NULL,
-		[InstanceName] [nvarchar](max) NULL,
-		[SqlInstance] [nvarchar](max) NULL,
-		[Database] [nvarchar](max) NULL,
-		[Parent] [nvarchar](max) NULL,
-		[AsymmetricKey] [nvarchar](max) NULL,
-		[AuthenticationType] [nvarchar](max) NULL,
-		[Certificate] [nvarchar](max) NULL,
-		[CreateDate] [datetime2](7) NULL,
-		[DateLastModified] [datetime2](7) NULL,
-		[DefaultSchema] [nvarchar](max) NULL,
-		[HasDBAccess] [bit] NULL,
-		[ID] [int] NULL,
-		[IsSystemObject] [bit] NULL,
-		[Login] [nvarchar](max) NULL,
-		[LoginType] [nvarchar](max) NULL,
-		[Sid] [varbinary](max) NULL,
-		[UserType] [nvarchar](max) NULL,
-		[Name] [nvarchar](max) NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE VIEW dbo.vwNewServerLoginsLatest
+AS
+    SELECT SqlInstance,
+           Name,
+           LoginType AS Type,
+           DefaultDatabase,
+           DenyWindowsLogin,
+           IsDisabled,
+           IsLocked,
+           IsPasswordExpired,
+           MustChangePassword,
+           PasswordExpirationEnabled,
+           PasswordPolicyEnforced
+    FROM dbo.vwServerLoginsLatest
+    WHERE (CreateDate >= DATEADD (DAY, -1, GETDATE ()));
 GO
-	/****** Object:  Table [dbo].[DefaultTraceEntries]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  Table [dbo].[FailedJobHistory]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[DefaultTraceEntries] (
-		[SqlInstance] [nvarchar](max) NULL,
-		[LoginName] [nvarchar](max) NULL,
-		[HostName] [nvarchar](max) NULL,
-		[DatabaseName] [nvarchar](max) NULL,
-		[ApplicationName] [nvarchar](max) NULL,
-		[StartTime] [datetime2](7) NULL,
-		[TextData] [nvarchar](max) NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE TABLE dbo.FailedJobHistory (
+    InstanceID       INT              NULL,
+    SqlMessageID     INT              NULL,
+    Message          NVARCHAR(MAX)    NULL,
+    StepID           INT              NULL,
+    StepName         NVARCHAR(MAX)    NULL,
+    SqlSeverity      INT              NULL,
+    JobID            UNIQUEIDENTIFIER NULL,
+    JobName          NVARCHAR(MAX)    NULL,
+    RunStatus        INT              NULL,
+    RunDate          DATETIME2(7)     NULL,
+    RunDuration      INT              NULL,
+    OperatorEmailed  NVARCHAR(MAX)    NULL,
+    OperatorNetsent  NVARCHAR(MAX)    NULL,
+    OperatorPaged    NVARCHAR(MAX)    NULL,
+    RetriesAttempted INT              NULL,
+    Server           NVARCHAR(MAX)    NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
 GO
-	/****** Object:  Table [dbo].[DiskSpace]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwFailedAgentJobsLatest]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[DiskSpace] (
-		[CheckDate] [datetime2](7) NULL,
-		[ComputerName] [nvarchar](max) NULL,
-		[Name] [nvarchar](max) NULL,
-		[Label] [nvarchar](max) NULL,
-		[Capacity] [bigint] NULL,
-		[Free] [bigint] NULL,
-		[PercentFree] [float] NULL,
-		[BlockSize] [int] NULL,
-		[FileSystem] [nvarchar](max) NULL,
-		[Type] [nvarchar](max) NULL,
-		[IsSqlDisk] [nvarchar](max) NULL,
-		[Server] [nvarchar](max) NULL,
-		[DriveType] [nvarchar](max) NULL,
-		[SizeInBytes] [float] NULL,
-		[FreeInBytes] [float] NULL,
-		[SizeInKB] [float] NULL,
-		[FreeInKB] [float] NULL,
-		[SizeInMB] [float] NULL,
-		[FreeInMB] [float] NULL,
-		[SizeInGB] [float] NULL,
-		[FreeInGB] [float] NULL,
-		[SizeInTB] [float] NULL,
-		[FreeInTB] [float] NULL,
-		[SizeInPB] [float] NULL,
-		[FreeInPB] [float] NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE VIEW dbo.vwFailedAgentJobsLatest
+AS
+    SELECT Server,
+           RunDate,
+           JobName,
+           StepID,
+           StepName,
+           RunDuration,
+           SqlMessageID,
+           SqlSeverity,
+           Message,
+           OperatorEmailed
+    FROM dbo.FailedJobHistory
+    WHERE (RunDate >= DATEADD (DAY, -1, GETDATE ()))
+          AND (StepName <> '(Job outcome)');
 GO
-	/****** Object:  Table [dbo].[LastBackupTests]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwHighCPUUtilization]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[LastBackupTests] (
-		[SourceServer] [nvarchar](max) NULL,
-		[TestServer] [nvarchar](max) NULL,
-		[Database] [nvarchar](max) NULL,
-		[FileExists] [bit] NULL,
-		[Size] [bigint] NULL,
-		[RestoreResult] [nvarchar](max) NULL,
-		[DbccResult] [nvarchar](max) NULL,
-		[RestoreStart] [nvarchar](max) NULL,
-		[RestoreEnd] [nvarchar](max) NULL,
-		[RestoreElapsed] [nvarchar](max) NULL,
-		[DbccMaxDop] [int] NULL,
-		[DbccStart] [nvarchar](max) NULL,
-		[DbccEnd] [nvarchar](max) NULL,
-		[DbccElapsed] [nvarchar](max) NULL,
-		[BackupDates] [nvarchar](max) NULL,
-		[BackupFiles] [nvarchar](max) NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE VIEW dbo.vwHighCPUUtilization
+AS
+    SELECT SqlInstance,
+           RecordId,
+           EventTime,
+           SQLProcessUtilization,
+           OtherProcessUtilization,
+           SystemIdle
+    FROM dbo.CPURingBuffers
+    WHERE (SQLProcessUtilization > 80);
 GO
-	/****** Object:  Table [dbo].[ServerLogins]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+/****** Object:  View [dbo].[vwAllScannedSqlInstances]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+SET QUOTED_IDENTIFIER ON;
 GO
-	CREATE TABLE [dbo].[ServerLogins] (
-		[CheckDate] [datetime2](7) NULL,
-		[ComputerName] [nvarchar](max) NULL,
-		[InstanceName] [nvarchar](max) NULL,
-		[SqlInstance] [nvarchar](max) NULL,
-		[LastLogin] [nvarchar](max) NULL,
-		[AsymmetricKey] [nvarchar](max) NULL,
-		[Certificate] [nvarchar](max) NULL,
-		[CreateDate] [datetime2](7) NULL,
-		[Credential] [nvarchar](max) NULL,
-		[DateLastModified] [datetime2](7) NULL,
-		[DefaultDatabase] [nvarchar](max) NULL,
-		[DenyWindowsLogin] [bit] NULL,
-		[HasAccess] [bit] NULL,
-		[ID] [int] NULL,
-		[IsDisabled] [bit] NULL,
-		[IsLocked] [bit] NULL,
-		[IsPasswordExpired] [bit] NULL,
-		[IsSystemObject] [bit] NULL,
-		[LoginType] [nvarchar](max) NULL,
-		[MustChangePassword] [bit] NULL,
-		[PasswordExpirationEnabled] [bit] NULL,
-		[PasswordHashAlgorithm] [nvarchar](max) NULL,
-		[PasswordPolicyEnforced] [bit] NULL,
-		[Sid] [varbinary](max) NULL,
-		[WindowsLoginAccessType] [nvarchar](max) NULL,
-		[Name] [nvarchar](max) NULL
-	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+CREATE VIEW dbo.vwAllScannedSqlInstances
+AS
+    SELECT SqlInstance FROM DBA.dbo.SqlInstances WHERE Scan = 1;
 GO
-ALTER TABLE
-	[dbo].[Databases]
-ADD
-	CONSTRAINT [DF_Databases_CheckDate] DEFAULT (getdate()) FOR [CheckDate]
+/****** Object:  Table [dbo].[LastBackupTests]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-ALTER TABLE
-	[dbo].[DatabaseUsers]
-ADD
-	CONSTRAINT [DF_DatabaseUsers_CheckDate] DEFAULT (getdate()) FOR [CheckDate]
+SET QUOTED_IDENTIFIER ON;
 GO
-ALTER TABLE
-	[dbo].[DiskSpace]
-ADD
-	CONSTRAINT [DF_DiskSpace_CheckDate] DEFAULT (getdate()) FOR [CheckDate]
+CREATE TABLE dbo.LastBackupTests (
+    SourceServer   NVARCHAR(MAX) NULL,
+    TestServer     NVARCHAR(MAX) NULL,
+    [Database]     NVARCHAR(MAX) NULL,
+    FileExists     BIT           NULL,
+    Size           BIGINT        NULL,
+    RestoreResult  NVARCHAR(MAX) NULL,
+    DbccResult     NVARCHAR(MAX) NULL,
+    RestoreStart   NVARCHAR(MAX) NULL,
+    RestoreEnd     NVARCHAR(MAX) NULL,
+    RestoreElapsed NVARCHAR(MAX) NULL,
+    DbccMaxDop     INT           NULL,
+    DbccStart      NVARCHAR(MAX) NULL,
+    DbccEnd        NVARCHAR(MAX) NULL,
+    DbccElapsed    NVARCHAR(MAX) NULL,
+    BackupDates    NVARCHAR(MAX) NULL,
+    BackupFiles    NVARCHAR(MAX) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
 GO
-ALTER TABLE
-	[dbo].[DiskSpeedTests]
-ADD
-	CONSTRAINT [DF_DiskSpeedTests_CheckDate] DEFAULT (getdate()) FOR [CheckDate]
+/****** Object:  Table [dbo].[SqlAudit]    Script Date: 12-6-2021 14:30:10 ******/
+SET ANSI_NULLS ON;
 GO
-ALTER TABLE
-	[dbo].[ServerLogins]
-ADD
-	CONSTRAINT [DF_ServerLogins_CheckDate] DEFAULT (getdate()) FOR [CheckDate]
+SET QUOTED_IDENTIFIER ON;
 GO
-	/****** Object:  StoredProcedure [dbo].[usp_CreateDiskSpaceReport]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+CREATE TABLE dbo.SqlAudit (
+    event_time                     DATETIME2(7)  NULL,
+    sequence_number                INT           NULL,
+    action_id                      VARCHAR(4)    NULL,
+    succeeded                      BIT           NOT NULL,
+    permission_bitmask             BIGINT        NOT NULL,
+    is_column_permission           BIT           NOT NULL,
+    session_id                     SMALLINT      NOT NULL,
+    server_principal_id            INT           NULL,
+    database_principal_id          INT           NULL,
+    target_server_principal_id     INT           NULL,
+    target_database_principal_id   INT           NULL,
+    object_id                      BIGINT        NULL,
+    class_type                     VARCHAR(10)   NULL,
+    session_server_principal_name  NVARCHAR(100) NULL,
+    server_principal_name          NVARCHAR(100) NULL,
+    server_principal_sid           NVARCHAR(100) NULL,
+    database_principal_name        NVARCHAR(100) NULL,
+    target_server_principal_name   NVARCHAR(100) NULL,
+    target_server_principal_sid    NVARCHAR(100) NULL,
+    target_database_principal_name NVARCHAR(100) NULL,
+    server_instance_name           NVARCHAR(100) NULL,
+    database_name                  NVARCHAR(100) NULL,
+    schema_name                    NVARCHAR(100) NULL,
+    object_name                    NVARCHAR(100) NULL,
+    statement                      NVARCHAR(MAX) NULL,
+    additional_information         NVARCHAR(500) NULL,
+    file_name                      NVARCHAR(500) NULL,
+    audit_file_offset              BIGINT        NULL,
+    user_defined_event_id          INT           NULL,
+    user_defined_information       NVARCHAR(100) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];
 GO
-SET
-	QUOTED_IDENTIFIER ON
+ALTER TABLE dbo.DatabaseRoleMembers
+ADD CONSTRAINT DF_DatabaseRoleMembers_CheckDate
+    DEFAULT (GETDATE ()) FOR CheckDate;
 GO
-	CREATE PROCEDURE [dbo].[usp_CreateDiskSpaceReport] @profile_name sysname,
-	@recipients VARCHAR(MAX) AS BEGIN DECLARE @subj VARCHAR(200),
-	@body NVARCHAR(MAX),
-	@xml NVARCHAR(MAX);
-
--- Create a temp table
-IF OBJECT_ID ('tempdb.dbo.#DiskSpace') IS NOT NULL DROP TABLE #DiskSpace;
-CREATE TABLE tempdb.dbo.#DiskSpace
-(
-	ComputerName VARCHAR(100) NOT NULL,
-	Name VARCHAR(50) NULL,
-	Label NVARCHAR(255) NULL,
-	Capacity BIGINT NULL,
-	Free BIGINT NULL,
-	PercentFree DECIMAL(5, 2) NULL,
-	BlockSize INT NULL,
-	FileSystem NVARCHAR(50),
-	TYPE NVARCHAR(255)
-);
-
--- Store all applicable errorlog entries in a temp table
-INSERT INTO
-	#DiskSpace
-SELECT
-	ComputerName,
-	Name,
-	Label,
-	Capacity,
-	Free,
-	PercentFree,
-	BlockSize,
-	FileSystem,
-	TYPE
-FROM
-	DBA.dbo.DiskSpace AS el
-WHERE
-	(CheckDate >= DATEADD (DAY, -1, GETDATE ()))
-	AND (
-		PercentFree < 2.5
-		AND FreeinGB < 2
-	)
-	AND Label <> 'Page file'
-	AND TYPE <> 'RemovableDisk'
-ORDER BY
-	ComputerName,
-	Name;
-
---SELECT * FROM #DiskSpace;
--------------------------------------------------------------------------------
--- SQL Server Diskspace Report
--------------------------------------------------------------------------------
-SELECT
-	@subj = CONCAT (@ @SERVERNAME, ' - SQL Server diskspace report');
-
-SET
-	@body = N '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-			<html>
-				<head>
-					<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-					<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-					<style>
-						table, td {  
-							border: 2px solid #bada55;  
-							border-collapse: collapse; 
-							font-size: 14px;  
-							vertical-align: top;
-							width: 100%;
-							table-layout: auto !important;
-						}  
-
-						table td{
-							white-space: nowrap;  /** added **/
-						}
-
-						th {
-							background-color: #bada55;
-							color: white;
-							width: auto !important;
-						}
-
-						table td:last-child{
-							width:100%;
-						}
-					</style>
-				</head>
-				<body>  
-					<p>(This mail was sent by the procedure ''' + DB_NAME () + N'.' + OBJECT_SCHEMA_NAME (@ @PROCID) + N'.' + OBJECT_NAME (@ @PROCID) + N'' ')</p>               
-					<p>The table below contains the latest SQL Server Diskspace Report.</p>
-					<h2>SQL Server Diskspace Report</h2>
-					<table border="1" cellpadding="2">               
-						<thead> 
-						<tr> 
-							<th> ComputerName </th> 							
-							<th> Drive </th>
-							<th> Label </th>
-							<th> Capacity </th>
-							<th> Free </th>
-							<th> Percent Free </th>
-							<th> BlockSize </th>
-							<th> FileSystem </th>
-							<th> Type </th>
-						</tr> 
-					</thead>';
-
-SET
-	@xml = CAST(
-		(
-			SELECT
-				ComputerName AS td,
-				'',
-				Name AS td,
-				'',
-				Label AS td,
-				'',
-				Capacity AS td,
-				'',
-				Free AS td,
-				'',
-				PercentFree AS td,
-				'',
-				BlockSize AS td,
-				'',
-				FileSystem AS td,
-				'',
-				TYPE AS td,
-				''
-			FROM
-				#DiskSpace
-			ORDER BY
-				ComputerName FOR XML PATH ('tr'),
-				ELEMENTS
-		) AS NVARCHAR(MAX)
-	);
-
-SET
-	@body = @body + @xml + N'</table></body></html>';
-
-EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
-@recipients = @recipients,
-@subject = @subj,
-@body = @body,
-@body_format = 'HTML';
-
-END;
-
+ALTER TABLE dbo.Databases
+ADD CONSTRAINT DF_Databases_CheckDate_1
+    DEFAULT (GETDATE ()) FOR CheckDate;
 GO
-	/****** Object:  StoredProcedure [dbo].[usp_ProcessErrorLogs]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+ALTER TABLE dbo.DatabaseSpace
+ADD CONSTRAINT DF_DatabaseSpace_CheckDate
+    DEFAULT (GETDATE ()) FOR CheckDate;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+ALTER TABLE dbo.DiskSpace
+ADD CONSTRAINT DF_DiskSpace_CheckDate
+    DEFAULT (GETDATE ()) FOR CheckDate;
 GO
-	CREATE PROCEDURE [dbo].[usp_ProcessErrorLogs] @profile_name sysname,
-	@recipients VARCHAR(MAX) AS BEGIN DECLARE @subj VARCHAR(200),
-	@body NVARCHAR(MAX),
-	@xml NVARCHAR(MAX);
-
--- Create a temp table
-IF OBJECT_ID ('tempdb.dbo.#SQLErrorLog') IS NOT NULL DROP TABLE #SQLErrorLog;
-CREATE TABLE tempdb.dbo.#SQLErrorLog
-(
-	SQLInstance VARCHAR(100) NOT NULL,
-	Text NVARCHAR(4000) NULL,
-	[Count] INT NULL
-);
-
--- Store all applicable errorlog entries in a temp table
-INSERT INTO
-	#SQLErrorLog
-	(SQLInstance, Text, [Count])
-SELECT
-	SqlInstance,
-	Text,
-	COUNT(*) AS Number
-FROM
-	DBA.dbo.ErrorLogs AS el
-WHERE
-	(LogDate >= DATEADD (DAY, -1, GETDATE ()))
-	AND Text NOT LIKE ('%(c)%')
-	AND Text NOT LIKE ('%Microsoft SQL Server%')
-	AND Text NOT LIKE ('%All rights reserved%')
-	AND Text NOT LIKE ('%Server is listening%')
-	AND Text NOT LIKE ('%Database Mirroring endpoint%')
-	AND Text NOT LIKE ('%SQL Trace ID 1%')
-	AND Text NOT LIKE ('%Service Broker%')
-	AND Text NOT LIKE ('%Software Usage Metrics%')
-	AND Text NOT LIKE ('%Authentication mode is MIXED%')
-	AND Text NOT LIKE ('%backed up%')
-	AND Text NOT LIKE ('%Server local connection provider%')
-	AND Text NOT LIKE ('%Server process ID%')
-	AND Text NOT LIKE ('%changed from 0 to 0%')
-	AND Text NOT LIKE ('%I/O is frozen on database%')
-	AND Text NOT LIKE ('%I/O was resumed on database%')
-	AND Text NOT LIKE ('%informational message%')
-	AND Text NOT LIKE ('%Log was restored%')
-	AND Text NOT LIKE ('%Starting up database%')
-	AND Text NOT LIKE ('%BACKUP DATABASE successfully processed%')
-	AND Text NOT LIKE (
-		'%BACKUP DATABASE WITH DIFFERENTIAL successfully processed%'
-	)
-	AND Text NOT LIKE ('%Setting database option % to % for database%')
-	AND Text NOT LIKE ('%The tempdb database has % data file(s)%')
-	AND Text NOT LIKE ('%SSPI handshake failed%')
-	AND Text NOT LIKE ('%Login succeeded%')
-	AND Text NOT LIKE ('%found 0 errors%')
-	AND Text NOT LIKE ('%finished without errors%')
-	AND Text NOT LIKE ('%Error: %, Severity: %, State: %')
-	AND Text NOT LIKE ('%Log was backed up%')
-	AND Text NOT LIKE ('%Parallel redo is shutdown%')
-	AND Text NOT LIKE ('%Parallel redo is started%')
-	AND Text NOT LIKE ('%RESTORE DATABASE successfully processed %')
-	AND Text NOT LIKE ('%Restore is complete on database%')
-	AND Text NOT LIKE ('%Login failed for user ''UltimoLogin''%')
-	AND Text NOT LIKE ('%The database ''%'' is marked RESTORING%')
-	AND Text NOT LIKE (
-		'%The operating system returned the error ''21(The device is not ready.)''%'
-	)
-	AND Text NOT LIKE (
-		'%Filegroup MultimediaFileStream in database % is unavailable%'
-	)
-	AND Text NOT LIKE (
-		'%Process ID % was killed by hostname %, host process ID %.'
-	)
-GROUP BY
-	SqlInstance,
-	Text
-ORDER BY
-	SqlInstance;
-
---SELECT * FROM #SQLErrorLog;
--------------------------------------------------------------------------------
--- Unusual SQL Server Agentlog entries
--------------------------------------------------------------------------------
-SELECT
-	@subj = CONCAT (@ @SERVERNAME, ' - SQL Server Errorlog entries');
-
-SET
-	@body = N '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-			<html>
-				<head>
-					<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-					<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-					<style>
-						table, td {  
-							border: 2px solid #bada55;  
-							border-collapse: collapse; 
-							font-size: 14px;  
-							vertical-align: top;
-							width: 100%;
-							table-layout: auto !important;
-						}  
-
-						table td{
-							white-space: nowrap;  /** added **/
-						}
-
-						th {
-							background-color: #bada55;
-							color: white;
-							width: auto !important;
-						}
-
-						table td:last-child{
-							width:100%;
-						}
-					</style>
-				</head>
-				<body>  
-					<p>(This mail was sent by the procedure ''' + DB_NAME () + N'.' + OBJECT_SCHEMA_NAME (@ @PROCID) + N'.' + OBJECT_NAME (@ @PROCID) + N'' ')</p>               
-					<p>The table below contains SQL Error Log entries recorded during the last 24 hours.</p>
-					<h2>SQL Server Errorlogs</h2>
-					<table border="1" cellpadding="2">               
-						<thead> 
-						<tr> 
-							<th> SqlInstance </th> 							
-							<th> Text </th>
-							<th> Count </th>
-						</tr> 
-					</thead>';
-
-SET
-	@xml = CAST(
-		(
-			SELECT
-				SQLInstance AS td,
-				'',
-				Text AS td,
-				'',
-				Count AS td,
-				''
-			FROM
-				#SQLErrorLog
-			ORDER BY
-				SQLInstance,
-				[Count] DESC FOR XML PATH ('tr'),
-				ELEMENTS
-		) AS NVARCHAR(MAX)
-	);
-
-SET
-	@body = @body + @xml + N'</table></body></html>';
-
-EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
-@recipients = @recipients,
-@subject = @subj,
-@body = @body,
-@body_format = 'HTML';
-
-END;
-
+ALTER TABLE dbo.DiskSpeedTests
+ADD CONSTRAINT DF_DiskSpeedTests_CheckDate
+    DEFAULT (GETDATE ()) FOR CheckDate;
 GO
-	/****** Object:  StoredProcedure [dbo].[usp_ProcessFailedAgentJobs]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+ALTER TABLE dbo.ServerLogins
+ADD CONSTRAINT DF_ServerLogins_CheckDate
+    DEFAULT (GETDATE ()) FOR CheckDate;
 GO
-SET
-	QUOTED_IDENTIFIER ON
+ALTER TABLE dbo.ServerRoleMembers
+ADD CONSTRAINT DF_ServerRoleMembers_CheckDate
+    DEFAULT (GETDATE ()) FOR CheckDate;
 GO
-	CREATE PROCEDURE [dbo].[usp_ProcessFailedAgentJobs] @profile_name sysname,
-	@recipients VARCHAR(MAX) AS BEGIN DECLARE @subj VARCHAR(200),
-	@body NVARCHAR(MAX),
-	@xml NVARCHAR(MAX);
-
--- Create a temp table
-IF OBJECT_ID ('tempdb.dbo.#SQLAgentLog') IS NOT NULL DROP TABLE #SQLAgentLog;
-CREATE TABLE #SQLAgentLog
-(
-	SQLInstance VARCHAR(100) NOT NULL,
-	RunDate VARCHAR(20) NOT NULL,
-	JobName NVARCHAR(200) NOT NULL,
-	StepName NVARCHAR(200) NOT NULL,
-	RunDuration INT NOT NULL,
-	LogText NVARCHAR(4000) NULL
-);
-
--- Store all applicable agentlog entries in a temp table
-INSERT INTO
-	#SQLAgentLog
-	(
-		SQLInstance,
-		RunDate,
-		JobName,
-		StepName,
-		RunDuration,
-		LogText
-	)
-SELECT
-	Server,
-	RunDate,
-	JobName,
-	StepName,
-	RunDuration,
-	Message
-FROM
-	DBA.dbo.FailedJobHistory
-WHERE
-	(RunDate >= DATEADD (DAY, -1, GETDATE ()))
-	AND StepName <> '(Job outcome)'
-ORDER BY
-	Server,
-	RunDate DESC;
-
--------------------------------------------------------------------------------
--- Unusual SQL Server Agentlog entries
--------------------------------------------------------------------------------
-SELECT
-	@subj = CONCAT (@ @SERVERNAME, ' - SQL Server Agentlog entries');
-
-SET
-	@body = N '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-			<html>
-				<head>
-					<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-					<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-					<style>
-						table, td {  
-							border: 2px solid #bada55;  
-							border-collapse: collapse; 
-							font-size: 14px;  
-							vertical-align: top;
-							width: 100%;
-							table-layout: auto !important;
-						}  
-
-						table td{
-							white-space: nowrap;  /** added **/
-						}
-
-						th {
-							background-color: #bada55;
-							color: white;
-							width: auto !important;
-						}
-
-						table td:last-child{
-							width:100%;
-						}
-					</style>
-				</head>
-				<body>  
-					<p>(This mail was sent by the procedure ''' + DB_NAME () + N'.' + OBJECT_SCHEMA_NAME (@ @PROCID) + N'.' + OBJECT_NAME (@ @PROCID) + N'' ')</p>               
-					<p>The table below contains SQL Agent Log entries recorded during the last 24 hours.</p>
-					<h2>SQL Server Agentlogs</h2>
-					<table border="1" cellpadding="2">               
-						<thead> 
-						<tr> 
-							<th> SqlInstance </th> 
-							<th> Date </th> 
-							<th> JobName </th> 
-							<th> StepName </th> 
-							<th> Duration </th> 
-							<th> Text </th> 
-						</tr> 
-					</thead>';
-
-SET
-	@xml = CAST(
-		(
-			SELECT
-				SQLInstance AS td,
-				'',
-				CONVERT (CHAR(30), RunDate, 21) AS td,
-				'',
-				JobName AS td,
-				'',
-				StepName AS td,
-				'',
-				RunDuration AS td,
-				'',
-				LogText AS td,
-				''
-			FROM
-				#SQLAgentLog
-			ORDER BY
-				SQLInstance,
-				RunDate DESC FOR XML PATH ('tr'),
-				ELEMENTS
-		) AS NVARCHAR(MAX)
-	);
-
-SET
-	@body = @body + @xml + N'</table></body></html>';
-
-EXEC msdb.dbo.sp_send_dbmail @profile_name = @profile_name,
-@recipients = @recipients,
-@subject = @subj,
-@body = @body,
-@body_format = 'HTML';
-
-END;
-
+ALTER TABLE dbo.SqlInstances
+ADD CONSTRAINT DF_SqlInstances_Timestamp
+    DEFAULT (GETDATE ()) FOR Timestamp;
 GO
-	/****** Object:  StoredProcedure [dbo].[usp_ShowCPUUtilization]    Script Date: 11-5-2021 14:35:35 ******/
-SET
-	ANSI_NULLS ON
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPane1',
+                                @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "Databases"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 136
+               Right = 400
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+',
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwDatabasesLatest';
 GO
-SET
-	QUOTED_IDENTIFIER ON
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPaneCount',
+                                @value = 1,
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwDatabasesLatest';
 GO
-	CREATE PROC [dbo].[usp_ShowCPUUtilization] @SqlInstance VARCHAR(255),
-	@NumDays INT = 7 AS BEGIN
-SET
-	NOCOUNT ON;
-
-SELECT
-	tbl.SqlInstance,
-	tbl.RecordId,
-	tbl.EventTime,
-	tbl.SQLProcessUtilization,
-	tbl.OtherProcessUtilization
-FROM
-	(
-		SELECT
-			*,
-			ROW_NUMBER () OVER (
-				PARTITION BY c.RecordId
-				ORDER BY
-					c.EventTime
-			) AS num
-		FROM
-			dbo.CPURingBuffers AS c
-		WHERE
-			SqlInstance = @SqlInstance
-			AND c.EventTime >= DATEADD (DAY, - @NumDays, GETDATE ())
-	) AS tbl
-WHERE
-	num = 1
-ORDER BY
-	tbl.EventTime DESC;
-
-END;
-
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPane1',
+                                @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "DatabaseSpace"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 136
+               Right = 235
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+',
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwDatabaseSpaceLatest';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPaneCount',
+                                @value = 1,
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwDatabaseSpaceLatest';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPane1',
+                                @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "DefaultTraceEntries"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 136
+               Right = 220
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+',
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwDefaultTrace';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPaneCount',
+                                @value = 1,
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwDefaultTrace';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPane1',
+                                @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "FailedJobHistory"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 136
+               Right = 219
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+',
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwFailedAgentJobsLatest';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPaneCount',
+                                @value = 1,
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwFailedAgentJobsLatest';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPane1',
+                                @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "CPURingBuffers"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 136
+               Right = 250
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+',
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwHighCPUUtilization';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPaneCount',
+                                @value = 1,
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwHighCPUUtilization';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPane1',
+                                @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "vwServerLoginsLatest"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 136
+               Right = 271
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+',
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwNewServerLoginsLatest';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPaneCount',
+                                @value = 1,
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwNewServerLoginsLatest';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPane1',
+                                @value = N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[40] 4[20] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "SqlInstances"
+            Begin Extent = 
+               Top = 6
+               Left = 38
+               Bottom = 263
+               Right = 215
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+',
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwSqlInstances';
+GO
+EXEC sys.sp_addextendedproperty @name = N'MS_DiagramPaneCount',
+                                @value = 1,
+                                @level0type = N'SCHEMA',
+                                @level0name = N'dbo',
+                                @level1type = N'VIEW',
+                                @level1name = N'vwSqlInstances';
 GO
