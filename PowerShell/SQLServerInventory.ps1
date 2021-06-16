@@ -63,7 +63,7 @@ Get-DbaDbRoleMember -SqlInstance $SqlInstances -ExcludeDatabase tempdb,model |
 
 ## Retrieve all database role members
 Get-DbaServerRoleMember -SqlInstance $SqlInstances | 
-    Select-Object ComputerName,InstanceName,SqlInstance,Database,Role,Name | 
+    Select-Object ComputerName,InstanceName,SqlInstance,Role,Name | 
         Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ServerRoleMembers -AutoCreateTable
 
 ## Retrieve database space info

@@ -105,6 +105,9 @@ $growEvents = Invoke-DbaQuery -SqlInstance $managementServer -Database $managent
     SELECT SqlInstance,DatabaseName,GrowEvents | 
     ConvertTo-Html -Fragment
 
+$backupInfo = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM DBA.dbo.vwDatabaseBackupInfoLatest ORDER BY SqlInstance, Name;" | 
+    SELECT SqlInstance,Name,RecoveryModel,LogReuseWaitStatus,LastBackup,BackupType | 
+    ConvertTo-Html -Fragment
 
 $body = @"
 <h1>Bravis SQL Server rapportage van $today</h1>
@@ -112,10 +115,11 @@ $body = @"
     <li><a href="#instances">SQL Server overzicht</a></li>
     <li><a href="#errors">Errorlogs</a></li>
     <li><a href="#jobs">Agentlogs</a></li>
-    <li><a href="#cpu">Hoge CPU belasting</a></li>
+    <li><a href="#cpu">CPU</a></li>
     <li><a href="#diskspace">Schijfruimte</a></li>
     <li><a href="#newlogins">Logins</a></li>
     <li><a href="#growEvents">Groei</a></li>
+    <li><a href="#backupInfo">Backups</a></li>
 </ul>
 
 <div id="content">
@@ -139,6 +143,9 @@ $body = @"
 
     <h2 id="growEvents">Database Groei</h2>
     $growEvents
+
+     <h2 id="backupInfo">Te Controleren Backups</h2>
+    $backupInfo
 </div>
 "@
 
