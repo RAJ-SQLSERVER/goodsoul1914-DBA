@@ -1,3 +1,9 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+CREATE VIEW vwDatabaseBackupInfoLatest
+AS 
 WITH BackupInfo
 AS (
     SELECT CheckDate,
@@ -32,3 +38,4 @@ WHERE CheckDate >= DATEADD (DAY, -1, GETDATE ())
       AND Name NOT IN ( 'tempdb', 'model', 'ReportServerTempDB' )
       AND SqlInstance LIKE ('GP%')
       AND SqlInstance NOT IN ( 'GPMVISION01', 'GPWOSQL02', 'GPAX4HHIS01', 'GPHIXLS03', 'GPHIXDWHLS01', 'GPAX4HSQL01' )
+GO

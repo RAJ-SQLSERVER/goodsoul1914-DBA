@@ -77,5 +77,11 @@ Find-DbaDbGrowthEvent -SqlInstance $SqlInstances -UseLocalTime |
         Select-Object SqlInstance,DatabaseName,FileName,Duration,StartTime,EndTime,ChangeInSize,ApplicationName,HostName,SessionLoginName |
             Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseGrowthEvents -AutoCreateTable
 
+## Retrieve index information
+Get-DbaHelpIndex -SqlInstance $SqlInstances -IncludeDataTypes -IncludeFragmentation -ExcludeDatabase master, model, msdb, tempdb, HIX_PRODUCTIE | 
+    Select-Object ComputerName,InstanceName,SqlInstance,Database,Object,Index,IndexType,Statistics,KeyColumns,IncludeColumns,FilterDefinition,DataCompression,IndexReads,IndexUpdates,Size,IndexRows,IndexLookups,MostRecentlyUsed,StatsSampleRows,StatsRowMods,HistogramSteps,StatsLastUpdated,IndexFragInPercent | 
+        Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseIndexes -AutoCreateTable
+
+
 ## Generate a report
 powershell.exe -File "C:\temp\SQLServerReport.ps1"
