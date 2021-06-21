@@ -8,4 +8,4 @@ Backup-DbaDatabase -SqlInstance GPHIXSQL02 -Path "\\GOHIXSQL02\migration" -Datab
 # Restore the database, perform a CHECKDB and store the result
 Test-DbaLastBackup -SqlInstance GPHIXSQL02 -Database HIX_PRODUCTIE -Destination GOHIXSQL02 -DataDirectory N:\SQLData -LogDirectory L:\SQLLogs -Prefix "dba-" -MaxDop 4 | 
     ConvertTo-DbaDataTable | 
-        Write-DbaDataTable -SqlInstance GTSQL01 -Table DBA.dbo.LastBackupTests -AutoCreateTable
+    Write-DbaDataTable -SqlInstance GTSQL01 -Table DBA.dbo.LastBackupTests -AutoCreateTable
