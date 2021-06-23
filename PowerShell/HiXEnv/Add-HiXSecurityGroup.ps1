@@ -12,27 +12,23 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)][string[]]$Name,
-    [Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $true, ValueFromPipeline = $true)][string[]]$Name,
+	[Parameter(Mandatory = $false)][string]$Url
 )
-begin
-{
+begin {
 	Set-StrictMode -Version Latest
 
-	if (-not $Url)
-	{
+	if (-not $Url) {
 		$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 	}
 }
-process
-{
+process {
 	Set-StrictMode -Version Latest
 
-	foreach ($n in $Name)
-	{
+	foreach ($n in $Name) {
 		$body = @{
 			Name = $n
-			} | ConvertTo-Json
+		} | ConvertTo-Json
 
 		$uri = "$Url/api/v2/securitygroups"
 		(Invoke-RestMethod -Uri $uri -Method Post -UseDefaultCredentials -ContentType 'application/json' -Body $body)

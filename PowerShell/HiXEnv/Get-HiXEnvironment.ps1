@@ -34,20 +34,19 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$false)][string]$Id = '*',
-    [Parameter(Mandatory=$false)][string]$Name = '*',
-	[Parameter(Mandatory=$false)][ValidateSet('DEV', 'TEST', 'ACC', 'PROD')][string]$Type = '*',
-	[Parameter(Mandatory=$false)][string]$Version = '*',
-    [Parameter(Mandatory=$false)][string]$ConnectionString = '*',
-    [Parameter(Mandatory=$false)][string]$Category = '*',
-	[Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $false)][string]$Id = '*',
+	[Parameter(Mandatory = $false)][string]$Name = '*',
+	[Parameter(Mandatory = $false)][ValidateSet('DEV', 'TEST', 'ACC', 'PROD')][string]$Type = '*',
+	[Parameter(Mandatory = $false)][string]$Version = '*',
+	[Parameter(Mandatory = $false)][string]$ConnectionString = '*',
+	[Parameter(Mandatory = $false)][string]$Category = '*',
+	[Parameter(Mandatory = $false)][string]$Url
 )
 
 Set-StrictMode -Version Latest
 
-if (-not $Url)
-{
-    $Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
+if (-not $Url) {
+	$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 }
 
 $uri = "$Url/api/v2/administerenvironments"

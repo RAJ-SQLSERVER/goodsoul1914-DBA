@@ -10,5 +10,5 @@ $SqlInstances = "BPHIXLS01", "GTHIXSQL03", "GPHIXDWHLS01", "GPHIXDWHSQL01", "GAH
 
 Get-DbaEstimatedCompletionTime -SqlInstance $SqlInstances -ErrorAction SilentlyContinue | 
     Where-Object { ($_.Command -like "BACKUP*") -or ($_.Command -like "RESTORE*")  } | 
-    Select-Object ComputerName,InstanceName,Command,Database,Login,StartTime,RunningTime,EstimatedTimeToGo,PercentComplete | 
+    Select-Object ComputerName, InstanceName, Command, Database, Login, StartTime, RunningTime, EstimatedTimeToGo, PercentComplete | 
     Format-Table -AutoSize

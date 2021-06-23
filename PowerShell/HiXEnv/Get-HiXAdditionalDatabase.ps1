@@ -14,20 +14,17 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)][Alias('id')][string]$EnvironmentId = '*',
-	[Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true, ValueFromPipeline = $true)][Alias('id')][string]$EnvironmentId = '*',
+	[Parameter(Mandatory = $false)][string]$Url
 )
-begin
-{
+begin {
 	Set-StrictMode -Version Latest
 
-	if (-not $Url)
-	{
+	if (-not $Url) {
 		$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 	}
 }
-process
-{
+process {
 	$uri = "$Url/api/v2/additionaldatabases"
 	(Invoke-RestMethod -Uri $uri -UseDefaultCredentials) | Where-Object { $_.EnvironmentId -like $EnvironmentId}
 }

@@ -56,7 +56,7 @@ Get-DbaAgentJobHistory -SqlInstance gpsql01, gpsql02 -StartDate '2018-08-18 00:0
 ## Backup history timeline:
 Get-DbaDbBackupHistory -SqlInstance gpsql01, gpsql02 -Since '2018-08-18 00:00' | 
     ConvertTo-DbaTimeline | 
-        Out-File C:\temp\Get-DbaDbBackupHistory.html -Encoding ascii
+    Out-File C:\temp\Get-DbaDbBackupHistory.html -Encoding ascii
 
 
 ## OLA, BRENT and WIA
