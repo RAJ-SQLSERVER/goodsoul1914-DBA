@@ -33,6 +33,18 @@ Get-DbaFile -SqlInstance 'GABEAUFORT01'
 
 'GABEAUFORT01' | Test-DbaMaxMemory | Format-Table
 
+Get-DbaDbccMemoryStatus -SqlInstance lt-rsd-01 | 
+    Select-Object SqlInstance, Type, Name, Value | 
+    Format-Table -AutoSize
+
+Get-DbaDbMemoryUsage -SqlInstance lt-rsd-01 | 
+    Select-Object SqlInstance, Database, PageType, Size, PercentUsed | 
+    Format-Table -AutoSize
+
+Get-DbaMemoryUsage -ComputerName lt-rsd-01 | 
+    Select-Object SqlInstance, CounterInstance, Counter, Pages, Memory | 
+    Format-Table -AutoSize
+
 
 ## TRANSACTION LOG
 Get-DbaDbVirtualLogFile -SqlInstance 'GABEAUFORT01' -Database Beaufort | 
@@ -74,3 +86,9 @@ Test-DbaDbLogShipStatus -SqlInstance "GPWOSQL01" | Out-GridView
 
 Get-DbaDbLogShipError -SqlInstance "GPAX4HSQL01"
 Get-DbaDbLogShipError -SqlInstance "GPAX4HSQL01" -DateTimeFrom "11/05/2020"
+
+
+## Waits
+Get-DbaWaitStatistic -SqlInstance lt-rsd-01 -Threshold 99 | 
+    Select-Object SqlInstance, Category, WaitType, WaitCount, WaitSeconds, AverageWaitSeconds | 
+    Format-Table -AutoSize
