@@ -29,3 +29,5 @@ CREATE TABLE [dbo].[Databases]
 GO
 ALTER TABLE [dbo].[Databases] ADD CONSTRAINT [DF_Databases_CheckDate_1] DEFAULT (getdate ()) FOR [CheckDate]
 GO
+CREATE NONCLUSTERED INDEX [IX_Databases_LastFullBackup_LastLogBackup] ON [dbo].[Databases] ([LastFullBackup], [LastLogBackup]) INCLUDE ([CheckDate],[SqlInstance],[Name],[RecoveryModel],[LogReuseWaitStatus])
+GO

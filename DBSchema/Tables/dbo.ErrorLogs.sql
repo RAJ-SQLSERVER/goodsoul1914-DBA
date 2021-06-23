@@ -8,3 +8,5 @@ CREATE TABLE [dbo].[ErrorLogs]
 [Text] [nvarchar] (max) NULL
 ) TEXTIMAGE_
 GO
+CREATE NONCLUSTERED INDEX [IX_ErrorLogs_LogDate] ON [dbo].[ErrorLogs] ([LogDate]) INCLUDE ([SqlInstance],[Text])
+GO

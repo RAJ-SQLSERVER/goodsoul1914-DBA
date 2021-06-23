@@ -1,6 +1,5 @@
 CREATE TABLE [dbo].[FailedJobHistory]
 (
-[InstanceID] [int] NULL,
 [SqlMessageID] [int] NULL,
 [Message] [nvarchar] (max) NULL,
 [StepID] [int] NULL,
@@ -11,10 +10,9 @@ CREATE TABLE [dbo].[FailedJobHistory]
 [RunStatus] [int] NULL,
 [RunDate] [datetime2] (7) NULL,
 [RunDuration] [int] NULL,
-[OperatorEmailed] [nvarchar] (max) NULL,
-[OperatorNetsent] [nvarchar] (max) NULL,
-[OperatorPaged] [nvarchar] (max) NULL,
 [RetriesAttempted] [int] NULL,
 [Server] [nvarchar] (max) NULL
 ) TEXTIMAGE_
+GO
+CREATE NONCLUSTERED INDEX [IX_FailedJobHistory_RunDate] ON [dbo].[FailedJobHistory] ([RunDate]) INCLUDE ([Server],[JobName],[StepID],[StepName],[RunDuration],[SqlMessageID],[SqlSeverity],[Message])
 GO

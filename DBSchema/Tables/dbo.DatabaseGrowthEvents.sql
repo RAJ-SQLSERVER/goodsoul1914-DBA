@@ -12,3 +12,5 @@ CREATE TABLE [dbo].[DatabaseGrowthEvents]
 [SessionLoginName] [nvarchar] (max) NULL
 ) TEXTIMAGE_
 GO
+CREATE NONCLUSTERED INDEX [IX_DatabaseGrowthEvents_StartTime] ON [dbo].[DatabaseGrowthEvents] ([StartTime]) INCLUDE ([SqlInstance],[DatabaseName])
+GO

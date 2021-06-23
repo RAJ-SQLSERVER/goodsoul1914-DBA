@@ -13,3 +13,5 @@ CREATE TABLE [dbo].[SqlInstances]
 GO
 ALTER TABLE [dbo].[SqlInstances] ADD CONSTRAINT [DF_SqlInstances_Timestamp] DEFAULT (getdate ()) FOR [Timestamp]
 GO
+CREATE NONCLUSTERED INDEX [FI_SqlInstances_Scan] ON [dbo].[SqlInstances] ([ComputerName], [SqlInstance]) WHERE ([Scan]= (1))
+GO

@@ -38,6 +38,7 @@ Get-DbaErrorLog -SqlInstance $SqlInstances -After (Get-Date).AddDays(-1) |
 
 ## Retrieve failed agent jobs from all instances and store them in DBA.dbo.FailedJobHistory
 Get-DbaAgentJobHistory -SqlInstance $SqlInstances -StartDate (Get-Date).AddDays(-1) -OutcomeType Failed | 
+    Select-Object SqlMessageID,Message,StepID,StepName,SqlSeverity,JobID,JobName,RunStatus,RunDate,RunDuration,RetriesAttempted,Server | 
     Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table FailedJobHistory -AutoCreateTable
 
 ## Retrieve database info
@@ -64,7 +65,7 @@ Get-DbaDbRoleMember -SqlInstance $SqlInstances -ExcludeDatabase tempdb,model |
     Select-Object ComputerName,InstanceName,SqlInstance,Database,Role,UserName,Login,IsSystemObject,LoginType | 
     Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table DatabaseRoleMembers -AutoCreateTable
 
-## Retrieve all database role members
+## Retrieve all server role members
 Get-DbaServerRoleMember -SqlInstance $SqlInstances | 
     Select-Object ComputerName,InstanceName,SqlInstance,Role,Name | 
     Write-DbaDataTable -SqlInstance $managementServer -Database $managentDatabase -Table ServerRoleMembers -AutoCreateTable

@@ -10,3 +10,5 @@ CREATE TABLE [dbo].[CPURingBuffers]
 [SystemIdle] [int] NULL
 ) TEXTIMAGE_
 GO
+CREATE NONCLUSTERED INDEX [IX_CPURingBuffers_SQLProcessUtilization] ON [dbo].[CPURingBuffers] ([SQLProcessUtilization]) INCLUDE ([SqlInstance],[EventTime])
+GO

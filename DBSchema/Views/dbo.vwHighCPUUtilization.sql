@@ -4,7 +4,7 @@ SET ANSI_NULLS ON
 GO
 CREATE VIEW dbo.vwHighCPUUtilization
 AS
-SELECT        SqlInstance, RecordId, EventTime, SQLProcessUtilization, OtherProcessUtilization, SystemIdle
+SELECT        SqlInstance, EventTime, SQLProcessUtilization
 FROM            dbo.CPURingBuffers
 WHERE        (SQLProcessUtilization > 80)
 GO
