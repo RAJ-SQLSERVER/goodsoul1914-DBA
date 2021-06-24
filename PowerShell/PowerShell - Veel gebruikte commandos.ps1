@@ -33,6 +33,18 @@ Get-DbaFile -SqlInstance 'GABEAUFORT01'
 
 'GABEAUFORT01' | Test-DbaMaxMemory | Format-Table
 
+Get-DbaDbccMemoryStatus -SqlInstance lt-rsd-01 | 
+    Select-Object SqlInstance, Type, Name, Value | 
+    Format-Table -AutoSize
+
+Get-DbaDbMemoryUsage -SqlInstance lt-rsd-01 | 
+    Select-Object SqlInstance, Database, PageType, Size, PercentUsed | 
+    Format-Table -AutoSize
+
+Get-DbaMemoryUsage -ComputerName lt-rsd-01 | 
+    Select-Object SqlInstance, CounterInstance, Counter, Pages, Memory | 
+    Format-Table -AutoSize
+
 
 ## TRANSACTION LOG
 Get-DbaDbVirtualLogFile -SqlInstance 'GABEAUFORT01' -Database Beaufort | 
@@ -56,7 +68,7 @@ Get-DbaAgentJobHistory -SqlInstance gpsql01, gpsql02 -StartDate '2018-08-18 00:0
 ## Backup history timeline:
 Get-DbaDbBackupHistory -SqlInstance gpsql01, gpsql02 -Since '2018-08-18 00:00' | 
     ConvertTo-DbaTimeline | 
-        Out-File C:\temp\Get-DbaDbBackupHistory.html -Encoding ascii
+    Out-File C:\temp\Get-DbaDbBackupHistory.html -Encoding ascii
 
 
 ## OLA, BRENT and WIA
@@ -74,3 +86,9 @@ Test-DbaDbLogShipStatus -SqlInstance "GPWOSQL01" | Out-GridView
 
 Get-DbaDbLogShipError -SqlInstance "GPAX4HSQL01"
 Get-DbaDbLogShipError -SqlInstance "GPAX4HSQL01" -DateTimeFrom "11/05/2020"
+
+
+## Waits
+Get-DbaWaitStatistic -SqlInstance lt-rsd-01 -Threshold 99 | 
+    Select-Object SqlInstance, Category, WaitType, WaitCount, WaitSeconds, AverageWaitSeconds | 
+    Format-Table -AutoSize

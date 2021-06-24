@@ -27,26 +27,25 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true)][string]$Name,
-	[Parameter(Mandatory=$true)][ValidateSet('DEV', 'TEST', 'ACC', 'PROD')][string]$Type,
-    [Parameter(Mandatory=$true)][string]$Version,
-    [Parameter(Mandatory=$true)][AllowEmptyString()][string]$ConnectionString,
-    [Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $true)][string]$Name,
+	[Parameter(Mandatory = $true)][ValidateSet('DEV', 'TEST', 'ACC', 'PROD')][string]$Type,
+	[Parameter(Mandatory = $true)][string]$Version,
+	[Parameter(Mandatory = $true)][AllowEmptyString()][string]$ConnectionString,
+	[Parameter(Mandatory = $false)][string]$Url
 )
 
 Set-StrictMode -Version Latest
 
-if (-not $Url)
-{
-    $Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
+if (-not $Url) {
+	$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 }
 
 $body = @{
-	Name = $Name;
-	Type = $Type;
-	Version = $Version;
+	Name             = $Name;
+	Type             = $Type;
+	Version          = $Version;
 	ConnectionString = $ConnectionString;
-	} | ConvertTo-Json
+} | ConvertTo-Json
 
 $uri = "$Url/api/v2/personalenvironments"
 (Invoke-RestMethod -Uri $uri -Method Post -UseDefaultCredentials -ContentType 'application/json' -Body $body)

@@ -43,41 +43,38 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][string]$Id,
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][string]$Name,
-	[Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][ValidateSet('DEV', 'TEST', 'ACC', 'PROD')][string]$Type,
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][string]$Version,
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][string]$ConnectionString,
-    [Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)][Switch]$Disabled,
-	[Parameter(Mandatory=$false,ValueFromPipelineByPropertyName=$true)][Switch]$ReadOnly,
-	[Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][string]$Category,
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][int]$SecurityGroupId,
-    [Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$Id,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$Name,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][ValidateSet('DEV', 'TEST', 'ACC', 'PROD')][string]$Type,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$Version,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$ConnectionString,
+	[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)][Switch]$Disabled,
+	[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)][Switch]$ReadOnly,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$Category,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][int]$SecurityGroupId,
+	[Parameter(Mandatory = $false)][string]$Url
 )
-begin
-{
+begin {
 	Set-StrictMode -Version Latest
 
-	if (-not $Url)
-	{
+	if (-not $Url) {
 		$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 	}
 }
-process
-{
+process {
 	Set-StrictMode -Version Latest
 
 	$body = @{
-		Id = $Id;
-		Name = $Name;
-		Type = $Type;
-		Version = $Version;
+		Id               = $Id;
+		Name             = $Name;
+		Type             = $Type;
+		Version          = $Version;
 		ConnectionString = $ConnectionString;
-		Disabled = $Disabled.IsPresent;
-		ReadOnly = $ReadOnly.IsPresent;
-		Category = $Category;
-		SecurityGroupId = $SecurityGroupId
-		} | ConvertTo-Json
+		Disabled         = $Disabled.IsPresent;
+		ReadOnly         = $ReadOnly.IsPresent;
+		Category         = $Category;
+		SecurityGroupId  = $SecurityGroupId
+	} | ConvertTo-Json
 
 	$uri = "$Url/api/v2/administerenvironments"
 	Invoke-RestMethod -Uri $uri -Method Post -UseDefaultCredentials -ContentType 'application/json' -Body $body | Out-Null

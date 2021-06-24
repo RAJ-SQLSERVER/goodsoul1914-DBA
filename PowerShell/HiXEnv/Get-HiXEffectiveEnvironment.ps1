@@ -16,25 +16,22 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory=$true)][string]$Version,
-    [Parameter(Mandatory=$true)][string]$Category,
-	[Parameter(Mandatory=$false)][PSCredential]$Credential,
-	[Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $true)][string]$Version,
+	[Parameter(Mandatory = $true)][string]$Category,
+	[Parameter(Mandatory = $false)][PSCredential]$Credential,
+	[Parameter(Mandatory = $false)][string]$Url
 )
 
 Set-StrictMode -Version Latest
 
-if (-not $Url)
-{
-    $Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
+if (-not $Url) {
+	$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 }
 
 $uri = "$Url/api/v2/environments/$Version/$Category"
-if ($Credential)
-{
+if ($Credential) {
 	(Invoke-RestMethod -Uri $uri -Credential $Credential)
 }
-else
-{
+else {
 	(Invoke-RestMethod -Uri $uri -UseDefaultCredentials)
 }

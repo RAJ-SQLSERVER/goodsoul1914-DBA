@@ -3,11 +3,11 @@ param ($hostname, $spname)
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted
 
 # Generate Excel file using provided query on HiX database
-$p=@{
-    Show = $false
-    AutoSize = $true
-    AutoFilter = $true
-    BoldTopRow = $true
+$p = @{
+    Show         = $false
+    AutoSize     = $true
+    AutoFilter   = $true
+    BoldTopRow   = $true
     FreezeTopRow = $true
 }
 

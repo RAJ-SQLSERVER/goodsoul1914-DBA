@@ -27,29 +27,26 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][Alias('id')][string]$PersonalEnvironmentId,
-	[Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][ValidateSet('CONF', 'AUDIT', 'AUDITFB', 'LOG', 'BLOB')][string]$Type,
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][string]$ConnectionString,
-    [Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][Alias('id')][string]$PersonalEnvironmentId,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][ValidateSet('CONF', 'AUDIT', 'AUDITFB', 'LOG', 'BLOB')][string]$Type,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$ConnectionString,
+	[Parameter(Mandatory = $false)][string]$Url
 )
-begin
-{
+begin {
 	Set-StrictMode -Version Latest
 
-	if (-not $Url)
-	{
+	if (-not $Url) {
 		$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 	}
 }
-process
-{
+process {
 	Set-StrictMode -Version Latest
 
 	$body = @{
 		PersonalEnvironmentId = $PersonalEnvironmentId;
-		Type = $Type;
-		ConnectionString = $ConnectionString;
-		} | ConvertTo-Json
+		Type                  = $Type;
+		ConnectionString      = $ConnectionString;
+	} | ConvertTo-Json
 
 	$uri = "$Url/api/v2/personaladditionaldatabases"
 	Invoke-RestMethod -Uri $uri -Method Post -UseDefaultCredentials -ContentType 'application/json' -Body $body | Out-Null

@@ -12,24 +12,20 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true)][string[]]$Id,
-    [Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true, ValueFromPipeline = $true)][string[]]$Id,
+	[Parameter(Mandatory = $false)][string]$Url
 )
-begin
-{
+begin {
 	Set-StrictMode -Version Latest
 
-	if (-not $Url)
-	{
+	if (-not $Url) {
 		$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 	}
 }
-process
-{
+process {
 	Set-StrictMode -Version Latest
 
-	foreach ($i in $Id)
-	{
+	foreach ($i in $Id) {
 		$body = $i | ConvertTo-Json
 
 		$uri = "$Url/api/v2/administerenvironments/disable"

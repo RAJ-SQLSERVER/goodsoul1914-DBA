@@ -13,14 +13,13 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $false)][string]$Url
 )
 
 Set-StrictMode -Version Latest
 
-if (-not $Url)
-{
-    $Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
+if (-not $Url) {
+	$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 }
 
 $uri = "$Url/api/v2/defaultadditionaldatabases"

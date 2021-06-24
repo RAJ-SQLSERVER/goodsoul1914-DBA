@@ -23,27 +23,24 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][ValidateSet('CONF', 'AUDIT', 'AUDITFB', 'LOG')][string]$Type,
-    [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true)][string]$ConnectionString,
-    [Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][ValidateSet('CONF', 'AUDIT', 'AUDITFB', 'LOG')][string]$Type,
+	[Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$ConnectionString,
+	[Parameter(Mandatory = $false)][string]$Url
 )
-begin
-{
+begin {
 	Set-StrictMode -Version Latest
 
-	if (-not $Url)
-	{
+	if (-not $Url) {
 		$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 	}
 }
-process
-{
+process {
 	Set-StrictMode -Version Latest
 
 	$body = @{
-		Type = $Type;
+		Type             = $Type;
 		ConnectionString = $ConnectionString;
-		} | ConvertTo-Json
+	} | ConvertTo-Json
 
 	$uri = "$Url/api/v2/defaultadditionaldatabases"
 	Invoke-RestMethod -Uri $uri -Method Post -UseDefaultCredentials -ContentType 'application/json' -Body $body | Out-Null

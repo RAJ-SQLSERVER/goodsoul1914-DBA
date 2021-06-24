@@ -15,29 +15,25 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$true)][int]$SecurityGroupId,
-    [Parameter(Mandatory=$true,ValueFromPipeline=$true)][string[]]$SecurityRole,
-    [Parameter(Mandatory=$false)][string]$Url
+	[Parameter(Mandatory = $true)][int]$SecurityGroupId,
+	[Parameter(Mandatory = $true, ValueFromPipeline = $true)][string[]]$SecurityRole,
+	[Parameter(Mandatory = $false)][string]$Url
 )
-begin
-{
+begin {
 	Set-StrictMode -Version Latest
 
-	if (-not $Url)
-	{
+	if (-not $Url) {
 		$Url = &"$PSScriptRoot\Get-HiXEnvironmentUrl.ps1"
 	}
 }
-process
-{
+process {
 	Set-StrictMode -Version Latest
 
-	foreach ($role in $SecurityRole)
-	{
+	foreach ($role in $SecurityRole) {
 		$body = @{
 			SecurityGroupId = $SecurityGroupId;
-			Role = $role
-			} | ConvertTo-Json
+			Role            = $role
+		} | ConvertTo-Json
 
 		$uri = "$Url/api/v2/securityroles"
 		Invoke-RestMethod -Uri $uri -Method Post -UseDefaultCredentials -ContentType 'application/json' -Body $body | Out-Null
