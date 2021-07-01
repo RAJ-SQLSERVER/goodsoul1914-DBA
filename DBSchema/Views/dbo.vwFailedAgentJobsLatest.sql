@@ -4,7 +4,7 @@ SET ANSI_NULLS ON
 GO
 CREATE VIEW dbo.vwFailedAgentJobsLatest
 AS
-SELECT        Server, RunDate, JobName, StepID, StepName, RunDuration, SqlMessageID, SqlSeverity, Message, OperatorEmailed
+SELECT        Server, RunDate, JobName, StepID, StepName, RunDuration, SqlMessageID, SqlSeverity, Message
 FROM            dbo.FailedJobHistory
 WHERE        (RunDate >= DATEADD(DAY, - 1, GETDATE())) AND (StepName <> '(Job outcome)')
 GO

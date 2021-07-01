@@ -21,7 +21,7 @@ EXEC msdb.dbo.sp_add_jobschedule @job_name=N'CommandLog Cleanup', @name=N'Weekly
 		@active_end_time=235959
 GO
 
-EXEC msdb.dbo.sp_add_jobschedule @job_name=N'DatabaseBackup - SYSTEM_DATABASES - FULL', @name=N'Daily at 12:05am', 
+EXEC msdb.dbo.sp_add_jobschedule @job_name=N'DatabaseBackup - SYSTEM_DATABASES - FULL', @name=N'Daily at 06:00pm', 
 		@enabled = 0, 
 		@freq_type=4, 
 		@freq_interval=1, 
@@ -65,7 +65,7 @@ EXEC msdb.dbo.sp_add_jobschedule @job_name=N'DatabaseBackup - USER_DATABASES - F
 GO
 
 -- this is the second of TWO schedules that will be created for FULL backups
-EXEC msdb.dbo.sp_add_jobschedule @job_name=N'DatabaseBackup - USER_DATABASES - FULL', @name=N'Daily at 12:15am', 
+EXEC msdb.dbo.sp_add_jobschedule @job_name=N'DatabaseBackup - USER_DATABASES - FULL', @name=N'Daily at 6:15pm', 
 		@enabled = 0, 
 		@freq_type=4, 
 		@freq_interval=1, 

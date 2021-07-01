@@ -24,7 +24,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA Cycle Server and Agent l
 		@description=N'This job runs every midnight and recycles the SQL Server log files as well as the SQL Server Agent log files', 
 		@category_name=N'Administrative Jobs', 
 		@owner_login_name=N'sa', 
-		@notify_email_operator_name=N'TAB', @job_id = @jobId OUTPUT
+		@notify_email_operator_name=N'DBA', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [RecycleSQLServerLogFiles]    Script Date: 30-9-2020 18:30:46 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RecycleSQLServerLogFiles', 
