@@ -17,7 +17,7 @@
 USE StackOverflow2013;
 GO
 
-dbo.DropIndexes
+dbo.DropIndexes;
 GO
 
 
@@ -47,5 +47,5 @@ ORDER BY c.CreationDate DESC;
 
 
 CREATE NONCLUSTERED INDEX Score_CreationDate_Inc
-ON [dbo].[Comments] ([Score],[CreationDate])
-INCLUDE ([PostId],[Text],[UserId])
+ON dbo.Comments (Score, CreationDate)
+INCLUDE (PostId, Text, UserId);
