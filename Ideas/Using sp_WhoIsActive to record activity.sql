@@ -14,7 +14,7 @@ DECLARE
     --logging table name (will be created if does not exist)
     @destination_table NVARCHAR(500) = N'WhoIsActive',
     --logging table database (will not be created if it doesn't exist)
-    @destination_database SYSNAME = N'Scratch',
+    @destination_database SYSNAME = N'DBA',
     --dynamic SQL, re-used
     @sql NVARCHAR(4000),
     --does the index on the logging table exist?
