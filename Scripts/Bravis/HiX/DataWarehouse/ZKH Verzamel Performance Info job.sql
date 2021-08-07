@@ -24,7 +24,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'ZKH: Verzamel Performance In
 		@description=N'No description available.', 
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'sa', 
-		@notify_email_operator_name=N'GPHIXDWH02', @job_id = @jobId OUTPUT
+		@notify_email_operator_name=N'DBA', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [ZKH: Verzamel Verschillende Performance Info]    Script Date: 10-2-2020 10:24:46 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'ZKH: Verzamel Verschillende Performance Info', 

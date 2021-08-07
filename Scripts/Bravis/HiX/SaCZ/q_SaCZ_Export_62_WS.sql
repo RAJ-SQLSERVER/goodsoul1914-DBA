@@ -11,7 +11,7 @@ USE HiX_Prod_Uxiplog;
 GO
 
 DECLARE @organisatienaam VARCHAR(20)   = 'BVS',																	-- Aanpassen naam organisatie 
-        @omgevingsnaam   NVARCHAR(100) = N'BPHIXLS01.zkh.local.HiX_Acc',										-- Aanpassen naam omgeving (EnvironmentID)
+        @omgevingsnaam   NVARCHAR(100) = N'GPHIXSQL03.zkh.local.HiX_Acc',										-- Aanpassen naam omgeving (EnvironmentID)
         @startjaarmaand  VARCHAR(6)    = (SELECT CONVERT (VARCHAR(6), DATEADD (MONTH, -1, GETDATE ()), 112));	-- Aanpassen periode -> Standaard -1 dus vorige maand, -3 voor afgelopen drie maanden
 
 DECLARE @startdatum DATETIME = (SELECT CONVERT (DATETIME, @startjaarmaand + '01')),
