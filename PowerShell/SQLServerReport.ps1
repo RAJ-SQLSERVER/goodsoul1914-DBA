@@ -78,7 +78,7 @@ li a:hover {
 "@
 
 $instances = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwSqlInstances ORDER BY SqlInstance;" | 
-    SELECT SqlInstance, SqlEdition, SqlVersion, ProcessorInfo, PhysicalMemory, Scan, Owner, UpdatedAt | 
+    SELECT SqlInstance,SqlEdition,SqlVersion,ProcessorInfo,PhysicalMemory,Scan,Owner,UpdatedAt | 
     ConvertTo-Html -Fragment
 
 $errors = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwErrorLogLatest ORDER BY SqlInstance, Count DESC;" | 
@@ -86,7 +86,7 @@ $errors = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentData
     ConvertTo-Html -Fragment
 
 $jobs = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT Server,RunDate,JobName,StepID,StepName,RunDuration,SqlMessageID,SqlSeverity,Message FROM vwFailedAgentJobsLatest;" | 
-    SELECT Server, RunDate, JobName, StepID, StepName, RunDuration, Message | 
+    SELECT Server,RunDate,JobName,StepID,StepName,RunDuration,Message | 
     ConvertTo-Html -Fragment
 
 $cpu = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwHighCPUUtilizationLatestGrouped ORDER BY Count DESC" | 
@@ -94,19 +94,23 @@ $cpu = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabas
     ConvertTo-Html -Fragment
 
 $diskspace = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwDiskSpaceLatest" | 
-    SELECT ComputerName, Name, Capacity, Free, PercentFree, DriveType, SizeInKB, FreeInKB, SizeInMB, FreeInMB, SizeInGB, FreeInGB, SizeInTB, FreeInTB | 
+    SELECT ComputerName,Name,Capacity,Free,PercentFree,DriveType,SizeInKB,FreeInKB,SizeInMB,FreeInMB,SizeInGB,FreeInGB,SizeInTB,FreeInTB | 
     ConvertTo-Html -Fragment
 
 $newLogins = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM vwNewServerLoginsLatest ORDER BY SqlInstance" | 
-    SELECT SqlInstance, Name, Type, DefaultDatabase, DenyWindowsLogin, IsDisabled, IsLocked, IsPasswordExpired, MustChangePassword, PasswordExpirationEnabled, PasswordPolicyEnforced | 
+    SELECT SqlInstance,Name,Type,DefaultDatabase,DenyWindowsLogin,IsDisabled,IsLocked,IsPasswordExpired,MustChangePassword,PasswordExpirationEnabled,PasswordPolicyEnforced | 
     ConvertTo-Html -Fragment
 
 $growEvents = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM DBA.dbo.vwDatabaseGrowEventsLatestGrouped ORDER BY GrowEvents DESC" | 
-    SELECT SqlInstance, DatabaseName, GrowEvents | 
+    SELECT SqlInstance,DatabaseName,GrowEvents | 
     ConvertTo-Html -Fragment
 
 $backupInfo = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM DBA.dbo.vwDatabaseBackupInfoLatest ORDER BY SqlInstance, Name;" | 
-    SELECT SqlInstance, Name, RecoveryModel, LogReuseWaitStatus, LastBackup, BackupType | 
+    SELECT SqlInstance,Name,RecoveryModel,LogReuseWaitStatus,LastBackup,BackupType | 
+    ConvertTo-Html -Fragment
+
+$tracing = Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT * FROM DBA.dbo.vwDefaultTraceLatest ORDER BY SqlInstance, StartTime;" | 
+    SELECT SqlInstance,StartTime,LoginName,DatabaseName,ApplicationName,TextData | 
     ConvertTo-Html -Fragment
 
 $body = @"
@@ -120,6 +124,7 @@ $body = @"
     <li><a href="#newlogins">Logins</a></li>
     <li><a href="#growEvents">Groei</a></li>
     <li><a href="#backupInfo">Backups</a></li>
+    <li><a href="#tracing">Default Trace</a></li>
 </ul>
 
 <div id="content">
@@ -144,8 +149,11 @@ $body = @"
     <h2 id="growEvents">Database Groei</h2>
     $growEvents
 
-     <h2 id="backupInfo">Te Controleren Backups</h2>
+    <h2 id="backupInfo">Te Controleren Backups</h2>
     $backupInfo
+
+    <h2 id="tracing">Default Trace (Verhoogde Rechten</h2>
+    $tracing
 </div>
 "@
 
