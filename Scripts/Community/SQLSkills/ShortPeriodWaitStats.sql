@@ -41,7 +41,7 @@ INTO ##SQLskillsStats1
 FROM sys.dm_os_wait_stats;
 GO
 
-WAITFOR DELAY '00:30:00';
+WAITFOR DELAY '00:01:00';
 GO
 
 SELECT wait_type,

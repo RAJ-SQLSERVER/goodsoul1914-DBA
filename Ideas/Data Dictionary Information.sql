@@ -12,13 +12,13 @@ PRELIMINAIRES
 DECLARE @InstanceName AS NVARCHAR(128) = @@SERVERNAME,
         @DatabaseName AS NVARCHAR(128) = DB_NAME ();
 
-SELECT @InstanceName AS InstanceName,
-       @DatabaseName AS DatabaseName,
-       o.type_desc AS ObjectType,
-       s.name AS SchemaName,
-       o.name AS ObjectName,
-       c.column_id AS ColumnID,
-       c.name AS ColumnName,
+SELECT @InstanceName AS "InstanceName",
+       @DatabaseName AS "DatabaseName",
+       o.type_desc AS "ObjectType",
+       s.name AS "SchemaName",
+       o.name AS "ObjectName",
+       c.column_id AS "ColumnID",
+       c.name AS "ColumnName",
        CASE
            --Variable length fields
            WHEN st.name IN ( 'binary', 'char', 'text', 'varbinary', 'varchar' )
@@ -37,16 +37,18 @@ SELECT @InstanceName AS InstanceName,
                 AND c.max_length = -1 THEN st.name + '(MAX)'
            --Everything else
            ELSE st.name
-       END AS SQLServerDataType,
-       CASE ut.name WHEN st.name THEN '' ELSE ut.name END AS CustomDataTypeName,
-       c.max_length AS Length,
-       c.precision AS Precision,
-       c.scale AS Scale,
-       c.is_nullable AS IsNullable,
-       c.is_identity AS IsIdentity,
+       END AS "SQLServerDataType",
+       CASE ut.name
+           WHEN st.name THEN ''
+           ELSE ut.name
+       END AS "CustomDataTypeName",
+       c.max_length AS "Length",
+       c.precision AS "Precision",
+       c.scale AS "Scale",
+       c.is_nullable AS "IsNullable",
+       c.is_identity AS "IsIdentity",
        ISNULL ((
-                   SELECT TOP (1)
-                          i.type_desc
+                   SELECT TOP (1) i.type_desc
                    FROM sys.indexes AS i
                    JOIN sys.index_columns AS ic
                        ON i.object_id = ic.object_id
@@ -56,10 +58,9 @@ SELECT @InstanceName AS InstanceName,
                          AND i.is_primary_key = 1
                ),
                ''
-       ) AS PrimaryKeyType,
+       ) AS "PrimaryKeyType",
        ISNULL ((
-                   SELECT TOP (1)
-                          QUOTENAME (ss.name) + '.' + QUOTENAME (so.name) + '.' + QUOTENAME (c.name)
+                   SELECT TOP (1) QUOTENAME (ss.name) + '.' + QUOTENAME (so.name) + '.' + QUOTENAME (c.name)
                    FROM sys.foreign_keys AS fk
                    JOIN sys.foreign_key_columns AS fkc
                        ON fk.object_id = fkc.constraint_object_id
@@ -71,25 +72,23 @@ SELECT @InstanceName AS InstanceName,
                          AND fkc.parent_column_id = c.column_id
                ),
                ''
-       ) AS ForeignKeySource,
+       ) AS "ForeignKeySource",
        (
            SELECT COUNT (*)
            FROM sys.foreign_key_columns AS fkc
            WHERE c.object_id = fkc.referenced_object_id
                  AND c.column_id = fkc.referenced_column_id
-       ) AS DependentForeignKeyCount,
+       ) AS "DependentForeignKeyCount",
        ISNULL ((
-                   SELECT TOP (1)
-                          dc.definition
+                   SELECT TOP (1) dc.definition
                    FROM sys.default_constraints AS dc
                    WHERE c.object_id = dc.parent_object_id
                          AND c.column_id = dc.parent_column_id
                ),
                ''
-       ) AS DefaultValue,
+       ) AS "DefaultValue",
        ISNULL ((
-                   SELECT TOP (1)
-                          i.name
+                   SELECT TOP (1) i.name
                    FROM sys.indexes AS i
                    JOIN sys.index_columns AS ic
                        ON i.object_id = ic.object_id
@@ -99,16 +98,15 @@ SELECT @InstanceName AS InstanceName,
                          AND i.is_unique_constraint = 1
                ),
                ''
-       ) AS UniqueConstraintName,
+       ) AS "UniqueConstraintName",
        ISNULL ((
-                   SELECT TOP (1)
-                          dc.definition
+                   SELECT TOP (1) dc.definition
                    FROM sys.check_constraints AS dc
                    WHERE c.object_id = dc.parent_object_id
                          AND c.column_id = dc.parent_column_id
                ),
                ''
-       ) AS CheckConstraintDefinition
+       ) AS "CheckConstraintDefinition"
 FROM sys.schemas AS s
 JOIN sys.objects AS o
     ON s.schema_id = o.schema_id
