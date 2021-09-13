@@ -21,5 +21,5 @@ SELECT r.session_id AS "SessionId",
        )
        ) AS "Stmt"
 FROM sys.dm_exec_requests AS r
-WHERE Command IN ( 'RESTORE DATABASE', 'BACKUP DATABASE', 'RESTORE LOG' );
+WHERE Command IN ( 'RESTORE DATABASE', 'BACKUP DATABASE', 'RESTORE LOG', 'ALTER TABLE' );
 GO

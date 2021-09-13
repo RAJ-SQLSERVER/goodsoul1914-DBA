@@ -8,7 +8,7 @@ $SqlInstances = (Invoke-DbaQuery -SqlInstance $managementServer -Database $manag
 $SqlIndexInstances = (Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT SqlInstance FROM DBA.dbo.SqlInstances WHERE Scan = 1 AND SqlInstance LIKE 'GP%' AND SqlInstance NOT IN ( 'GPMVISION01', 'GPAX4HHIS01', 'GPPCSQL01' ) ORDER BY SqlInstance;").SqlInstance
 
 ## Retrieve all unique computernames from the management database
-$ComputerNames = (Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT DISTINCT ComputerName FROM dbo.SqlInstances ORDER BY ComputerName;").ComputerName
+$ComputerNames = (Invoke-DbaQuery -SqlInstance $managementServer -Database $managentDatabase -Query "SELECT DISTINCT ComputerName FROM dbo.SqlInstances WHERE Scan = 1 ORDER BY ComputerName;").ComputerName
 
 ## Update some fields of instance records
 foreach ($instance in $SqlInstances) {    
