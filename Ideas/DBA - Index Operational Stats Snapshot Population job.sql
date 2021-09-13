@@ -23,7 +23,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA - Index Operational Stat
 		@delete_level=0, 
 		@description=N'No description available.', 
 		@category_name=N'[Uncategorized (Local)]', 
-		@owner_login_name=N'DT-RSD-01\mboom', @job_id = @jobId OUTPUT
+		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [Index Operational Stats Snapshot Population]    Script Date: 13-9-2021 11:26:52 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Index Operational Stats Snapshot Population', 
@@ -83,7 +83,7 @@ SELECT GETDATE (),
        page_compression_attempt_count,
        page_compression_success_count
 FROM sys.dm_db_index_operational_stats (NULL, NULL, NULL, NULL);', 
-		@database_name=N'IndexingMethod', 
+		@database_name=N'DBA', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [Index Operational Stats Snapshot Population - Step 2]    Script Date: 13-9-2021 11:26:52 ******/
@@ -288,7 +288,7 @@ WHERE i1.HistoryID = 1
           OR i1.page_compression_attempt_count - COALESCE (i2.page_compression_attempt_count, 0) > 0
           OR i1.page_compression_success_count - COALESCE (i2.page_compression_success_count, 0) > 0
       );', 
-		@database_name=N'IndexingMethod', 
+		@database_name=N'DBA', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1
@@ -304,8 +304,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name=N'Every 4 h
 		@active_start_date=20210910, 
 		@active_end_date=99991231, 
 		@active_start_time=0, 
-		@active_end_time=235959, 
-		@schedule_uid=N'e330391a-dcd0-470b-9ecd-58e630f02aec'
+		@active_end_time=235959
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback

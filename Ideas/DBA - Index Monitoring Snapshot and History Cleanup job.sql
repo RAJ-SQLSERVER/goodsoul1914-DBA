@@ -23,7 +23,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA - Index Monitoring Snaps
 		@delete_level=0, 
 		@description=N'No description available.', 
 		@category_name=N'[Uncategorized (Local)]', 
-		@owner_login_name=N'DT-RSD-01\mboom', @job_id = @jobId OUTPUT
+		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [Index Monitoring Snapshot and History Cleanup]    Script Date: 13-9-2021 11:26:23 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Index Monitoring Snapshot and History Cleanup', 
@@ -59,7 +59,7 @@ WHERE create_date < DATEADD (d, -@SnapshotDays, GETDATE ());
 
 DELETE FROM dbo.wait_stats_history
 WHERE create_date < DATEADD (d, -@HistoryDays, GETDATE ());', 
-		@database_name=N'IndexingMethod', 
+		@database_name=N'DBA', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1
@@ -75,8 +75,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name=N'Every day
 		@active_start_date=20210910, 
 		@active_end_date=99991231, 
 		@active_start_time=20000, 
-		@active_end_time=235959, 
-		@schedule_uid=N'65b81067-f617-4b24-b918-80cbd1f6d0a8'
+		@active_end_time=235959
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
