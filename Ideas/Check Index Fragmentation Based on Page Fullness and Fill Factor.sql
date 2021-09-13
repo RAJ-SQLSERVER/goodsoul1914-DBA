@@ -12,13 +12,13 @@ https://www.erikdarlingdata.com/2019/10/because-your-index-maintenance-script-is
 
 	!!! THIS SCRIPT MUST BE RUN IN THE CONTEXT OF THE DATABASE TO CHECK !!!
 	
-				-----------------
-				!!!  WARNING  !!!
-				-----------------
-		This script uses "SAMPLED" mode for checking fragmentation,
-		which can potentially cause significant IO stress on a
-		large production server.
-		Use at your own risk!
+	-----------------
+	!!!  WARNING  !!!
+	-----------------
+
+	This script uses "SAMPLED" mode for checking fragmentation,
+	which can potentially cause significant IO stress on a large production server.
+	Use at your own risk!
 **************************************************************************/
 DECLARE
     -- Parameters to limit which tables/indexes to check:
@@ -33,7 +33,7 @@ DECLARE
                                                         -- Parameters to control settings of remediation (REBUILD) commands:
     @OnlineRebuild                         BIT     = 0,
     @SortInTempDB                          BIT     = 0,
-    @MaxDOP                                TINYINT = 6; -- change to a value to limit DOP (e.g. MAXDOP=1 to disable parallelism)
+    @MaxDOP                                TINYINT = 3; -- change to a value to limit DOP (e.g. MAXDOP=1 to disable parallelism)
 
 SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 SET NOCOUNT, ARITHABORT, XACT_ABORT ON;
@@ -46,21 +46,25 @@ BEGIN
 END;
 
 DECLARE @CommandTemplate NVARCHAR(MAX);
-SET @CommandTemplate
-    = N'RAISERROR(N''{DATABASE}.{TABLE} - {INDEX}'',0,1) WITH NOWAIT;
+SET @CommandTemplate = N'RAISERROR(N''{DATABASE}.{TABLE} - {INDEX}'',0,1) WITH NOWAIT;
 ALTER INDEX {INDEX} ON {TABLE}
-REBUILD WITH(SORT_IN_TEMPDB=' + CASE WHEN @SortInTempDB = 1 THEN N'ON' ELSE N'OFF' END + N', ONLINE='
-      + CASE WHEN @OnlineRebuild = 1 THEN N'ON' ELSE N'OFF' END
-      + CASE
-            WHEN @MaxDOP IS NOT NULL THEN N', MAXDOP=' + CONVERT (NVARCHAR(2), @MaxDOP)
-            ELSE N''
-        END + N'{FILLFACTOR});
+REBUILD WITH(SORT_IN_TEMPDB=' + CASE
+                                    WHEN @SortInTempDB = 1 THEN N'ON'
+                                    ELSE N'OFF'
+                                END + N', ONLINE=' + CASE
+                                                         WHEN @OnlineRebuild = 1 THEN N'ON'
+                                                         ELSE N'OFF'
+                                                     END
+                       + CASE
+                             WHEN @MaxDOP IS NOT NULL THEN N', MAXDOP=' + CONVERT (NVARCHAR(2), @MaxDOP)
+                             ELSE N''
+                         END + N'{FILLFACTOR});
 GO';
 
-SELECT DB_NAME () AS DatabaseName,
-       OBJECT_SCHEMA_NAME (t.object_id) AS SchemaName,
-       t.name AS TableName,
-       ix.name AS IndexName,
+SELECT DB_NAME () AS "DatabaseName",
+       OBJECT_SCHEMA_NAME (t.object_id) AS "SchemaName",
+       t.name AS "TableName",
+       ix.name AS "IndexName",
        REPLACE (
            REPLACE (
                REPLACE (
@@ -80,14 +84,14 @@ SELECT DB_NAME () AS DatabaseName,
                     AND ps.avg_fragmentation_in_percent <= @MaxFragmentationToSetFillFactor100 THEN N', FILLFACTOR=100'
                ELSE N''
            END
-       ) AS Remediation,
+       ) AS "Remediation",
        ix.fill_factor,
        (
            SELECT SUM (rows)
            FROM sys.partitions AS p
            WHERE p.object_id = t.object_id
                  AND p.index_id = ix.index_id
-       ) AS RowsCount,
+       ) AS "RowsCount",
        us.user_updates,
        us.last_user_update,
        ps.avg_fragmentation_in_percent,

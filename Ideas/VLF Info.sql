@@ -12,130 +12,121 @@
 </documentation>
 */
 
-SET NOCOUNT ON;
-
-/* variables to hold each 'iteration' */
-DECLARE @query NVARCHAR(200);
-DECLARE @dbName sysname;
-
-/* table variable used to 'loop' over databases */
-DECLARE @databases TABLE
-(
-    dbname sysname
-);
-/* only choose online databases */
-INSERT INTO @databases
-SELECT [name]
-FROM sys.databases
-WHERE [state] = 0;
-
-DECLARE @majorVersion TINYINT;
-SET @majorVersion
-    = LEFT(CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR(MAX)), CHARINDEX(
-                                                                                 '.',
-                                                                                 CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR(MAX))
-                                                                             ) - 1);
-
-DECLARE DatabaseIteration CURSOR LOCAL STATIC READ_ONLY FORWARD_ONLY FOR
-SELECT [name] AS DatabaseName
-FROM sys.databases
-WHERE [state] = 0;
-
+CREATE PROCEDURE dbo.usp_VLFInfo
+AS
 BEGIN
 
-    OPEN DatabaseIteration;
+    SET NOCOUNT ON;
 
-    DECLARE @DbccLogInfo TABLE
-    (
-        RecoveryUnitId INT NULL,
-        fileid SMALLINT NOT NULL,
-        file_size BIGINT NOT NULL,
-        start_offset BIGINT NOT NULL,
-        fseqno INT NOT NULL,
-        [status] TINYINT NOT NULL,
-        parity TINYINT NOT NULL,
-        create_lsn NUMERIC(25, 0) NOT NULL,
-        DBName sysname NULL,
-        [DBID] INT NULL
-    );
+    /* variables to hold each 'iteration' */
+    DECLARE @query NVARCHAR(200);
+    DECLARE @dbName sysname;
 
-    FETCH NEXT FROM DatabaseIteration
-    INTO @dbName;
+    /* table variable used to 'loop' over databases */
+    DECLARE @databases TABLE (dbname sysname);
 
-    WHILE @@FETCH_STATUS = 0
+    /* only choose online databases */
+    INSERT INTO @databases
+    SELECT name
+    FROM sys.databases
+    WHERE state = 0;
+
+    DECLARE @majorVersion TINYINT;
+    SET @majorVersion = LEFT(CAST(SERVERPROPERTY ('ProductVersion') AS NVARCHAR(MAX)), CHARINDEX (
+                                                                                           '.',
+                                                                                           CAST(SERVERPROPERTY (
+                                                                                                'ProductVersion'
+                                                                                                ) AS NVARCHAR(MAX))
+                                                                                       ) - 1);
+
+    DECLARE DatabaseIteration CURSOR LOCAL STATIC READ_ONLY FORWARD_ONLY FOR
+    SELECT name AS "DatabaseName"
+    FROM sys.databases
+    WHERE state = 0;
+
     BEGIN
 
-        SET @query = N'DBCC LOGINFO (N' + N'''' + @dbName + N''') WITH NO_INFOMSGS;';
-        PRINT (@query);
+        OPEN DatabaseIteration;
 
-        IF @majorVersion < 11 /* pre SQL 2012 versions */
-        BEGIN
-            INSERT INTO @DbccLogInfo
-            (
-                fileid,
-                file_size,
-                start_offset,
-                fseqno,
-                [status],
-                parity,
-                create_lsn
-            )
-            EXEC sp_executesql @query;
-        END;
-        ELSE
-        BEGIN
-            INSERT INTO @DbccLogInfo
-            (
-                RecoveryUnitId,
-                fileid,
-                file_size,
-                start_offset,
-                fseqno,
-                [status],
-                parity,
-                create_lsn
-            )
-            EXEC sp_executesql @query;
-        END;
-
-        UPDATE @DbccLogInfo
-        SET DBName = @dbName,
-            [DBID] = DB_ID(@dbName)
-        WHERE DBName IS NULL;
+        DECLARE @DbccLogInfo TABLE (
+            RecoveryUnitId INT            NULL,
+            fileid         SMALLINT       NOT NULL,
+            file_size      BIGINT         NOT NULL,
+            start_offset   BIGINT         NOT NULL,
+            fseqno         INT            NOT NULL,
+            status         TINYINT        NOT NULL,
+            parity         TINYINT        NOT NULL,
+            create_lsn     NUMERIC(25, 0) NOT NULL,
+            DBName         sysname        NULL,
+            DBID           INT            NULL
+        );
 
         FETCH NEXT FROM DatabaseIteration
         INTO @dbName;
 
+        WHILE @@FETCH_STATUS = 0
+        BEGIN
+
+            SET @query = N'DBCC LOGINFO (N' + N'''' + @dbName + N''') WITH NO_INFOMSGS;';
+            PRINT (@query);
+
+            IF @majorVersion < 11 /* pre SQL 2012 versions */
+            BEGIN
+                INSERT INTO @DbccLogInfo (fileid, file_size, start_offset, fseqno, status, parity, create_lsn)
+                EXEC sp_executesql @query;
+            END;
+            ELSE
+            BEGIN
+                INSERT INTO @DbccLogInfo (RecoveryUnitId,
+                                          fileid,
+                                          file_size,
+                                          start_offset,
+                                          fseqno,
+                                          status,
+                                          parity,
+                                          create_lsn)
+                EXEC sp_executesql @query;
+            END;
+
+            UPDATE @DbccLogInfo
+            SET DBName = @dbName,
+                DBID = DB_ID (@dbName)
+            WHERE DBName IS NULL;
+
+            FETCH NEXT FROM DatabaseIteration
+            INTO @dbName;
+
+        END;
+
+        CLOSE DatabaseIteration;
+        DEALLOCATE DatabaseIteration;
+
     END;
 
-    CLOSE DatabaseIteration;
-    DEALLOCATE DatabaseIteration;
+    /* output the full list */
+    WITH CTE_VLF AS
+    (
+        SELECT dc.DBID,
+               dc.DBName,
+               MIN (dc.file_size) / 1024 / 1024 AS "FileSizeMbMIN",
+               MAX (dc.file_size) / 1024 / 1024 AS "FileSizeMbMAX",
+               AVG (dc.file_size) / 1024 / 1024 AS "FileSizeMbAVG",
+               SUM (dc.file_size) / 1024 / 1024 AS "FileSizeMbSUM",
+               COUNT (dc.fileid) AS "VLFCount"
+        FROM @DbccLogInfo AS dc
+        GROUP BY dc.DBID,
+                 dc.DBName
+    )
+    SELECT CTE_VLF.*,
+           CASE
+               WHEN VLFCount >= 1000 THEN 'Check your VLF count, maybe you need reduce it'
+               WHEN FileSizeMbAVG >= 500 THEN 'Check your VLF size, maybe you need decrease it'
+               ELSE 'Maybe it is ok'
+           END AS "Warnings"
+    FROM CTE_VLF
+    ORDER BY VLFCount DESC;
+
+    SELECT *
+    FROM @DbccLogInfo;
 
 END;
-
-/* output the full list */
-WITH CTE_VLF
-AS (SELECT dc.[DBID],
-           dc.DBName,
-           MIN(dc.file_size) / 1024 / 1024 AS FileSizeMbMIN,
-           MAX(dc.file_size) / 1024 / 1024 AS FileSizeMbMAX,
-           AVG(dc.file_size) / 1024 / 1024 AS FileSizeMbAVG,
-           SUM(dc.file_size) / 1024 / 1024 AS FileSizeMbSUM,
-           COUNT(dc.fileid) AS VLFCount
-    FROM @DbccLogInfo AS dc
-    GROUP BY dc.[DBID],
-             dc.DBName)
-SELECT CTE_VLF.*,
-       CASE
-           WHEN VLFCount >= 1000 THEN
-               'Check your VLF count, maybe you need reduce it'
-           WHEN FileSizeMbAVG >= 500 THEN
-               'Check your VLF size, maybe you need decrease it'
-           ELSE
-               'Maybe it is ok'
-       END Warnings
-FROM CTE_VLF
-ORDER BY VLFCount DESC;
-
-SELECT *
-FROM @DbccLogInfo;
