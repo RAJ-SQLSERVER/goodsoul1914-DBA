@@ -23,7 +23,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA - Index Usage Stats Snap
 		@delete_level=0, 
 		@description=N'No description available.', 
 		@category_name=N'[Uncategorized (Local)]', 
-		@owner_login_name=N'DT-RSD-01\mboom', @job_id = @jobId OUTPUT
+		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [Index Usage Stats Snapshot Population]    Script Date: 13-9-2021 11:27:26 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Index Usage Stats Snapshot Population', 
@@ -58,7 +58,7 @@ SELECT GETDATE (),
        last_system_lookup,
        last_system_update
 FROM sys.dm_db_index_usage_stats;', 
-		@database_name=N'IndexingMethod', 
+		@database_name=N'DBA', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [Index Usage Stats Snapshot Population - step 2]    Script Date: 13-9-2021 11:27:26 ******/
@@ -147,7 +147,7 @@ WHERE i1.HistoryID = 1
           OR i1.user_lookups - COALESCE (i2.user_lookups, 0) > 0
           OR i1.user_updates - COALESCE (i2.user_updates, 0) > 0
       );', 
-		@database_name=N'IndexingMethod', 
+		@database_name=N'DBA', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1

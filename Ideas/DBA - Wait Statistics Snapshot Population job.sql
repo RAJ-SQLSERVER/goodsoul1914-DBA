@@ -23,7 +23,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA - Wait Statistics Snapsh
 		@delete_level=0, 
 		@description=N'No description available.', 
 		@category_name=N'[Uncategorized (Local)]', 
-		@owner_login_name=N'DT-RSD-01\mboom', @job_id = @jobId OUTPUT
+		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [Wait Statistics Snapshot Population]    Script Date: 13-9-2021 11:28:13 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Wait Statistics Snapshot Population', 
@@ -49,7 +49,7 @@ SELECT GETDATE (),
        max_wait_time_ms,
        signal_wait_time_ms
 FROM sys.dm_os_wait_stats;', 
-		@database_name=N'IndexingMethod', 
+		@database_name=N'DBA', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 /****** Object:  Step [Wait Statistics History Population]    Script Date: 13-9-2021 11:28:13 ******/
@@ -88,7 +88,7 @@ LEFT OUTER JOIN WaitStatCTE AS w2
        AND w2.HistoryID = 2
 WHERE w1.HistoryID = 1
       AND w1.waiting_tasks_count - COALESCE (w2.waiting_tasks_count, 0) > 0;', 
-		@database_name=N'IndexingMethod', 
+		@database_name=N'DBA', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1
@@ -104,8 +104,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name=N'Every hou
 		@active_start_date=20210910, 
 		@active_end_date=99991231, 
 		@active_start_time=0, 
-		@active_end_time=235959, 
-		@schedule_uid=N'2186ad9c-ae14-4e9b-bd0c-ef0651951635'
+		@active_end_time=235959
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
