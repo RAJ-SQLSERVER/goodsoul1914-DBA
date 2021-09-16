@@ -27,7 +27,7 @@ EXEC dbo.sp_BlitzCache @ExpertMode = 1, @SortOrder = 'recent compilations', @Top
 EXEC dbo.sp_BlitzCache @ExpertMode = 1, @SortOrder = 'spills';
 
 -- Plans by query hash
-SELECT query_hash
+SELECT TOP (10) query_hash
 FROM sys.dm_exec_query_stats
 GROUP BY query_hash
 ORDER BY COUNT (*) DESC;
