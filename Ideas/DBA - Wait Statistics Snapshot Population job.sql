@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [DBA - Wait Statistics Snapshot Population]    Script Date: 13-9-2021 11:28:13 ******/
+/****** Object:  Job [DBA - Wait Statistics Snapshot Population]    Script Date: 14-9-2021 08:44:17 ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 13-9-2021 11:28:13 ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 14-9-2021 08:44:17 ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'DBA - Wait Statistics Snapsh
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Wait Statistics Snapshot Population]    Script Date: 13-9-2021 11:28:13 ******/
+/****** Object:  Step [Wait Statistics Snapshot Population]    Script Date: 14-9-2021 08:44:17 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Wait Statistics Snapshot Population', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -52,7 +52,7 @@ FROM sys.dm_os_wait_stats;',
 		@database_name=N'DBA', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Wait Statistics History Population]    Script Date: 13-9-2021 11:28:13 ******/
+/****** Object:  Step [Wait Statistics History Population]    Script Date: 14-9-2021 08:44:17 ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Wait Statistics History Population', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -95,16 +95,17 @@ EXEC @ReturnCode = msdb.dbo.sp_update_job @job_id = @jobId, @start_step_id = 1
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name=N'Every hour', 
 		@enabled=1, 
-		@freq_type=8, 
+		@freq_type=4, 
 		@freq_interval=1, 
 		@freq_subday_type=8, 
 		@freq_subday_interval=1, 
 		@freq_relative_interval=0, 
-		@freq_recurrence_factor=1, 
+		@freq_recurrence_factor=0, 
 		@active_start_date=20210910, 
 		@active_end_date=99991231, 
 		@active_start_time=0, 
-		@active_end_time=235959
+		@active_end_time=235959, 
+		@schedule_uid=N'f368ce4c-bd13-4bd9-9969-8647bcfcad19'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 EXEC @ReturnCode = msdb.dbo.sp_add_jobserver @job_id = @jobId, @server_name = N'(local)'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
