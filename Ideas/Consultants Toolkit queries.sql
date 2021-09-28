@@ -36,4 +36,4 @@ ORDER BY COUNT (*) DESC;
 EXEC dbo.sp_BlitzWho @ExpertMode = 1;
 
 -- Waits now, PerfMon now
-EXEC dbo.sp_BlitzFirst @ExpertMode = 1, @Seconds = 30;
+EXEC dbo.sp_BlitzFirst @ExpertMode = 1, @Seconds = 60;
