@@ -1,7 +1,7 @@
 
 -- SQL Server 2016 Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: June 1, 2021
+-- Last Modified: September 22, 2021
 -- https://glennsqlperformance.com/
 -- https://sqlserverperformance.wordpress.com/
 -- YouTube: https://bit.ly/2PkoAM1 
@@ -286,8 +286,7 @@ FROM sys.dm_os_process_memory WITH (NOLOCK) OPTION (RECOMPILE);
 
 -- SQL Server Services information (Query 7) (SQL Server Services Info)
 SELECT servicename, process_id, startup_type_desc, status_desc, 
-last_startup_time, service_account, is_clustered, cluster_nodename, [filename], 
-instant_file_initialization_enabled 
+last_startup_time, service_account, is_clustered, cluster_nodename, [filename] 
 FROM sys.dm_server_services WITH (NOLOCK) OPTION (RECOMPILE);
 ------
 
@@ -319,19 +318,38 @@ ORDER BY d.recovery_model_desc, d.[name] OPTION (RECOMPILE);
 
 
 -- Get SQL Server Agent jobs and Category information (Query 9) (SQL Server Agent Jobs)
-SELECT sj.name AS [Job Name], sj.[description] AS [Job Description], SUSER_SNAME(sj.owner_sid) AS [Job Owner],
+SELECT sj.name AS [Job Name], 
+sj.[description] AS [Job Description], 
+sc.name AS [CategoryName], SUSER_SNAME(sj.owner_sid) AS [Job Owner],
 sj.date_created AS [Date Created], sj.[enabled] AS [Job Enabled], 
-sj.notify_email_operator_id, sj.notify_level_email, sc.name AS [CategoryName],
-s.[enabled] AS [Sched Enabled], js.next_run_date, js.next_run_time
+sj.notify_email_operator_id, sj.notify_level_email,
+h.run_status,
+    STUFF(STUFF(REPLACE(STR(h.run_duration,7,0),
+        ' ','0'),4,0,':'),7,0,':') AS  [Last Duration - HHMMSS],
+     CONVERT(DATETIME, RTRIM(run_date) + ' '
+        + STUFF(STUFF(REPLACE(STR(RTRIM(h.run_time),6,0),
+        ' ','0'),3,0,':'),6,0,':')) AS [Last Start Date]
 FROM msdb.dbo.sysjobs AS sj WITH (NOLOCK)
+INNER JOIN
+    (SELECT job_id, instance_id = MAX(instance_id)
+     FROM msdb.dbo.sysjobhistory WITH (NOLOCK)
+     GROUP BY job_id) AS l
+ON sj.job_id = l.job_id
 INNER JOIN msdb.dbo.syscategories AS sc WITH (NOLOCK)
 ON sj.category_id = sc.category_id
-LEFT OUTER JOIN msdb.dbo.sysjobschedules AS js WITH (NOLOCK)
-ON sj.job_id = js.job_id
-LEFT OUTER JOIN msdb.dbo.sysschedules AS s WITH (NOLOCK)
-ON js.schedule_id = s.schedule_id
-ORDER BY sj.name OPTION (RECOMPILE);
+INNER JOIN msdb.dbo.sysjobhistory AS h WITH (NOLOCK)
+ON h.job_id = l.job_id
+AND h.instance_id = l.instance_id
+ORDER BY CONVERT(INT, h.run_duration) DESC, [Last Start Date] DESC OPTION (RECOMPILE);
 ------
+
+--run_status	
+-- Value   Status of the job execution
+-- 0 =     Failed
+-- 1 =     Succeeded
+-- 2 =     Retry
+-- 3 =     Canceled
+-- 4 =     In Progress
 
 -- Gives you some basic information about your SQL Server Agent jobs, who owns them and how they are configured
 -- Look for Agent jobs that are not owned by sa
@@ -503,8 +521,7 @@ SELECT cpu_count AS [Logical CPU Count], scheduler_count,
        sqlserver_start_time AS [SQL Server Start Time],
 	   DATEDIFF(hour, sqlserver_start_time, GETDATE()) AS [SQL Server Up Time (hrs)],
 	   virtual_machine_type_desc AS [Virtual Machine Type],
-	   softnuma_configuration_desc AS [Soft NUMA Configuration], 
-	   sql_memory_model_desc -- New in SQL Server 2016
+	   softnuma_configuration_desc AS [Soft NUMA Configuration]
 FROM sys.dm_os_sys_info WITH (NOLOCK) OPTION (RECOMPILE);
 ------
 
@@ -1705,25 +1722,21 @@ ORDER BY [BufferCount] DESC OPTION (RECOMPILE);
 -- It can help identify possible candidates for data compression
 
 
--- Get Table names, row counts, and compression status for clustered index or heap  (Query 66) (Table Sizes)
-SELECT SCHEMA_NAME(o.Schema_ID) AS [Schema Name], OBJECT_NAME(p.object_id) AS [ObjectName], 
-SUM(p.Rows) AS [RowCount], p.data_compression_desc AS [Compression Type]
-FROM sys.partitions AS p WITH (NOLOCK)
-INNER JOIN sys.objects AS o WITH (NOLOCK)
+-- Get Schema names, Table names, object size, row counts, and compression status for clustered index or heap  (Query 66) (Table Sizes)
+SELECT SCHEMA_NAME(o.Schema_ID) AS [Schema Name], OBJECT_NAME(p.object_id) AS [Object Name],
+CAST(SUM(ps.reserved_page_count) * 8.0 / 1024 AS DECIMAL(19,2)) AS [Object Size (MB)],
+SUM(p.Rows) AS [Row Count], 
+p.data_compression_desc AS [Compression Type]
+FROM sys.objects AS o WITH (NOLOCK)
+INNER JOIN sys.partitions AS p WITH (NOLOCK)
 ON p.object_id = o.object_id
-WHERE index_id < 2 --ignore the partitions from the non-clustered index if any
-AND OBJECT_NAME(p.object_id) NOT LIKE N'sys%'
-AND OBJECT_NAME(p.object_id) NOT LIKE N'spt_%'
-AND OBJECT_NAME(p.object_id) NOT LIKE N'queue_%' 
-AND OBJECT_NAME(p.object_id) NOT LIKE N'filestream_tombstone%' 
-AND OBJECT_NAME(p.object_id) NOT LIKE N'fulltext%'
-AND OBJECT_NAME(p.object_id) NOT LIKE N'ifts_comp_fragment%'
-AND OBJECT_NAME(p.object_id) NOT LIKE N'filetable_updates%'
-AND OBJECT_NAME(p.object_id) NOT LIKE N'xml_index_nodes%'
-AND OBJECT_NAME(p.object_id) NOT LIKE N'sqlagent_job%'
-AND OBJECT_NAME(p.object_id) NOT LIKE N'plan_persist%'
-GROUP BY  SCHEMA_NAME(o.Schema_ID), p.object_id, data_compression_desc
-ORDER BY SUM(p.Rows) DESC OPTION (RECOMPILE);
+INNER JOIN sys.dm_db_partition_stats AS ps WITH (NOLOCK)
+ON p.object_id = ps.object_id
+WHERE ps.index_id < 2 -- ignore the partitions from the non-clustered indexes if any
+AND p.index_id < 2    -- ignore the partitions from the non-clustered indexes if any
+AND o.type_desc = N'USER_TABLE'
+GROUP BY  SCHEMA_NAME(o.Schema_ID), p.object_id, ps.reserved_page_count, p.data_compression_desc
+ORDER BY SUM(ps.reserved_page_count) DESC, SUM(p.Rows) DESC OPTION (RECOMPILE);
 ------
 
 -- Gives you an idea of table sizes, and possible data compression opportunities

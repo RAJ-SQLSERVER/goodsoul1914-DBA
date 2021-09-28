@@ -1,6 +1,6 @@
 DECLARE @DbName NVARCHAR(50);
 
-SET @DbName = N'AdventureWorks';
+SET @DbName = N'HIX_PRODUCTIE';
 
 DECLARE @EXECSQL VARCHAR(max);
 

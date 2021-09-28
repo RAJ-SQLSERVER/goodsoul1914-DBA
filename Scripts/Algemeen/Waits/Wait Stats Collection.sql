@@ -12,11 +12,11 @@ GO
 -- SQL Wait Stats and Queries
 -- (C) Pinal Dave (http://blog.sqlauthority.com) 2021+
 -- Send query result to pinal@sqlauthority.com for quick feedback
-SELECT wait_type AS "Wait_Type",
-       wait_time_ms / 1000.0 AS "Wait_Time_Seconds",
-       waiting_tasks_count AS "Waiting_Tasks_Count",
+SELECT wait_type AS Wait_Type,
+       wait_time_ms / 1000.0 AS Wait_Time_Seconds,
+       waiting_tasks_count AS Waiting_Tasks_Count,
        -- CAST((wait_time_ms / 1000.0)/waiting_tasks_count AS decimal(10,4)) AS AVG_Waiting_Tasks_Count,
-       wait_time_ms * 100.0 / SUM (wait_time_ms) OVER () AS "Percentage_WaitTime"
+       wait_time_ms * 100.0 / SUM (wait_time_ms) OVER () AS Percentage_WaitTime
 --,waiting_tasks_count * 100.0 / SUM(waiting_tasks_count) OVER() AS Percentage_Count
 FROM sys.dm_os_wait_stats
 WHERE Wait_Type NOT IN ( N'BROKER_EVENTHANDLER', N'BROKER_RECEIVE_WAITFOR', N'BROKER_TASK_STOP', N'BROKER_TO_FLUSH',

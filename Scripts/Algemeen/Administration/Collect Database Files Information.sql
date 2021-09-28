@@ -9,77 +9,62 @@ Notes:			Use this information to plan a maintenance plan for managing the size o
 
 =========================================================================================================================*/
 
-DROP TABLE IF EXISTS
-	#DatabaseFiles;
+DROP TABLE IF EXISTS #DatabaseFiles;
 GO
 
 
-CREATE TABLE
-	#DatabaseFiles
-(
-	DatabaseId							INT				NOT NULL ,
-	DatabaseName						SYSNAME			NOT NULL ,
-	FilegroupId							INT				NULL ,
-	FilegroupName						SYSNAME			NULL ,
-	IsAutoGrowAllFiles					BIT				NULL ,		-- Applies to: SQL Server (SQL Server 2016 (13.x) through current version)
-	FileId								INT				NOT NULL ,
-	FileType							NVARCHAR(60)	NOT NULL ,
-	FileLogicalName						SYSNAME			NOT NULL ,
-	FilePhysicalName					NVARCHAR(260)	NOT NULL ,
-	FileState							NVARCHAR(60)	NOT NULL ,
-	FileSize_MB							DECIMAL(19,2)	NOT NULL ,
-	AllocatedSpace_MB					DECIMAL(19,2)	NULL ,
-	UnallocatedSpace_MB					DECIMAL(19,2)	NULL ,
-	UnallocatedSpace_Percent			NVARCHAR(7)		NULL ,
-	AutoGrowthType						NVARCHAR(9)		NULL ,
-	AutoGrowthValue						DECIMAL(19,2)	NULL ,
-	FileMaxSize_MB						INT				NULL ,
-	VolumeName							NVARCHAR(512)	NULL ,
-	VolumeTotalSize_GB					DECIMAL(19,2)	NOT NULL ,
-	VolumeFreeSpace_GB					DECIMAL(19,2)	NOT NULL ,
-	VolumeFreeSpace_Percent				NVARCHAR(7)		NOT NULL ,
-	Warning								NVARCHAR(37)	NOT NULL ,
-	IsReadOnly							BIT				NOT NULL ,
-	NumberOfAutoGrowthEvents			INT				NULL ,
-	TimeSpan_Hours						INT				NULL ,
-	AverageNumberOfHoursBetweenEvents	DECIMAL(19,2)	NULL ,
-	AverageEventDuration_MS				DECIMAL(19,2)	NULL ,
-	AverageFileGrowthSize_MB			DECIMAL(19,2)	NULL
+CREATE TABLE #DatabaseFiles (
+    DatabaseId                        INT            NOT NULL,
+    DatabaseName                      sysname        NOT NULL,
+    FilegroupId                       INT            NULL,
+    FilegroupName                     sysname        NULL,
+    IsAutoGrowAllFiles                BIT            NULL, -- Applies to: SQL Server (SQL Server 2016 (13.x) through current version)
+    FileId                            INT            NOT NULL,
+    FileType                          NVARCHAR(60)   NOT NULL,
+    FileLogicalName                   sysname        NOT NULL,
+    FilePhysicalName                  NVARCHAR(260)  NOT NULL,
+    FileState                         NVARCHAR(60)   NOT NULL,
+    FileSize_MB                       DECIMAL(19, 2) NOT NULL,
+    AllocatedSpace_MB                 DECIMAL(19, 2) NULL,
+    UnallocatedSpace_MB               DECIMAL(19, 2) NULL,
+    UnallocatedSpace_Percent          NVARCHAR(7)    NULL,
+    AutoGrowthType                    NVARCHAR(9)    NULL,
+    AutoGrowthValue                   DECIMAL(19, 2) NULL,
+    FileMaxSize_MB                    INT            NULL,
+    VolumeName                        NVARCHAR(512)  NULL,
+    VolumeTotalSize_GB                DECIMAL(19, 2) NOT NULL,
+    VolumeFreeSpace_GB                DECIMAL(19, 2) NOT NULL,
+    VolumeFreeSpace_Percent           NVARCHAR(7)    NOT NULL,
+    Warning                           NVARCHAR(37)   NOT NULL,
+    IsReadOnly                        BIT            NOT NULL,
+    NumberOfAutoGrowthEvents          INT            NULL,
+    TimeSpan_Hours                    INT            NULL,
+    AverageNumberOfHoursBetweenEvents DECIMAL(19, 2) NULL,
+    AverageEventDuration_MS           DECIMAL(19, 2) NULL,
+    AverageFileGrowthSize_MB          DECIMAL(19, 2) NULL
 );
 GO
 
 
-DECLARE
-	@DatabaseName	AS SYSNAME ,
-	@Command		AS NVARCHAR(MAX);
+DECLARE @DatabaseName AS sysname,
+        @Command      AS NVARCHAR(MAX);
 
-DECLARE
-	Databases
-CURSOR
-	LOCAL FORWARD_ONLY STATIC READ_ONLY
-FOR
-	SELECT
-		DatabaseName = [name]
-	FROM
-		sys.databases
-	WHERE
-		[state] = 0;	-- Online
+DECLARE Databases CURSOR LOCAL FORWARD_ONLY STATIC READ_ONLY FOR
+    SELECT name AS DatabaseName FROM sys.databases WHERE state = 0; -- Online
 
 OPEN Databases;
 
-FETCH NEXT FROM
-	Databases
-INTO
-	@DatabaseName;
+FETCH NEXT FROM Databases
+INTO @DatabaseName;
 
-WHILE
-	@@FETCH_STATUS = 0
+WHILE @@FETCH_STATUS = 0
 BEGIN
 
-	SET @Command =
-		N'
+    SET @Command
+        = N'
 			USE
-				' + QUOTENAME (@DatabaseName) + N';
+				' + QUOTENAME (@DatabaseName)
+          + N';
 
 			INSERT INTO
 				#DatabaseFiles
@@ -202,14 +187,10 @@ BEGIN
 				sys.dm_os_volume_stats (DB_ID () , DatabaseFiles.file_id) AS Volumes;
 		';
 
-	EXECUTE
-		sys.sp_executesql
-			@stmt = @Command;
+    EXECUTE sys.sp_executesql @stmt = @Command;
 
-	FETCH NEXT FROM
-		Databases
-	INTO
-		@DatabaseName;
+    FETCH NEXT FROM Databases
+    INTO @DatabaseName;
 
 END;
 
@@ -219,105 +200,78 @@ DEALLOCATE Databases;
 GO
 
 
-DECLARE
-	@CurrentTraceFilePath	NVARCHAR(260) ,
-	@FirstTraceFilePath		NVARCHAR(260);
+DECLARE @CurrentTraceFilePath NVARCHAR(260),
+        @FirstTraceFilePath   NVARCHAR(260);
 
-SELECT
-	@CurrentTraceFilePath = [path]
-FROM
-	sys.traces
-WHERE
-	is_default = 1;
+SELECT @CurrentTraceFilePath = path FROM sys.traces WHERE is_default = 1;
 
-SET @FirstTraceFilePath = LEFT (@CurrentTraceFilePath , LEN (@CurrentTraceFilePath) - PATINDEX (N'%\%' , REVERSE (@CurrentTraceFilePath))) + N'\log.trc';
+SET @FirstTraceFilePath
+    = LEFT(@CurrentTraceFilePath, LEN (@CurrentTraceFilePath) - PATINDEX (N'%\%', REVERSE (@CurrentTraceFilePath)))
+      + N'\log.trc';
 
-WITH
-	DatabaseFileAutoGrowthStats
-(
-	DatabaseName ,
-	FileLogicalName ,
-	NumberOfAutoGrowthEvents ,
-	TimeSpan_Hours ,
-	AverageNumberOfHoursBetweenEvents ,
-	AverageEventDuration_MS ,
-	AverageFileGrowthSize_MB
+WITH DatabaseFileAutoGrowthStats (DatabaseName, FileLogicalName, NumberOfAutoGrowthEvents, TimeSpan_Hours,
+                                  AverageNumberOfHoursBetweenEvents, AverageEventDuration_MS, AverageFileGrowthSize_MB
 )
-AS
-(
-SELECT
-	DatabaseName						= DatabaseName ,
-	FileLogicalName						= [FileName] ,
-	NumberOfAutoGrowthEvents			= COUNT (*) ,
-	TimeSpan_Hours						= DATEDIFF (HOUR , MIN (StartTime) , SYSDATETIME ()) ,
-	AverageNumberOfHoursBetweenEvents	= CAST (CAST (DATEDIFF (HOUR , MIN (StartTime) , SYSDATETIME ()) AS DECIMAL(19,2)) / COUNT (*) AS DECIMAL(19,2)) ,
-	AverageEventDuration_MS				= CAST (AVG (CAST (Duration / 1000.0 AS DECIMAL(19,2))) AS DECIMAL(19,2)) ,
-	AverageFileGrowthSize_MB			= CAST (AVG (CAST (IntegerData * 8.0 / 1024.0 AS DECIMAL(19,2))) AS DECIMAL(19,2))
-FROM
-	sys.fn_trace_gettable (@FirstTraceFilePath , DEFAULT)
-WHERE
-	EventClass IN (92,93)
-GROUP BY
-	DatabaseName ,
-	[FileName]
+AS (
+    SELECT DatabaseName AS DatabaseName,
+           FileName AS FileLogicalName,
+           COUNT (*) AS NumberOfAutoGrowthEvents,
+           DATEDIFF (HOUR, MIN (StartTime), SYSDATETIME ()) AS TimeSpan_Hours,
+           CAST(CAST(DATEDIFF (HOUR, MIN (StartTime), SYSDATETIME ()) AS DECIMAL(19, 2)) / COUNT (*) AS DECIMAL(19, 2)) AS AverageNumberOfHoursBetweenEvents,
+           CAST(AVG (CAST(Duration / 1000.0 AS DECIMAL(19, 2))) AS DECIMAL(19, 2)) AS AverageEventDuration_MS,
+           CAST(AVG (CAST(IntegerData * 8.0 / 1024.0 AS DECIMAL(19, 2))) AS DECIMAL(19, 2)) AS AverageFileGrowthSize_MB
+    FROM sys.fn_trace_gettable (@FirstTraceFilePath, DEFAULT)
+    WHERE EventClass IN ( 92, 93 )
+    GROUP BY DatabaseName,
+             FileName
 )
-UPDATE
-	DatabaseFiles
-SET
-	NumberOfAutoGrowthEvents			= DatabaseFileAutoGrowthStats.NumberOfAutoGrowthEvents ,
-	TimeSpan_Hours						= DatabaseFileAutoGrowthStats.TimeSpan_Hours ,
-	AverageNumberOfHoursBetweenEvents	= DatabaseFileAutoGrowthStats.AverageNumberOfHoursBetweenEvents ,
-	AverageEventDuration_MS				= DatabaseFileAutoGrowthStats.AverageEventDuration_MS ,
-	AverageFileGrowthSize_MB			= DatabaseFileAutoGrowthStats.AverageFileGrowthSize_MB
-FROM
-	#DatabaseFiles AS DatabaseFiles
-LEFT OUTER JOIN
-	DatabaseFileAutoGrowthStats
-ON
-	DatabaseFiles.DatabaseName = DatabaseFileAutoGrowthStats.DatabaseName
-AND
-	DatabaseFiles.FileLogicalName = DatabaseFileAutoGrowthStats.FileLogicalName
+UPDATE DatabaseFiles
+SET NumberOfAutoGrowthEvents = DatabaseFileAutoGrowthStats.NumberOfAutoGrowthEvents,
+    TimeSpan_Hours = DatabaseFileAutoGrowthStats.TimeSpan_Hours,
+    AverageNumberOfHoursBetweenEvents = DatabaseFileAutoGrowthStats.AverageNumberOfHoursBetweenEvents,
+    AverageEventDuration_MS = DatabaseFileAutoGrowthStats.AverageEventDuration_MS,
+    AverageFileGrowthSize_MB = DatabaseFileAutoGrowthStats.AverageFileGrowthSize_MB
+FROM #DatabaseFiles AS DatabaseFiles
+LEFT OUTER JOIN DatabaseFileAutoGrowthStats
+    ON DatabaseFiles.DatabaseName = DatabaseFileAutoGrowthStats.DatabaseName
+       AND DatabaseFiles.FileLogicalName = DatabaseFileAutoGrowthStats.FileLogicalName;
 GO
 
 
-SELECT
-	DatabaseId ,
-	DatabaseName ,
-	FilegroupId ,
-	FilegroupName ,
-	IsAutoGrowAllFiles ,	-- Applies to: SQL Server (SQL Server 2016 (13.x) through current version)
-	FileId ,
-	FileType ,
-	FileLogicalName ,
-	FilePhysicalName ,
-	FileState ,
-	FileSize_MB ,
-	AllocatedSpace_MB ,
-	UnallocatedSpace_MB ,
-	UnallocatedSpace_Percent ,
-	AutoGrowthType ,
-	AutoGrowthValue ,
-	FileMaxSize_MB ,
-	VolumeName ,
-	VolumeTotalSize_GB ,
-	VolumeFreeSpace_GB ,
-	VolumeFreeSpace_Percent ,
-	Warning ,
-	IsReadOnly ,
-	NumberOfAutoGrowthEvents ,
-	TimeSpan_Hours ,
-	AverageNumberOfHoursBetweenEvents ,
-	AverageEventDuration_MS ,
-	AverageFileGrowthSize_MB
-FROM
-	#DatabaseFiles
-ORDER BY
-	DatabaseId	ASC ,
-	FilegroupId	ASC ,
-	FileId		ASC;
+SELECT DatabaseId,
+       DatabaseName,
+       FilegroupId,
+       FilegroupName,
+       IsAutoGrowAllFiles, -- Applies to: SQL Server (SQL Server 2016 (13.x) through current version)
+       FileId,
+       FileType,
+       FileLogicalName,
+       FilePhysicalName,
+       FileState,
+       FileSize_MB,
+       AllocatedSpace_MB,
+       UnallocatedSpace_MB,
+       UnallocatedSpace_Percent,
+       AutoGrowthType,
+       AutoGrowthValue,
+       FileMaxSize_MB,
+       VolumeName,
+       VolumeTotalSize_GB,
+       VolumeFreeSpace_GB,
+       VolumeFreeSpace_Percent,
+       Warning,
+       IsReadOnly,
+       NumberOfAutoGrowthEvents,
+       TimeSpan_Hours,
+       AverageNumberOfHoursBetweenEvents,
+       AverageEventDuration_MS,
+       AverageFileGrowthSize_MB
+FROM #DatabaseFiles
+ORDER BY DatabaseId ASC,
+         FilegroupId ASC,
+         FileId ASC;
 GO
 
 
-DROP TABLE
-	#DatabaseFiles;
+DROP TABLE #DatabaseFiles;
 GO

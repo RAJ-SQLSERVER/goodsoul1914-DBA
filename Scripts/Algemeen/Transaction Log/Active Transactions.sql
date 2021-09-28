@@ -2,7 +2,7 @@
 
 select *
 from sys.dm_tran_database_transactions
-where database_id = DB_ID(N'iCONSENSE');
+where database_id = DB_ID(N'HIX_PRODUCTIE');
 go
 
 -- All active transactions
@@ -22,7 +22,6 @@ from sys.dm_tran_database_transactions as s_tdt
 	 left outer join sys.dm_exec_requests as s_er on s_er.session_id = s_tst.session_id
 	 cross apply sys.dm_exec_sql_text (s_ec.most_recent_sql_handle) as s_est
 	 outer apply sys.dm_exec_query_plan (s_er.plan_handle) as s_eqp
-where s_tdt.database_id = DB_ID(N'iCONSENSE')
 order by [Begin Time] asc;
 go
 

@@ -8,7 +8,7 @@ SELECT r.session_id,
        r.statement_start_offset,
        r.statement_end_offset,
        p.query_plan,
-       CURRENT_TIMESTAMP AS "time_polled"
+       CURRENT_TIMESTAMP AS time_polled
 INTO rta_data
 FROM sys.dm_exec_requests AS r
 OUTER APPLY sys.dm_exec_sql_text (r.sql_handle) AS s
@@ -29,7 +29,7 @@ SELECT r.session_id,
        r.statement_start_offset,
        r.statement_end_offset,
        p.query_plan,
-       CURRENT_TIMESTAMP AS "time_polled"
+       CURRENT_TIMESTAMP AS time_polled
 FROM sys.dm_exec_requests AS r
 OUTER APPLY sys.dm_exec_sql_text (r.sql_handle) AS s
 OUTER APPLY sys.dm_exec_text_query_plan (r.plan_handle, r.statement_start_offset, r.statement_end_offset) AS p
@@ -39,16 +39,17 @@ WHERE r.status <> 'background'
 GO
 
 -- Query for CTE
-WITH rta (sql_text, wait_type, time_in_second) AS
-(
-    SELECT text AS "sql_text",
+WITH rta (sql_text, wait_type, time_in_second)
+AS (
+    SELECT text AS sql_text,
            wait_type,
-           COUNT (*) AS "time_in_second"
+           COUNT (*) AS time_in_second
     FROM rta_data AS rta
     GROUP BY text,
              wait_type
 ),
-     tot (text, tot_time) AS (SELECT text, COUNT (*) AS "tot_time" FROM rta_data GROUP BY text)
+     tot (text, tot_time)
+AS (SELECT text, COUNT (*) AS tot_time FROM rta_data GROUP BY text)
 SELECT sql_text,
        wait_type,
        time_in_second,

@@ -1,28 +1,28 @@
-CREATE DATABASE Baseline CONTAINMENT = NONE
-ON PRIMARY (
-       NAME = N'Baseline',
-       FILENAME = N'D:\SQLData\baseline_data.mdf',
-       SIZE = 1536000KB,
-       MAXSIZE = UNLIMITED,
-       FILEGROWTH = 10%
-   )
-LOG ON (
-    NAME = N'Baseline_log',
-    FILENAME = N'D:\SQLLogs\baseline_log.ldf',
-    SIZE = 102400KB,
-    MAXSIZE = 2048GB,
-    FILEGROWTH = 10%
-)
-WITH CATALOG_COLLATION=DATABASE_DEFAULT;
-GO
+--CREATE DATABASE Baseline CONTAINMENT = NONE
+--ON PRIMARY (
+--       NAME = N'Baseline',
+--       FILENAME = N'D:\SQLData\baseline_data.mdf',
+--       SIZE = 1536000KB,
+--       MAXSIZE = UNLIMITED,
+--       FILEGROWTH = 10%
+--   )
+--LOG ON (
+--    NAME = N'Baseline_log',
+--    FILENAME = N'D:\SQLLogs\baseline_log.ldf',
+--    SIZE = 102400KB,
+--    MAXSIZE = 2048GB,
+--    FILEGROWTH = 10%
+--)
+--WITH CATALOG_COLLATION=DATABASE_DEFAULT;
+--GO
 
-IF (1 = FULLTEXTSERVICEPROPERTY ('IsFullTextInstalled'))
-BEGIN
-    EXEC Baseline.dbo.sp_fulltext_database @action = 'enable';
-END;
-GO
+--IF (1 = FULLTEXTSERVICEPROPERTY ('IsFullTextInstalled'))
+--BEGIN
+--    EXEC Baseline.dbo.sp_fulltext_database @action = 'enable';
+--END;
+--GO
 
-USE Baseline;
+USE DBA;
 GO
 
 CREATE TABLE dbo.WaitStats (
@@ -40,7 +40,7 @@ CREATE TABLE dbo.WaitStats (
     ws_SignalWaitTime INT         NULL,
     PRIMARY KEY CLUSTERED (ws_ID ASC)
     WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON,
-          ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+          ALLOW_PAGE_LOCKS = ON--, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
     ) ON [PRIMARY]
 ) ON [PRIMARY];
 GO
@@ -53,7 +53,7 @@ SELECT ws_DayOfWeek,
        ws_WaitTime,
        ws_WaitingTasks,
        ws_SignalWaitTime
-FROM Baseline.dbo.WaitStats
+FROM DBA.dbo.WaitStats
 WHERE (ws_WaitTime > 0 OR ws_WaitingTasks > 0 OR ws_SignalWaitTime > 0)
       AND DATEDIFF (HOUR, ws_DateTime, GETDATE ()) <= 1;
 GO
@@ -75,7 +75,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_job @job_name = N'DBA - Delta Capture Method'
                                        @delete_level = 0,
                                        @description = N'No description available.',
                                        @category_name = N'[Uncategorized (Local)]',
-                                       @owner_login_name = N'DT-RSD-01\mboom',
+                                       @owner_login_name = N'sa',
                                        @job_id = @jobId OUTPUT;
 
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) 
@@ -94,9 +94,6 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id = @jobId,
                                            @os_run_priority = 0,
                                            @subsystem = N'TSQL',
                                            @command = N'-- Listing 4-4. Delta capture method
-USE Baseline;
-GO
-
 -- Check if the temp table already exists
 -- if it does drop it.
 IF EXISTS (
@@ -146,7 +143,7 @@ INNER JOIN #ws_Capture AS ws
 
 -- Clean up the temp table
 DROP TABLE #ws_Capture;',
-                                           @database_name = N'Baseline',
+                                           @database_name = N'DBA',
                                            @flags = 0;
 
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) 
