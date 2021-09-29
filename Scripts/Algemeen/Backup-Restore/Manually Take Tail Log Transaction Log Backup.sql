@@ -10,8 +10,6 @@ WITH NO_TRUNCATE,
      NOINIT,
      NAME = N'Playground_Tail_LogTbackup',
      SKIP,
-     NOREWIND,
-     NOUNLOAD,
      NORECOVERY,
      STATS = 10;
 GO
