@@ -1,0 +1,4 @@
+1) Copy everything to C:\Pluralsight
+2) plug in a USB drive for the log
+3) follow steps in DelayedDurability.sql
+5) use StopTest.cmd to stop everything

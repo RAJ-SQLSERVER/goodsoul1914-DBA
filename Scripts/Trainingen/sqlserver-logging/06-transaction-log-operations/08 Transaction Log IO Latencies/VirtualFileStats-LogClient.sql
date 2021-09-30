@@ -1,0 +1,11 @@
+USE [SlowLogFile];
+GO
+
+SET NOCOUNT ON;
+GO
+
+WHILE (1=1)
+BEGIN
+	INSERT INTO [BadKeyTable] DEFAULT VALUES;
+END;
+GO
