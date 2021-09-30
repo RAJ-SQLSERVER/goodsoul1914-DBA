@@ -1,6 +1,5 @@
 -- Demo script 2 for Backups and Log Clearing
-
-USE [Company];
+USE Company;
 GO
 
 BEGIN TRANSACTION;
@@ -9,7 +8,8 @@ GO
 SET NOCOUNT ON;
 GO
 
-INSERT INTO [RandomData] DEFAULT VALUES;
+INSERT INTO RandomData
+DEFAULT VALUES;
 GO 3000
 
 -- Clean up

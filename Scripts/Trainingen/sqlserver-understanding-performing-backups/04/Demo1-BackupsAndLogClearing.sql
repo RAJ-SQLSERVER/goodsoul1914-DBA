@@ -47,8 +47,12 @@ WITH INIT,
 GO
 
 -- Examine the log
--- SQL Server 2017+ has a DMV you can use: sys.dm_db_log_info
 DBCC LOGINFO(N'Company');
+GO
+
+-- SQL Server 2017+ has a DMV you can use: sys.dm_db_log_info
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Now add some data
@@ -58,7 +62,8 @@ DEFAULT VALUES;
 GO 5000
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Perform a log backup
@@ -78,7 +83,8 @@ WHERE database_name = 'Company';
 GO
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Add some more data
@@ -87,7 +93,8 @@ DEFAULT VALUES;
 GO 4000
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Perform a log backup
@@ -98,7 +105,8 @@ WITH INIT,
 GO
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Add some more data
@@ -107,7 +115,8 @@ DEFAULT VALUES;
 GO 4000
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Perform a log backup
@@ -118,7 +127,8 @@ WITH INIT,
 GO
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Examine the backup history table in msdb to
@@ -136,7 +146,8 @@ DEFAULT VALUES;
 GO 4000
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- What about a data backup?
@@ -147,7 +158,8 @@ WITH INIT,
 GO
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Perform a log backup
@@ -158,13 +170,15 @@ WITH INIT,
 GO
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
--- Use the other demo script to start a transaction
+-- Use the demo script 2 to start a transaction
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
 
 -- Perform a log backup
@@ -175,8 +189,9 @@ WITH INIT,
 GO
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
-GO
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
+GO	
 
 -- Why can't the log clear?
 -- SQL Server 2017+ has a DMV you can use: sys.dm_db_log_stats
@@ -192,8 +207,10 @@ GO
 -- Commit the transaction in the other window
 
 -- Did that allow the log to clear?
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
+
 
 -- Why can't the log clear?
 SELECT log_reuse_wait_desc
@@ -205,8 +222,9 @@ GO
 CHECKPOINT;
 GO
 
-DBCC LOGINFO(N'Company');
-GO
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
+GO	
 
 -- Why can't the log clear?
 SELECT log_reuse_wait_desc
@@ -222,5 +240,6 @@ WITH INIT,
 GO
 
 -- Examine the log again
-DBCC LOGINFO(N'Company');
+SELECT *
+FROM sys.dm_db_log_info(DB_ID(N'Company'));
 GO
