@@ -106,6 +106,9 @@ RESTORE DATABASE Company
 FROM DISK = N'D:\SQLBackups\Company_Full.bak'
 WITH REPLACE,
      STANDBY = N'D:\SQLBackups\standbyfile.dat';
+	 -- Will restore the log that is in the full backup
+	 -- and essentially runs crash recovery on it into the standby file.
+	 -- It does not finish the restore sequence.
 GO
 
 -- We can see what's in there...
@@ -117,6 +120,7 @@ GO
 RESTORE LOG Company
 FROM DISK = N'D:\SQLBackups\Company_Log1.bak'
 WITH STANDBY = N'D:\SQLBackups\standbyfile.dat';
+	-- Rolls forward the log backup
 GO
 
 -- Now what's there?
