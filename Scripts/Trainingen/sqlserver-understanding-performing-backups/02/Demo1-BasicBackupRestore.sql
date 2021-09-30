@@ -40,7 +40,7 @@ INSERT INTO RandomData
 VALUES ('Transaction 3');
 GO
 
-BACKUP LOG Company TO DISK = N'D:\Pluralsight\Company_Log1.bak' WITH INIT;
+BACKUP LOG Company TO DISK = N'D:\SQLBackups\Company_Log1.bak' WITH INIT;
 GO
 
 -- And more data
@@ -51,7 +51,7 @@ VALUES ('Transaction 5');
 GO
 
 -- And perform another log backup
-BACKUP LOG Company TO DISK = N'D:\Pluralsight\Company_Log2.bak' WITH INIT;
+BACKUP LOG Company TO DISK = N'D:\SQLBackups\Company_Log2.bak' WITH INIT;
 GO
 
 -- Simulate corruption that destroys the database
@@ -64,31 +64,32 @@ GO
 -- We have three backups - so restore them
 -- Restore the full backup
 RESTORE DATABASE Company
-FROM DISK = N'D:\Pluralsight\Company_Full.bak'
+FROM DISK = N'D:\SQLBackups\Company_Full.bak'
 WITH REPLACE;
+-- Not specifying NORECOVERY runs crash recovery which ends the restore sequence!!
 GO
 
 -- And the log backups
-RESTORE LOG Company FROM DISK = N'D:\Pluralsight\Company_Log1.bak';
+RESTORE LOG Company FROM DISK = N'D:\SQLBackups\Company_Log1.bak';
 
-RESTORE LOG Company FROM DISK = N'D:\Pluralsight\Company_Log2.bak';
+RESTORE LOG Company FROM DISK = N'D:\SQLBackups\Company_Log2.bak';
 GO
 
 -- WITH RECOVERY is the DEFAULT!
 -- We need to start again...
 RESTORE DATABASE Company
-FROM DISK = N'D:\Pluralsight\Company_Full.bak'
+FROM DISK = N'D:\SQLBackups\Company_Full.bak'
 WITH REPLACE,
      NORECOVERY;
 GO
 
 -- And the log backups
 RESTORE LOG Company
-FROM DISK = N'D:\Pluralsight\Company_Log1.bak'
+FROM DISK = N'D:\SQLBackups\Company_Log1.bak'
 WITH NORECOVERY;
 
 RESTORE LOG Company
-FROM DISK = N'D:\Pluralsight\Company_Log2.bak'
+FROM DISK = N'D:\SQLBackups\Company_Log2.bak'
 WITH NORECOVERY;
 GO
 
@@ -100,12 +101,11 @@ SELECT *
 FROM Company.dbo.RandomData;
 GO
 
--- What if we want to examine things
--- between restores?
+-- What if we want to examine things between restores?
 RESTORE DATABASE Company
-FROM DISK = N'D:\Pluralsight\Company_Full.bak'
+FROM DISK = N'D:\SQLBackups\Company_Full.bak'
 WITH REPLACE,
-     STANDBY = N'D:\Pluralsight\standbyfile.dat';
+     STANDBY = N'D:\SQLBackups\standbyfile.dat';
 GO
 
 -- We can see what's in there...
@@ -115,8 +115,8 @@ GO
 
 -- Let's do the next log file.
 RESTORE LOG Company
-FROM DISK = N'D:\Pluralsight\Company_Log1.bak'
-WITH STANDBY = N'D:\Pluralsight\standbyfile.dat';
+FROM DISK = N'D:\SQLBackups\Company_Log1.bak'
+WITH STANDBY = N'D:\SQLBackups\standbyfile.dat';
 GO
 
 -- Now what's there?
@@ -126,7 +126,7 @@ GO
 
 -- Now restore the rest and bring the database online
 RESTORE LOG Company
-FROM DISK = N'D:\Pluralsight\Company_Log2.bak'
+FROM DISK = N'D:\SQLBackups\Company_Log2.bak'
 WITH NORECOVERY;
 GO
 
