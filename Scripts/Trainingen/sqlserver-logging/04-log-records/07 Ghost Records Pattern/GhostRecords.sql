@@ -55,7 +55,7 @@ GO
 WAITFOR DELAY '00:00:05';
 GO
 
--- Clear out the log (more on this in Module 5)
+-- Clear out the log
 CHECKPOINT;
 GO
 
