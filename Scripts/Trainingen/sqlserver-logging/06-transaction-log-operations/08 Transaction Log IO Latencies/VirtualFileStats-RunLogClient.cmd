@@ -1,2 +1,2 @@
-sqlcmd -S.\sql2012 -i"C:\Pluralsight\VirtualFileStats-LogClient.sql" 
+sqlcmd -S.\sql2012 -i"C:\Temp\VirtualFileStats-LogClient.sql" 
 exit
