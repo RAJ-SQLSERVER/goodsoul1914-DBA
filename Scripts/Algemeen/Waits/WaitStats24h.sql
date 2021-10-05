@@ -1,27 +1,3 @@
-/*============================================================================
-  File:     WaitStats24h.sql
- 
-  Summary:  24-hour snapshot of wait stats
- 
-  SQL Server Versions: 2005 onwards
-------------------------------------------------------------------------------
-  Written by Paul S. Randal, SQLskills.com
- 
-  (c) 2014, SQLskills.com. All rights reserved.
- 
-  For more scripts and sample code, check out
-    http://www.SQLskills.com
- 
-  You may alter this code for your own *non-commercial* purposes. You may
-  republish altered code as long as you include this copyright and give due
-  credit, but you must obtain prior permission before blogging this code.
- 
-  THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF
-  ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED
-  TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
-  PARTICULAR PURPOSE.
-============================================================================*/
-
 IF EXISTS (SELECT * FROM tempdb.sys.objects WHERE name = N'##SQLskillsStats1')
     DROP TABLE ##SQLskillsStats1;
 
@@ -50,8 +26,8 @@ INTO ##SQLskillsStats2
 FROM sys.dm_os_wait_stats;
 GO
 
-WITH DiffWaits AS
-(
+WITH DiffWaits
+AS (
     SELECT
         -- Waits that weren't in the first snapshot
         ts2.wait_type,
@@ -67,9 +43,9 @@ WITH DiffWaits AS
     SELECT
         -- Diff of waits in both snapshots
         ts2.wait_type,
-        ts2.wait_time_ms - ts1.wait_time_ms AS "wait_time_ms",
-        ts2.signal_wait_time_ms - ts1.signal_wait_time_ms AS "signal_wait_time_ms",
-        ts2.waiting_tasks_count - ts1.waiting_tasks_count AS "waiting_tasks_count"
+        ts2.wait_time_ms - ts1.wait_time_ms AS wait_time_ms,
+        ts2.signal_wait_time_ms - ts1.signal_wait_time_ms AS signal_wait_time_ms,
+        ts2.waiting_tasks_count - ts1.waiting_tasks_count AS waiting_tasks_count
     FROM ##SQLskillsStats2 AS ts2
     LEFT OUTER JOIN ##SQLskillsStats1 AS ts1
         ON ts2.wait_type = ts1.wait_type
@@ -77,15 +53,15 @@ WITH DiffWaits AS
           AND ts2.waiting_tasks_count - ts1.waiting_tasks_count > 0
           AND ts2.wait_time_ms - ts1.wait_time_ms > 0
 ),
-     Waits AS
-(
+     Waits
+AS (
     SELECT wait_type,
-           wait_time_ms / 1000.0 AS "WaitS",
-           (wait_time_ms - signal_wait_time_ms) / 1000.0 AS "ResourceS",
-           signal_wait_time_ms / 1000.0 AS "SignalS",
-           waiting_tasks_count AS "WaitCount",
-           100.0 * wait_time_ms / SUM (wait_time_ms) OVER () AS "Percentage",
-           ROW_NUMBER () OVER (ORDER BY wait_time_ms DESC) AS "RowNum"
+           wait_time_ms / 1000.0 AS WaitS,
+           (wait_time_ms - signal_wait_time_ms) / 1000.0 AS ResourceS,
+           signal_wait_time_ms / 1000.0 AS SignalS,
+           waiting_tasks_count AS WaitCount,
+           100.0 * wait_time_ms / SUM (wait_time_ms) OVER () AS Percentage,
+           ROW_NUMBER () OVER (ORDER BY wait_time_ms DESC) AS RowNum
     FROM DiffWaits
     WHERE wait_type NOT IN ( N'BROKER_EVENTHANDLER', N'BROKER_RECEIVE_WAITFOR', N'BROKER_TASK_STOP',
                              N'BROKER_TO_FLUSH', N'BROKER_TRANSMITTER', N'CHECKPOINT_QUEUE', N'CHKPT',
@@ -108,15 +84,15 @@ WITH DiffWaits AS
                              N'XE_DISPATCHER_WAIT', N'XE_TIMER_EVENT'
 )
 )
-SELECT W1.wait_type AS "WaitType",
-       CAST(W1.WaitS AS DECIMAL(16, 2)) AS "Wait_S",
-       CAST(W1.ResourceS AS DECIMAL(16, 2)) AS "Resource_S",
-       CAST(W1.SignalS AS DECIMAL(16, 2)) AS "Signal_S",
-       W1.WaitCount AS "WaitCount",
-       CAST(W1.Percentage AS DECIMAL(5, 2)) AS "Percentage",
-       CAST((W1.WaitS / W1.WaitCount) AS DECIMAL(16, 4)) AS "AvgWait_S",
-       CAST((W1.ResourceS / W1.WaitCount) AS DECIMAL(16, 4)) AS "AvgRes_S",
-       CAST((W1.SignalS / W1.WaitCount) AS DECIMAL(16, 4)) AS "AvgSig_S"
+SELECT W1.wait_type AS WaitType,
+       CAST(W1.WaitS AS DECIMAL(16, 2)) AS Wait_S,
+       CAST(W1.ResourceS AS DECIMAL(16, 2)) AS Resource_S,
+       CAST(W1.SignalS AS DECIMAL(16, 2)) AS Signal_S,
+       W1.WaitCount AS WaitCount,
+       CAST(W1.Percentage AS DECIMAL(5, 2)) AS Percentage,
+       CAST((W1.WaitS / W1.WaitCount) AS DECIMAL(16, 4)) AS AvgWait_S,
+       CAST((W1.ResourceS / W1.WaitCount) AS DECIMAL(16, 4)) AS AvgRes_S,
+       CAST((W1.SignalS / W1.WaitCount) AS DECIMAL(16, 4)) AS AvgSig_S
 FROM Waits AS W1
 INNER JOIN Waits AS W2
     ON W2.RowNum <= W1.RowNum

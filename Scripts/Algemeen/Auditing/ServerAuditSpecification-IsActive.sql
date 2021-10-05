@@ -1,0 +1,18 @@
+USE master;
+GO
+
+CREATE SERVER AUDIT [Audit-IsActive] TO APPLICATION_LOG
+    WITH (
+    QUEUE_DELAY = 1000,
+    ON_FAILURE = CONTINUE
+);
+ALTER SERVER AUDIT [Audit-IsActive]
+    WITH (STATE = ON);
+GO
+
+
+CREATE SERVER AUDIT SPECIFICATION [ServerAuditSpecification-IsActive]
+    FOR SERVER AUDIT [Audit-IsActive]
+        ADD (SUCCESSFUL_LOGIN_GROUP)
+    WITH (STATE = ON);
+GO
