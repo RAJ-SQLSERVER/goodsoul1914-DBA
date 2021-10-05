@@ -1,0 +1,5 @@
+1) Copy everything to C:\Pluralsight
+2) run VirtualFileStats-LogSetup.sql using a USB drive for the log
+3) follow steps in VirtualFileStats.sql
+4) use VirtualFileStats-Add10Clients.cmd and VirtualFileStats-Add50Clients.cmd to add more clients
+5) use VirtualFileStats-StopTest.cmd to stop everything

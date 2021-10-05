@@ -188,5 +188,5 @@ GO
 
 -- Test to make sure everything was setup correctly
 --
-EXEC [sp_SQLskillsDIFForFULL] N'msdb';
+EXEC [sp_SQLskillsDIFForFULL] N'Baseline';
 GO
