@@ -1,7 +1,7 @@
 
 -- SQL Server 2019 Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: September 19, 2021
+-- Last Modified: October 5, 2021
 -- https://glennsqlperformance.com/ 
 -- https://sqlserverperformance.wordpress.com/
 -- YouTube: https://bit.ly/2PkoAM1 
@@ -82,7 +82,8 @@ SELECT @@SERVERNAME AS [Server Name], @@VERSION AS [SQL Server and OS Version In
 -- 15.0.4102.2		CU9									2/11/2021		https://support.microsoft.com/en-in/help/5000642/cumulative-update-9-for-sql-server-2019
 -- 15.0.4123.1		CU10								 4/6/2021       https://support.microsoft.com/en-us/topic/kb5001090-cumulative-update-10-for-sql-server-2019-b6b696ec-6598-48d9-80ee-f1b85d7a508b
 -- 15.0.4138.2		CU11								6/10/2021		https://support.microsoft.com/en-us/topic/kb5003249-cumulative-update-11-for-sql-server-2019-657b2977-a0f1-4e1f-8b93-8c2ca8b6bef5
--- 15.0.4153.1		CU12								 8/4/2021		https://support.microsoft.com/en-us/topic/kb5004524-cumulative-update-12-for-sql-server-2019-45b2d82a-c7d0-4eb8-aa17-d4bad4059987	
+-- 15.0.4153.1		CU12								 8/4/2021		https://support.microsoft.com/en-us/topic/kb5004524-cumulative-update-12-for-sql-server-2019-45b2d82a-c7d0-4eb8-aa17-d4bad4059987
+-- 15.0.4178.1		CU13								10/5/2021		https://support.microsoft.com/en-us/topic/kb5005679-cumulative-update-13-for-sql-server-2019-5c1be850-460a-4be4-a569-fe11f0adc535							
 
 -- Performance and Stability Fixes in SQL Server 2019 CU Builds
 -- https://bit.ly/3712NQQ
@@ -1955,11 +1956,13 @@ ORDER BY s.user_updates DESC OPTION (RECOMPILE);						 -- Order by writes
 
 -- Get lock waits for current database (Query 77) (Lock Waits)
 SELECT o.name AS [table_name], i.name AS [index_name], ios.index_id, ios.partition_number,
-		SUM(ios.row_lock_wait_count) AS [total_row_lock_waits], 
-		SUM(ios.row_lock_wait_in_ms) AS [total_row_lock_wait_in_ms],
-		SUM(ios.page_lock_wait_count) AS [total_page_lock_waits],
-		SUM(ios.page_lock_wait_in_ms) AS [total_page_lock_wait_in_ms],
-		SUM(ios.page_lock_wait_in_ms)+ SUM(row_lock_wait_in_ms) AS [total_lock_wait_in_ms]
+             SUM(ios.row_lock_wait_count) AS [total_row_lock_waits], 
+             SUM(ios.row_lock_wait_in_ms) AS [total_row_lock_wait_in_ms],
+			 SUM(ios.index_lock_promotion_attempt_count) AS [total index_lock_promotion_attempt_count],
+             SUM(ios.index_lock_promotion_count) AS [ios.index_lock_promotion_count],
+             SUM(ios.page_lock_wait_count) AS [total_page_lock_waits],
+             SUM(ios.page_lock_wait_in_ms) AS [total_page_lock_wait_in_ms],
+             SUM(ios.page_lock_wait_in_ms)+ SUM(row_lock_wait_in_ms) AS [total_lock_wait_in_ms]           
 FROM sys.dm_db_index_operational_stats(DB_ID(), NULL, NULL, NULL) AS ios
 INNER JOIN sys.objects AS o WITH (NOLOCK)
 ON ios.[object_id] = o.[object_id]
@@ -1974,6 +1977,8 @@ ORDER BY total_lock_wait_in_ms DESC OPTION (RECOMPILE);
 
 -- This query is helpful for troubleshooting blocking and deadlocking issues
 
+-- sys.dm_db_index_operational_stats (Transact-SQL)
+-- https://bit.ly/3l5rGEw
 
 
 -- Look at UDF execution statistics (Query 78) (UDF Statistics)
@@ -2093,6 +2098,7 @@ AND bs.[type] = 'D' -- Change to L if you want Log backups
 ORDER BY bs.backup_finish_date DESC OPTION (RECOMPILE);
 ------
 
+
 -- Things to look at:
 -- Are your backup sizes and times changing over time?
 -- Are you using backup compression?
@@ -2105,6 +2111,17 @@ ORDER BY bs.backup_finish_date DESC OPTION (RECOMPILE);
 -- In SQL Server 2016 and newer, native SQL Server backup compression actually works 
 -- much better with databases that are using TDE than in previous versions
 -- https://bit.ly/28Rpb2x
+
+
+-- Get Last Good CheckDB date and time for the current database (Query 85) (Last Good CheckDB)
+SELECT DATABASEPROPERTYEX (DB_NAME(DB_ID()), 'LastGoodCheckDbTime') AS [Last Good CheckDB];
+------
+
+-- The date and time of the last successful DBCC CHECKDB that ran on the current database
+-- If DBCC CHECKDB has not been run on a database, 1900-01-01 00:00:00.000 is returned
+
+-- DATABASEPROPERTYEX (Transact-SQL)
+-- https://bit.ly/3FhvQ41
 
 
 -- Microsoft Visual Studio Dev Essentials

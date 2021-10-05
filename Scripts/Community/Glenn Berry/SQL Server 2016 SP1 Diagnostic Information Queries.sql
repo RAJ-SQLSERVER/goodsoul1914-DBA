@@ -1,7 +1,7 @@
 
 -- SQL Server 2016 Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: September 22, 2021
+-- Last Modified: October 4, 2021
 -- https://glennsqlperformance.com/
 -- https://sqlserverperformance.wordpress.com/
 -- YouTube: https://bit.ly/2PkoAM1 
@@ -1882,11 +1882,13 @@ ORDER BY s.user_updates DESC OPTION (RECOMPILE);						 -- Order by writes
 
 -- Get lock waits for current database (Query 73) (Lock Waits)
 SELECT o.name AS [table_name], i.name AS [index_name], ios.index_id, ios.partition_number,
-		SUM(ios.row_lock_wait_count) AS [total_row_lock_waits], 
-		SUM(ios.row_lock_wait_in_ms) AS [total_row_lock_wait_in_ms],
-		SUM(ios.page_lock_wait_count) AS [total_page_lock_waits],
-		SUM(ios.page_lock_wait_in_ms) AS [total_page_lock_wait_in_ms],
-		SUM(ios.page_lock_wait_in_ms)+ SUM(row_lock_wait_in_ms) AS [total_lock_wait_in_ms]
+             SUM(ios.row_lock_wait_count) AS [total_row_lock_waits], 
+             SUM(ios.row_lock_wait_in_ms) AS [total_row_lock_wait_in_ms],
+			 SUM(ios.index_lock_promotion_attempt_count) AS [total index_lock_promotion_attempt_count],
+             SUM(ios.index_lock_promotion_count) AS [ios.index_lock_promotion_count],
+             SUM(ios.page_lock_wait_count) AS [total_page_lock_waits],
+             SUM(ios.page_lock_wait_in_ms) AS [total_page_lock_wait_in_ms],
+             SUM(ios.page_lock_wait_in_ms)+ SUM(row_lock_wait_in_ms) AS [total_lock_wait_in_ms]           
 FROM sys.dm_db_index_operational_stats(DB_ID(), NULL, NULL, NULL) AS ios
 INNER JOIN sys.objects AS o WITH (NOLOCK)
 ON ios.[object_id] = o.[object_id]
@@ -1988,6 +1990,18 @@ ORDER BY bs.backup_finish_date DESC OPTION (RECOMPILE);
 -- In SQL Server 2016, native SQL Server backup compression actually works 
 -- much better with databases that are using TDE than in previous versions
 -- https://bit.ly/28Rpb2x
+
+
+-- Get Last Good CheckDB date and time for the current database (Query 78) (Last Good CheckDB)
+SELECT DATABASEPROPERTYEX (DB_NAME(DB_ID()), 'LastGoodCheckDbTime') AS [Last Good CheckDB];
+------
+
+-- The date and time of the last successful DBCC CHECKDB that ran on the current database
+-- If DBCC CHECKDB has not been run on a database, 1900-01-01 00:00:00.000 is returned
+
+-- DATABASEPROPERTYEX (Transact-SQL)
+-- https://bit.ly/3FhvQ41
+
 
 
 -- Microsoft Visual Studio Dev Essentials
