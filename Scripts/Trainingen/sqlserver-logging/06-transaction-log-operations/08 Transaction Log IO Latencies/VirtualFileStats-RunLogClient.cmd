@@ -1,2 +1,2 @@
-sqlcmd -S.\sql2012 -i"C:\Temp\VirtualFileStats-LogClient.sql" 
+sqlcmd -S.\dt-rsd-01 -i"C:\Temp\VirtualFileStats-LogClient.sql" 
 exit

@@ -1,0 +1,1 @@
+xperf -merge c:\Pluralsight\sqletwtarget.etl c:\Pluralsight\systemevents.etl c:\Pluralsight\ETWMerged.etl

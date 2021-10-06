@@ -1,0 +1,3 @@
+NET STOP MSSQLSERVER
+
+exit

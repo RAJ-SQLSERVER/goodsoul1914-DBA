@@ -1,2 +1,2 @@
-sqlcmd -S.\sql2014 -i"C:\Temp\LogClient.sql" 
+sqlcmd -S.\dt-rsd-01 -i"C:\Temp\LogClient.sql" 
 exit

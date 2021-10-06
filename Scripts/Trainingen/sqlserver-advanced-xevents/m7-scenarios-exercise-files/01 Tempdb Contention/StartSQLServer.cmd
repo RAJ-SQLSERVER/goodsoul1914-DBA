@@ -1,0 +1,3 @@
+NET START MSSQLSERVER
+
+exit
