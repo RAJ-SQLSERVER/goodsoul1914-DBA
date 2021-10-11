@@ -1,2 +1,2 @@
-sqlcmd -S.\SQL2012 -dHotSpot -Q"DROP TABLE [HotSpotTable]" 
+sqlcmd -S. -dHotSpot -Q"DROP TABLE [HotSpotTable]" 
 exit

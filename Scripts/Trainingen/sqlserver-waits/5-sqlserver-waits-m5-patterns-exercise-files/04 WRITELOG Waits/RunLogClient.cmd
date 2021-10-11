@@ -1,2 +1,2 @@
-sqlcmd -S.\SQL2012 -i"C:\Pluralsight\LogClient.sql" 
+sqlcmd -Sdt-rsd-01 -i"C:\Temp\LogClient.sql" 
 exit

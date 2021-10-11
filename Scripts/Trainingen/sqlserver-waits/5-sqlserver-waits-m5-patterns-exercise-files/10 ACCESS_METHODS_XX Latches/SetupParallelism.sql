@@ -1,7 +1,7 @@
-CREATE DATABASE [ParallelismTest];
+CREATE DATABASE ParallelismTest;
 GO
 
-USE [ParallelismTest];
+USE ParallelismTest;
 GO
 SET NOCOUNT ON;
 GO
@@ -21,9 +21,8 @@ CREATE TABLE [NonSparseDocRepository] (
 	[c1000] INT NULL);
 GO
 
-CREATE CLUSTERED INDEX [NonSparse_CL]
-	ON [NonSparseDocRepository] ([DocID]);
-	
+CREATE CLUSTERED INDEX NonSparse_CL ON NonSparseDocRepository (DocID);
+
 DECLARE @RandomValue INT;
 DECLARE @DocType INT;
 DECLARE @DocNameLength INT;
@@ -32,57 +31,51 @@ DECLARE @ColumnStart INT;
 DECLARE @DocLoop INT = 1;
 DECLARE @ColumnLoop INT;
 
-DECLARE @ExecString VARCHAR (8000);
-DECLARE @ExecString2 VARCHAR (8000);
+DECLARE @ExecString VARCHAR(8000);
+DECLARE @ExecString2 VARCHAR(8000);
 
 WHILE (@DocLoop < 100001)
 BEGIN
-	-- Calculate doc name length
-	SET @DocNameLength = CONVERT (INT, RAND () * 100) + 1;
-	SET @DocType = CONVERT (INT, RAND () * 49) + 1;
-	SET @ColumnStart = @DocType * 20;
+    -- Calculate doc name length
+    SET @DocNameLength = CONVERT (INT, RAND () * 100) + 1;
+    SET @DocType = CONVERT (INT, RAND () * 49) + 1;
+    SET @ColumnStart = @DocType * 20;
 
-	-- Add the columns we're inserting into
-	SELECT @ColumnLoop = @ColumnStart;
-	SELECT @ExecString = ' ([DocName], [DocType], [c' +
-		CAST (@ColumnLoop AS VARCHAR);
-	SELECT @ColumnLoop = @ColumnLoop + 1;
-	WHILE (@ColumnLoop < (@ColumnStart + 20))
-	BEGIN
-		SELECT @ExecString = @ExecString + '], [c' +
-			CAST(@ColumnLoop AS VARCHAR);
-		SELECT @ColumnLoop = @ColumnLoop + 1;
-	END;
-	SELECT @ExecString = @ExecString + ']) VALUES (''';
+    -- Add the columns we're inserting into
+    SELECT @ColumnLoop = @ColumnStart;
+    SELECT @ExecString = ' ([DocName], [DocType], [c' + CAST(@ColumnLoop AS VARCHAR);
+    SELECT @ColumnLoop = @ColumnLoop + 1;
+    WHILE (@ColumnLoop < (@ColumnStart + 20))
+    BEGIN
+        SELECT @ExecString = @ExecString + '], [c' + CAST(@ColumnLoop AS VARCHAR);
+        SELECT @ColumnLoop = @ColumnLoop + 1;
+    END;
+    SELECT @ExecString = @ExecString + ']) VALUES (''';
 
-	-- Add the random document name
-	SELECT @ColumnLoop = 0;
-	WHILE (@ColumnLoop < @DocNameLength)
-	BEGIN
-		SELECT @ExecString = @ExecString + CHAR (97 +
-			CONVERT (INT, RAND () * 26));
-		SELECT @ColumnLoop = @ColumnLoop + 1;
-	END;
-		
-	-- Add the random column values
-	SELECT @ExecString = @ExecString + ''', ' +
-		CAST (@DocType AS VARCHAR) + ', ' +
-			CAST (CONVERT (INT, RAND () * 100000) AS VARCHAR);
-		
-	SELECT @ColumnLoop = 1;
-	WHILE (@ColumnLoop < 20)
-	BEGIN
-		SELECT @ExecString = @ExecString + ', ' +
-			CAST (CONVERT (INT, RAND () * 100000) AS VARCHAR);
-		SELECT @ColumnLoop = @ColumnLoop + 1;
-	END;
-	SELECT @ExecString = @ExecString + ')';
+    -- Add the random document name
+    SELECT @ColumnLoop = 0;
+    WHILE (@ColumnLoop < @DocNameLength)
+    BEGIN
+        SELECT @ExecString = @ExecString + CHAR (97 + CONVERT (INT, RAND () * 26));
+        SELECT @ColumnLoop = @ColumnLoop + 1;
+    END;
 
-	SELECT @ExecString2 =
-		'INSERT INTO [NonSparseDocRepository] ' + @ExecString;
-	EXEC (@ExecString2);
+    -- Add the random column values
+    SELECT @ExecString = @ExecString + ''', ' + CAST(@DocType AS VARCHAR) + ', '
+                         + CAST(CONVERT (INT, RAND () * 100000) AS VARCHAR);
 
-	SELECT @DocLoop = @DocLoop + 1;
+    SELECT @ColumnLoop = 1;
+    WHILE (@ColumnLoop < 20)
+    BEGIN
+        SELECT @ExecString = @ExecString + ', ' + CAST(CONVERT (INT, RAND () * 100000) AS VARCHAR);
+        SELECT @ColumnLoop = @ColumnLoop + 1;
+    END;
+    SELECT @ExecString = @ExecString + ')';
+
+    SELECT @ExecString2 = 'INSERT INTO [NonSparseDocRepository] ' + @ExecString;
+    EXEC (@ExecString2);
+
+    SELECT @DocLoop = @DocLoop + 1;
 END;
 GO
 

@@ -13,9 +13,9 @@ RESTORE DATABASE [SalesDB]
 GO
 */
 
--- Clear latch stats in LatchStats.sql
+-- Clear latch stats
 
-DBCC CHECKDB (N'SalesDB') WITH NO_INFOMSGS;
+DBCC CHECKDB(N'SalesDB') WITH NO_INFOMSGS;
 GO
 
--- Examine latches in LatchStats.sql
+-- Examine latches

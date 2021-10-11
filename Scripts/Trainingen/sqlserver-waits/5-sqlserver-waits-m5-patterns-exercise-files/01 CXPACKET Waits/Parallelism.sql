@@ -1,27 +1,28 @@
-USE [ParallelismTest];
+USE ParallelismTest;
 GO
 
 SET NOCOUNT ON;
 GO
 
 -- Clear wait stats in WaitStats1.sql
+DBCC SQLPERF (N'sys.dm_os_wait_stats', CLEAR);
+GO
 
-DECLARE @ExecString VARCHAR (8000);
+
+DECLARE @ExecString VARCHAR(8000);
 DECLARE @starttime DATETIME;
 
-WHILE (1=1)
+WHILE (1 = 1)
 BEGIN
-	SELECT @starttime = GETDATE ();
-	
-	-- Calculate doc name length
-	SELECT @ExecString = 
-	'SELECT TOP 10 * FROM [NonSparseDocRepository] ORDER BY [c' +
-		CAST (3 + CONVERT (INT, RAND () * 996) AS VARCHAR) +
-		'] DESC OPTION (MAXDOP 8)';
-		
-	EXEC (@ExecString);
-	
-	SELECT DATEDIFF (SECOND, @starttime, GETDATE ());
+    SELECT @starttime = GETDATE ();
+
+    -- Calculate doc name length
+    SELECT @ExecString = 'SELECT TOP 10 * FROM [NonSparseDocRepository] ORDER BY [c'
+                         + CAST(3 + CONVERT (INT, RAND () * 996) AS VARCHAR) + '] DESC OPTION (MAXDOP 6)';
+
+    EXEC (@ExecString);
+
+    SELECT DATEDIFF (SECOND, @starttime, GETDATE ());
 END;
 GO
 

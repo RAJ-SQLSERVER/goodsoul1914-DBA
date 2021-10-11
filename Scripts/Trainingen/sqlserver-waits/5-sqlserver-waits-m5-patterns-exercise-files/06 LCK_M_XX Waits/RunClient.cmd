@@ -1,2 +1,2 @@
-sqlcmd -S.\SQL2012 -i"C:\Pluralsight\Workload-Client.sql" 
+sqlcmd -S. -i"C:\Temp\Workload-Client.sql" 
 exit

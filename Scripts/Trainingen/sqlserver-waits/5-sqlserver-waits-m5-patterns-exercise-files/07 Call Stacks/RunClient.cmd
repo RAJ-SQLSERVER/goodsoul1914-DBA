@@ -1,2 +1,2 @@
-sqlcmd -S. -i"C:\Pluralsight\YieldClient.sql" 
+sqlcmd -S. -i"C:\Temp\YieldClient.sql" 
 exit

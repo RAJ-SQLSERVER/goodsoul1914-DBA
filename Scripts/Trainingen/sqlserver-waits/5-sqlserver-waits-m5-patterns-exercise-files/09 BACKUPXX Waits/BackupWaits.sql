@@ -6,26 +6,28 @@ http://bit.ly/M0HHUg
 Here's an example of restoring it:
 
 RESTORE DATABASE [SalesDB]
-	FROM DISK = N'D:\PluralSight\SalesDBOriginal.bak'
-	WITH MOVE N'SalesDBData' TO N'D:\PluralSight\SalesDBData.mdf',
-	MOVE N'SalesDBLog' TO N'D:\PluralSight\SalesDBLog.ldf',
+	FROM DISK = N'D:\OneDrive\SQL Server\Sample Data\SalesDB\SalesDBOriginal.bak'
+	WITH MOVE N'SalesDBData' TO N'D:\SQLData\SalesDBData.mdf',
+	MOVE N'SalesDBLog' TO N'D:\SQLLogs\SalesDBLog.ldf',
 	REPLACE, STATS = 10;
 GO
 */
 
--- Clear wait stats in WaitStats1.sql
+-- Clear wait stats
 
-RESTORE DATABASE [SalesDBCopy]
-	FROM DISK = N'D:\PluralSight\SalesDBOriginal.bak'
-	WITH MOVE N'SalesDBData' TO N'D:\PluralSight\SalesDBDataCopy.mdf',
-	MOVE N'SalesDBLog' TO N'D:\PluralSight\SalesDBLogCopy.ldf',
-	REPLACE, STATS = 10;
+RESTORE DATABASE SalesDBCopy
+FROM DISK = N'D:\OneDrive\SQL Server\Sample Data\SalesDB\SalesDBOriginal.bak'
+WITH MOVE N'SalesDBData'
+     TO N'D:\SQLData\SalesDBDataCopy.mdf',
+     MOVE N'SalesDBLog'
+     TO N'D:\SQLLogs\SalesDBLogCopy.ldf',
+     REPLACE,
+     STATS = 10;
 GO
 
--- Examine waiting tasks in WaitingTasks.sql as soon
--- as the backup starts
+-- Examine waiting tasks in WaitingTasks.sql as soon as the backup starts
 
--- Examine wait stats in WaitStats1.sql afterwards
+-- Examine wait stats afterwards
 
-DROP DATABASE [SalesDBCopy];
+DROP DATABASE SalesDBCopy;
 GO

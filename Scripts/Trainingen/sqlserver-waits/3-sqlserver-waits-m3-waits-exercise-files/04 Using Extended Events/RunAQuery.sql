@@ -1,4 +1,4 @@
-USE [Production];
+USE Production;
 GO
 
 -- Drop all pages from memory
@@ -11,5 +11,5 @@ GO
 
 -- Execute to here first...
 
-ALTER INDEX [test_CL] ON [test] REBUILD;
+ALTER INDEX test_CL ON test REBUILD;
 GO

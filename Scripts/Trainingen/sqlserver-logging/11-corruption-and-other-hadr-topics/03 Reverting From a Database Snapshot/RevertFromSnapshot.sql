@@ -14,47 +14,44 @@ GO
 */
 
 -- Create the database snapshot
-CREATE DATABASE [SalesDB_Snapshot]
-ON (
-	NAME = N'SalesDBData',
-	FILENAME = N'D:\PluralSight\SalesDBData.mdfss')
-AS SNAPSHOT OF [SalesDB];
+CREATE DATABASE SalesDB_Snapshot
+ON  (NAME = N'SalesDBData', FILENAME = N'D:\SQLData\SalesDBData.mdfss') AS SNAPSHOT OF SalesDB;
 GO
 
 -- Drop a table in the source database
-DROP TABLE [SalesDB].[dbo].[Sales];
+DROP TABLE SalesDB.dbo.Sales;
 GO
 
 -- It's still there in the database snapshot
-SELECT COUNT (*) FROM [SalesDB_Snapshot].[dbo].[Sales];
+SELECT COUNT (*)
+FROM SalesDB_Snapshot.dbo.Sales;
 GO
 
 -- We can revert from the database snapshot
 
 -- But beforehand, what does the SalesDB log look like?
-DBCC LOGINFO (N'SalesDB');
-DBCC SQLPERF (LOGSPACE);
+DBCC LOGINFO(N'SalesDB');
+DBCC SQLPERF(LOGSPACE);
 GO
 
 -- Now revert
-USE [master];
+USE master;
 GO
 
 -- Make sure all connections are killed (including SSMS)
-ALTER DATABASE [SalesDB] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+ALTER DATABASE SalesDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 GO
 
-RESTORE DATABASE [SalesDB]
-FROM DATABASE_SNAPSHOT = N'SalesDB_Snapshot';
+RESTORE DATABASE SalesDB FROM DATABASE_SNAPSHOT = N'SalesDB_Snapshot';
 GO
 
-ALTER DATABASE [SalesDB] SET MULTI_USER;
+ALTER DATABASE SalesDB SET MULTI_USER;
 GO
 
 -- Cool, but...
-DBCC LOGINFO (N'SalesDB');
-DBCC SQLPERF (LOGSPACE);
+DBCC LOGINFO(N'SalesDB');
+DBCC SQLPERF(LOGSPACE);
 GO
 
 -- And it didn't use the model database either
-DBCC LOGINFO (N'model');
+DBCC LOGINFO(N'model');
