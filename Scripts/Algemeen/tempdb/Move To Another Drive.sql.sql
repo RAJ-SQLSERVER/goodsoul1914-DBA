@@ -19,7 +19,6 @@ FROM sys.master_files f
 WHERE f.database_id = DB_ID(N'tempdb');
 
 
-
 -- Move TempDB to another drive (and add new files)
 ---------------------------------------------------------------------------------------------------
 DBCC DROPCLEANBUFFERS;
