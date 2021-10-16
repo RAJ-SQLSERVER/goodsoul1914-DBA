@@ -65,18 +65,14 @@ SET NOCOUNT ON;
 Prep statements
 **************/
 
-IF OBJECT_ID('tempdb..##tbl_db_principals_statements') IS NOT NULL
+IF OBJECT_ID ('tempdb..##tbl_db_principals_statements') IS NOT NULL
     DROP TABLE ##tbl_db_principals_statements;
-CREATE TABLE ##tbl_db_principals_statements
-(
-    stmt VARCHAR(MAX),
-    result_order DECIMAL(4, 1)
-);
+CREATE TABLE ##tbl_db_principals_statements (stmt VARCHAR(MAX), result_order DECIMAL(4, 1));
 IF (
-    SELECT SUBSTRING(
-               CONVERT(sysname, SERVERPROPERTY('productversion')),
+    SELECT SUBSTRING (
+               CONVERT (sysname, SERVERPROPERTY ('productversion')),
                1,
-               CHARINDEX('.', CONVERT(sysname, SERVERPROPERTY('productversion'))) - 1
+               CHARINDEX ('.', CONVERT (sysname, SERVERPROPERTY ('productversion'))) - 1
            )
 ) > 10
     EXEC ('
@@ -90,10 +86,10 @@ INSERT INTO ##tbl_db_principals_statements (stmt, result_order)
    WHERE [type] IN (''U'', ''S'', ''G'') /* windows users, sql users, windows groups */
      AND NAME NOT IN (''guest'',''dbo'')');
 ELSE IF (
-            SELECT SUBSTRING(
-                       CONVERT(sysname, SERVERPROPERTY('productversion')),
+            SELECT SUBSTRING (
+                       CONVERT (sysname, SERVERPROPERTY ('productversion')),
                        1,
-                       CHARINDEX('.', CONVERT(sysname, SERVERPROPERTY('productversion'))) - 1
+                       CHARINDEX ('.', CONVERT (sysname, SERVERPROPERTY ('productversion'))) - 1
                    )
         ) IN ( 9, 10 )
     EXEC ('
@@ -114,126 +110,121 @@ DECLARE tmp CURSOR FOR
 /*********************************************/
 /*********   DB CONTEXT STATEMENT    *********/
 /*********************************************/
-SELECT '-- [-- DB CONTEXT --] --' AS [-- SQL STATEMENTS --],
-       1 AS [-- RESULT ORDER HOLDER --]
+SELECT '-- [-- DB CONTEXT --] --' AS "-- SQL STATEMENTS --",
+       1 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT 'USE' + SPACE(1) + QUOTENAME(DB_NAME()) AS [-- SQL STATEMENTS --],
-       1.1 AS [-- RESULT ORDER HOLDER --]
+SELECT 'USE' + SPACE (1) + QUOTENAME (DB_NAME ()) AS "-- SQL STATEMENTS --",
+       1.1 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT '' AS [-- SQL STATEMENTS --],
-       2 AS [-- RESULT ORDER HOLDER --]
+SELECT '' AS "-- SQL STATEMENTS --",
+       2 AS "-- RESULT ORDER HOLDER --"
 UNION
 
 /*********************************************/
 /*********     DB USER CREATION      *********/
 /*********************************************/
 
-SELECT '-- [-- DB USERS --] --' AS [-- SQL STATEMENTS --],
-       3 AS [-- RESULT ORDER HOLDER --]
+SELECT '-- [-- DB USERS --] --' AS "-- SQL STATEMENTS --",
+       3 AS "-- RESULT ORDER HOLDER --"
 UNION
 SELECT stmt,
-       3.1 AS [-- RESULT ORDER HOLDER --]
-FROM   ##tbl_db_principals_statements
+       3.1 AS "-- RESULT ORDER HOLDER --"
+FROM ##tbl_db_principals_statements
 --WHERE [type] IN ('U', 'S', 'G') -- windows users, sql users, windows groups
-WHERE  stmt IS NOT NULL
+WHERE stmt IS NOT NULL
 UNION
 
 /*********************************************/
 /*********    MAP ORPHANED USERS     *********/
 /*********************************************/
 
-SELECT '-- [-- ORPHANED USERS --] --' AS [-- SQL STATEMENTS --],
-       4 AS [-- RESULT ORDER HOLDER --]
+SELECT '-- [-- ORPHANED USERS --] --' AS "-- SQL STATEMENTS --",
+       4 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT     'ALTER USER [' + rm.name + '] WITH LOGIN = [' + rm.name + ']',
-           4.1 AS [-- RESULT ORDER HOLDER --]
-FROM       sys.database_principals AS rm
-INNER JOIN sys.server_principals AS sp ON rm.name = sp.name COLLATE DATABASE_DEFAULT
-                                          AND rm.sid <> sp.sid
-WHERE      rm.type IN ( 'U', 'S', 'G' ) -- windows users, sql users, windows groups
-           AND rm.name NOT IN ( 'dbo', 'guest', 'INFORMATION_SCHEMA', 'sys', 'MS_DataCollectorInternalUser' )
+SELECT 'ALTER USER [' + rm.name + '] WITH LOGIN = [' + rm.name + ']',
+       4.1 AS "-- RESULT ORDER HOLDER --"
+FROM sys.database_principals AS rm
+INNER JOIN sys.server_principals AS sp
+    ON rm.name = sp.name COLLATE DATABASE_DEFAULT
+       AND rm.sid <> sp.sid
+WHERE rm.type IN ( 'U', 'S', 'G' ) -- windows users, sql users, windows groups
+      AND rm.name NOT IN ( 'dbo', 'guest', 'INFORMATION_SCHEMA', 'sys', 'MS_DataCollectorInternalUser' )
 UNION
 
 /*********************************************/
 /*********    DB ROLE PERMISSIONS    *********/
 /*********************************************/
-SELECT '-- [-- DB ROLES --] --' AS [-- SQL STATEMENTS --],
-       5 AS [-- RESULT ORDER HOLDER --]
+SELECT '-- [-- DB ROLES --] --' AS "-- SQL STATEMENTS --",
+       5 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT 'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME(name, '''') COLLATE DATABASE_DEFAULT + ') IS NULL' + SPACE(1)
-       + 'CREATE ROLE' + SPACE(1) + QUOTENAME(name),
-       5.1 AS [-- RESULT ORDER HOLDER --]
-FROM   sys.database_principals
-WHERE  type = 'R' -- R = Role
-       AND is_fixed_role = 0
+SELECT 'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME (name, '''') COLLATE DATABASE_DEFAULT + ') IS NULL' + SPACE (1)
+       + 'CREATE ROLE' + SPACE (1) + QUOTENAME (name),
+       5.1 AS "-- RESULT ORDER HOLDER --"
+FROM sys.database_principals
+WHERE type = 'R' -- R = Role
+      AND is_fixed_role = 0
 --ORDER BY [name] ASC
 UNION
-SELECT 'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME(USER_NAME(rm.member_principal_id), '''') COLLATE DATABASE_DEFAULT
-       + ') IS NOT NULL' + SPACE(1) + 'EXEC sp_addrolemember @rolename =' + SPACE(1)
-       + QUOTENAME(USER_NAME(rm.role_principal_id), '''') COLLATE DATABASE_DEFAULT + ', @membername =' + SPACE(1)
-       + QUOTENAME(USER_NAME(rm.member_principal_id), '''') COLLATE DATABASE_DEFAULT AS [-- SQL STATEMENTS --],
-       5.2 AS [-- RESULT ORDER HOLDER --]
-FROM   sys.database_role_members AS rm
-WHERE  USER_NAME(rm.member_principal_id) IN (
-           --get user names on the database
-           SELECT name
-           FROM   sys.database_principals
-           WHERE  principal_id > 4 -- 0 to 4 are system users/schemas
-                  AND type IN ( 'G', 'S', 'U' ) -- S = SQL user, U = Windows user, G = Windows group
-       )
+SELECT 'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME (USER_NAME (rm.member_principal_id), '''') COLLATE DATABASE_DEFAULT
+       + ') IS NOT NULL' + SPACE (1) + 'EXEC sp_addrolemember @rolename =' + SPACE (1)
+       + QUOTENAME (USER_NAME (rm.role_principal_id), '''') COLLATE DATABASE_DEFAULT + ', @membername =' + SPACE (1)
+       + QUOTENAME (USER_NAME (rm.member_principal_id), '''') COLLATE DATABASE_DEFAULT AS "-- SQL STATEMENTS --",
+       5.2 AS "-- RESULT ORDER HOLDER --"
+FROM sys.database_role_members AS rm
+WHERE USER_NAME (rm.member_principal_id) IN (
+          --get user names on the database
+          SELECT name
+          FROM sys.database_principals
+          WHERE principal_id > 4 -- 0 to 4 are system users/schemas
+                AND type IN ( 'G', 'S', 'U' ) -- S = SQL user, U = Windows user, G = Windows group
+      )
 --ORDER BY rm.role_principal_id ASC
 
 
 UNION
-SELECT '' AS [-- SQL STATEMENTS --],
-       7 AS [-- RESULT ORDER HOLDER --]
+SELECT '' AS "-- SQL STATEMENTS --",
+       7 AS "-- RESULT ORDER HOLDER --"
 UNION
 
 /*********************************************/
 /*********  OBJECT LEVEL PERMISSIONS *********/
 /*********************************************/
-SELECT '-- [-- OBJECT LEVEL PERMISSIONS --] --' AS [-- SQL STATEMENTS --],
-       7.1 AS [-- RESULT ORDER HOLDER --]
+SELECT '-- [-- OBJECT LEVEL PERMISSIONS --] --' AS "-- SQL STATEMENTS --",
+       7.1 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT     'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME(USER_NAME(usr.principal_id), '''') COLLATE DATABASE_DEFAULT
-           + ') IS NOT NULL' + SPACE(1) + CASE
-                                              WHEN perm.state <> 'W' THEN
-                                                  perm.state_desc
-                                              ELSE
-                                                  'GRANT'
-                                          END + SPACE(1) + perm.permission_name + SPACE(1) + 'ON '
-           + QUOTENAME(OBJECT_SCHEMA_NAME(perm.major_id)) + '.'
-           + QUOTENAME(OBJECT_NAME(perm.major_id)) --select, execute, etc on specific objects
-           + CASE
-                 WHEN cl.column_id IS NULL THEN
-                     SPACE(0)
-                 ELSE
-                     '(' + QUOTENAME(cl.name) + ')'
-             END + SPACE(1) + 'TO' + SPACE(1) + QUOTENAME(USER_NAME(usr.principal_id)) COLLATE DATABASE_DEFAULT
-           + CASE
-                 WHEN perm.state <> 'W' THEN
-                     SPACE(0)
-                 ELSE
-                     SPACE(1) + 'WITH GRANT OPTION'
-             END AS [-- SQL STATEMENTS --],
-           7.2 AS [-- RESULT ORDER HOLDER --]
-FROM       sys.database_permissions AS perm
+SELECT 'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME (USER_NAME (usr.principal_id), '''') COLLATE DATABASE_DEFAULT
+       + ') IS NOT NULL' + SPACE (1) + CASE
+                                           WHEN perm.state <> 'W' THEN perm.state_desc
+                                           ELSE 'GRANT'
+                                       END + SPACE (1) + perm.permission_name + SPACE (1) + 'ON '
+       + QUOTENAME (OBJECT_SCHEMA_NAME (perm.major_id)) + '.'
+       + QUOTENAME (OBJECT_NAME (perm.major_id)) --select, execute, etc on specific objects
+       + CASE
+             WHEN cl.column_id IS NULL THEN SPACE (0)
+             ELSE '(' + QUOTENAME (cl.name) + ')'
+         END + SPACE (1) + 'TO' + SPACE (1) + QUOTENAME (USER_NAME (usr.principal_id)) COLLATE DATABASE_DEFAULT
+       + CASE
+             WHEN perm.state <> 'W' THEN SPACE (0)
+             ELSE SPACE (1) + 'WITH GRANT OPTION'
+         END AS "-- SQL STATEMENTS --",
+       7.2 AS "-- RESULT ORDER HOLDER --"
+FROM sys.database_permissions AS perm
 
 /* No join to sys.objects as it excludes system objects such as extended stored procedures */
 /*   INNER JOIN
    sys.objects AS obj
          ON perm.major_id = obj.[object_id]
    */
-INNER JOIN sys.database_principals AS usr ON perm.grantee_principal_id = usr.principal_id
-LEFT JOIN  sys.columns AS cl ON cl.column_id = perm.minor_id
-                                AND cl.object_id = perm.major_id
+INNER JOIN sys.database_principals AS usr
+    ON perm.grantee_principal_id = usr.principal_id
+LEFT JOIN sys.columns AS cl
+    ON cl.column_id = perm.minor_id
+       AND cl.object_id = perm.major_id
 WHERE /* Include System objects when scripting permissions for master, exclude elsewhere */
-           (
-    DB_NAME() <> 'master'
-    AND perm.major_id IN (
-            SELECT object_id FROM sys.objects WHERE type NOT IN ( 'S' )
-        )
-    OR DB_NAME() = 'master'
+    (
+    DB_NAME () <> 'master'
+    AND perm.major_id IN ( SELECT object_id FROM sys.objects WHERE type NOT IN ( 'S' ))
+    OR DB_NAME () = 'master'
 )
 --WHERE   usr.name = @OldUser
 --ORDER BY perm.permission_name ASC, perm.state_desc ASC
@@ -243,89 +234,83 @@ UNION
 /*********************************************/
 /*********  TYPE LEVEL PERMISSIONS *********/
 /*********************************************/
-SELECT '-- [-- TYPE LEVEL PERMISSIONS --] --' AS [-- SQL STATEMENTS --],
-       8 AS [-- RESULT ORDER HOLDER --]
+SELECT '-- [-- TYPE LEVEL PERMISSIONS --] --' AS "-- SQL STATEMENTS --",
+       8 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT     'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME(USER_NAME(usr.principal_id), '''') COLLATE DATABASE_DEFAULT
-           + ') IS NOT NULL' + SPACE(1) + CASE
-                                              WHEN perm.state <> 'W' THEN
-                                                  perm.state_desc
-                                              ELSE
-                                                  'GRANT'
-                                          END + SPACE(1) + perm.permission_name + SPACE(1) + 'ON '
-           + QUOTENAME(SCHEMA_NAME(tp.schema_id)) + '.' + QUOTENAME(tp.name) --select, execute, etc on specific objects
-           + SPACE(1) + 'TO' + SPACE(1) + QUOTENAME(USER_NAME(usr.principal_id)) COLLATE DATABASE_DEFAULT
-           + CASE
-                 WHEN perm.state <> 'W' THEN
-                     SPACE(0)
-                 ELSE
-                     SPACE(1) + 'WITH GRANT OPTION'
-             END AS [-- SQL STATEMENTS --],
-           8.1 AS [-- RESULT ORDER HOLDER --]
-FROM       sys.database_permissions AS perm
-INNER JOIN sys.types AS tp ON perm.major_id = tp.user_type_id
-INNER JOIN sys.database_principals AS usr ON perm.grantee_principal_id = usr.principal_id
+SELECT 'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME (USER_NAME (usr.principal_id), '''') COLLATE DATABASE_DEFAULT
+       + ') IS NOT NULL' + SPACE (1) + CASE
+                                           WHEN perm.state <> 'W' THEN perm.state_desc
+                                           ELSE 'GRANT'
+                                       END + SPACE (1) + perm.permission_name + SPACE (1) + 'ON '
+       + QUOTENAME (SCHEMA_NAME (tp.schema_id)) + '.' + QUOTENAME (tp.name) --select, execute, etc on specific objects
+       + SPACE (1) + 'TO' + SPACE (1) + QUOTENAME (USER_NAME (usr.principal_id)) COLLATE DATABASE_DEFAULT
+       + CASE
+             WHEN perm.state <> 'W' THEN SPACE (0)
+             ELSE SPACE (1) + 'WITH GRANT OPTION'
+         END AS "-- SQL STATEMENTS --",
+       8.1 AS "-- RESULT ORDER HOLDER --"
+FROM sys.database_permissions AS perm
+INNER JOIN sys.types AS tp
+    ON perm.major_id = tp.user_type_id
+INNER JOIN sys.database_principals AS usr
+    ON perm.grantee_principal_id = usr.principal_id
 UNION
-SELECT '' AS [-- SQL STATEMENTS --],
-       9 AS [-- RESULT ORDER HOLDER --]
+SELECT '' AS "-- SQL STATEMENTS --",
+       9 AS "-- RESULT ORDER HOLDER --"
 UNION
 
 /*********************************************/
 /*********    DB LEVEL PERMISSIONS   *********/
 /*********************************************/
-SELECT '-- [--DB LEVEL PERMISSIONS --] --' AS [-- SQL STATEMENTS --],
-       10 AS [-- RESULT ORDER HOLDER --]
+SELECT '-- [--DB LEVEL PERMISSIONS --] --' AS "-- SQL STATEMENTS --",
+       10 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT     'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME(USER_NAME(usr.principal_id), '''') COLLATE DATABASE_DEFAULT
-           + ') IS NOT NULL' + SPACE(1) + CASE
-                                              WHEN perm.state <> 'W' THEN
-                                                  perm.state_desc --W=Grant With Grant Option
-                                              ELSE
-                                                  'GRANT'
-                                          END + SPACE(1) + perm.permission_name --CONNECT, etc
-           + SPACE(1) + 'TO' + SPACE(1) + '[' + USER_NAME(usr.principal_id) + ']' COLLATE DATABASE_DEFAULT --TO <user name>
-           + CASE
-                 WHEN perm.state <> 'W' THEN
-                     SPACE(0)
-                 ELSE
-                     SPACE(1) + 'WITH GRANT OPTION'
-             END AS [-- SQL STATEMENTS --],
-           10.1 AS [-- RESULT ORDER HOLDER --]
-FROM       sys.database_permissions AS perm
-INNER JOIN sys.database_principals AS usr ON perm.grantee_principal_id = usr.principal_id
+SELECT 'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME (USER_NAME (usr.principal_id), '''') COLLATE DATABASE_DEFAULT
+       + ') IS NOT NULL' + SPACE (1) + CASE
+                                           WHEN perm.state <> 'W' THEN perm.state_desc --W=Grant With Grant Option
+                                           ELSE 'GRANT'
+                                       END + SPACE (1) + perm.permission_name --CONNECT, etc
+       + SPACE (1) + 'TO' + SPACE (1) + '[' + USER_NAME (usr.principal_id)
+       + ']' COLLATE DATABASE_DEFAULT --TO <user name>
+       + CASE
+             WHEN perm.state <> 'W' THEN SPACE (0)
+             ELSE SPACE (1) + 'WITH GRANT OPTION'
+         END AS "-- SQL STATEMENTS --",
+       10.1 AS "-- RESULT ORDER HOLDER --"
+FROM sys.database_permissions AS perm
+INNER JOIN sys.database_principals AS usr
+    ON perm.grantee_principal_id = usr.principal_id
 --WHERE   usr.name = @OldUser
-WHERE      perm.major_id = 0
-           AND usr.principal_id > 4 -- 0 to 4 are system users/schemas
-           AND usr.type IN ( 'G', 'S', 'U', 'R' ) -- S = SQL user, U = Windows user, G = Windows group
+WHERE perm.major_id = 0
+      AND usr.principal_id > 4 -- 0 to 4 are system users/schemas
+      AND usr.type IN ( 'G', 'S', 'U', 'R' ) -- S = SQL user, U = Windows user, G = Windows group
 
 UNION
-SELECT '' AS [-- SQL STATEMENTS --],
-       11 AS [-- RESULT ORDER HOLDER --]
+SELECT '' AS "-- SQL STATEMENTS --",
+       11 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT '-- [--DB LEVEL SCHEMA PERMISSIONS --] --' AS [-- SQL STATEMENTS --],
-       12 AS [-- RESULT ORDER HOLDER --]
+SELECT '-- [--DB LEVEL SCHEMA PERMISSIONS --] --' AS "-- SQL STATEMENTS --",
+       12 AS "-- RESULT ORDER HOLDER --"
 UNION
-SELECT     'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME(USER_NAME(perm.grantee_principal_id), '''') COLLATE DATABASE_DEFAULT
-           + ') IS NOT NULL' + SPACE(1) + CASE
-                                              WHEN perm.state <> 'W' THEN
-                                                  perm.state_desc --W=Grant With Grant Option
-                                              ELSE
-                                                  'GRANT'
-                                          END + SPACE(1) + perm.permission_name --CONNECT, etc
-           + SPACE(1) + 'ON' + SPACE(1) + perm.class_desc + '::' COLLATE DATABASE_DEFAULT --TO <user name>
-           + QUOTENAME(SCHEMA_NAME(perm.major_id)) + SPACE(1) + 'TO' + SPACE(1)
-           + QUOTENAME(USER_NAME(perm.grantee_principal_id)) COLLATE DATABASE_DEFAULT
-           + CASE
-                 WHEN perm.state <> 'W' THEN
-                     SPACE(0)
-                 ELSE
-                     SPACE(1) + 'WITH GRANT OPTION'
-             END AS [-- SQL STATEMENTS --],
-           12.1 AS [-- RESULT ORDER HOLDER --]
-FROM       sys.database_permissions AS perm
-INNER JOIN sys.schemas AS s ON perm.major_id = s.schema_id
-INNER JOIN sys.database_principals AS dbprin ON perm.grantee_principal_id = dbprin.principal_id
-WHERE      perm.class = 3 --class 3 = schema
+SELECT 'IF DATABASE_PRINCIPAL_ID(' + QUOTENAME (USER_NAME (perm.grantee_principal_id), '''') COLLATE DATABASE_DEFAULT
+       + ') IS NOT NULL' + SPACE (1) + CASE
+                                           WHEN perm.state <> 'W' THEN perm.state_desc --W=Grant With Grant Option
+                                           ELSE 'GRANT'
+                                       END + SPACE (1) + perm.permission_name --CONNECT, etc
+       + SPACE (1) + 'ON' + SPACE (1) + perm.class_desc + '::' COLLATE DATABASE_DEFAULT --TO <user name>
+       + QUOTENAME (SCHEMA_NAME (perm.major_id)) + SPACE (1) + 'TO' + SPACE (1)
+       + QUOTENAME (USER_NAME (perm.grantee_principal_id)) COLLATE DATABASE_DEFAULT
+       + CASE
+             WHEN perm.state <> 'W' THEN SPACE (0)
+             ELSE SPACE (1) + 'WITH GRANT OPTION'
+         END AS "-- SQL STATEMENTS --",
+       12.1 AS "-- RESULT ORDER HOLDER --"
+FROM sys.database_permissions AS perm
+INNER JOIN sys.schemas AS s
+    ON perm.major_id = s.schema_id
+INNER JOIN sys.database_principals AS dbprin
+    ON perm.grantee_principal_id = dbprin.principal_id
+WHERE perm.class = 3 --class 3 = schema
 ORDER BY [-- RESULT ORDER HOLDER --];
 
 OPEN tmp;
@@ -343,5 +328,5 @@ END;
 CLOSE tmp;
 DEALLOCATE tmp;
 
-IF OBJECT_ID('tempdb..##tbl_db_principals_statements') IS NOT NULL
+IF OBJECT_ID ('tempdb..##tbl_db_principals_statements') IS NOT NULL
     DROP TABLE ##tbl_db_principals_statements;

@@ -9,16 +9,10 @@
 -- separately & orphan logins details separately. 
 -------------------------------------------------------------------------------
 
-IF EXISTS
-(
-    SELECT *
-    FROM tempdb.sys.all_objects
-    WHERE name LIKE '%#Login_Audit%'
-)
+IF EXISTS (SELECT * FROM tempdb.sys.all_objects WHERE name LIKE '%#Login_Audit%')
     DROP TABLE #Login_Audit;
 
-CREATE TABLE #Login_Audit
-(
+CREATE TABLE #Login_Audit (
     A NVARCHAR(500),
     B NVARCHAR(500)
         DEFAULT '',
@@ -29,27 +23,15 @@ CREATE TABLE #Login_Audit
 );
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [Security Report] = '--- SQL SERVER SECURITY AUDIT ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- SQL SERVER SECURITY AUDIT ---' AS "Security Report",
        '-----',
        '-----',
        '-----';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [Login count] = 'Total Count of Login',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Total Count of Login' AS "Login count",
        'Windows User',
        'SQL server User',
        'Windows Group';
@@ -60,144 +42,91 @@ SELECT a,
        b,
        c,
        d
-FROM
+FROM (SELECT COUNT (name) AS "a" FROM sys.syslogins WHERE name NOT LIKE '%#%') AS a , -- total count 
 (
-    SELECT COUNT(name) AS a
-    FROM sys.syslogins
-    WHERE name NOT LIKE '%#%'
-) AS a , -- total count 
-(
-    SELECT COUNT(name) AS b
+    SELECT COUNT (name) AS "b"
     FROM sys.syslogins
     WHERE name NOT LIKE '%#%'
           AND isntuser = 1
-) AS b , --for login is windows user  
+) AS b ,                                                                              --for login is windows user  
 (
-    SELECT COUNT(name) AS c
+    SELECT COUNT (name) AS "c"
     FROM sys.syslogins
     WHERE name NOT LIKE '%#%'
           AND isntname = 0
-) AS c , -- for login is sql server login  
+) AS c ,                                                                              -- for login is sql server login  
 (
-    SELECT COUNT(name) AS d
+    SELECT COUNT (name) AS "d"
     FROM sys.syslogins
     WHERE name NOT LIKE '%#%'
           AND isntgroup = 1
 ) AS d;
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [sysadmin_server role] = '--- SYSADMIN SERVER ROLE ASSIGN TO ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- SYSADMIN SERVER ROLE ASSIGN TO ---' AS "sysadmin_server role",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [Sys Admin role] = 'Login name',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Login name' AS "Sys Admin role",
        ' Type ',
        ' Login Status ',
        '';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C
-)
-SELECT a.name AS Logins,
+INSERT INTO #Login_Audit (A, B, C)
+SELECT a.name AS "Logins",
        a.type_desc,
        CASE a.is_disabled
-           WHEN 1 THEN
-               'Disable'
-           WHEN 0 THEN
-               'Enable'
+           WHEN 1 THEN 'Disable'
+           WHEN 0 THEN 'Enable'
        END
 FROM sys.server_principals AS a
-    INNER JOIN sys.server_role_members AS b
-        ON a.principal_id = b.member_principal_id
+INNER JOIN sys.server_role_members AS b
+    ON a.principal_id = b.member_principal_id
 WHERE b.role_principal_id = 3
 ORDER BY a.name;
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [Fixed_server role] = '--- FIXED SERVER ROLE DETAILS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- FIXED SERVER ROLE DETAILS ---' AS "Fixed_server role",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [Fixed_server role] = 'ROLE name',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'ROLE name' AS "Fixed_server role",
        ' Members ',
        ' Type ',
        '';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C
-)
-SELECT c.name AS Fixed_roleName,
-       a.name AS logins,
+INSERT INTO #Login_Audit (A, B, C)
+SELECT c.name AS "Fixed_roleName",
+       a.name AS "logins",
        a.type_desc
 FROM sys.server_principals AS a
-    INNER JOIN sys.server_role_members AS b
-        ON a.principal_id = b.member_principal_id
-    INNER JOIN sys.server_principals AS c
-        ON c.principal_id = b.role_principal_id
+INNER JOIN sys.server_role_members AS b
+    ON a.principal_id = b.member_principal_id
+INNER JOIN sys.server_principals AS c
+    ON c.principal_id = b.role_principal_id
 --WHERE a.principal_id > 250 
 ORDER BY c.name;
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT Fixed_database_Roles = '--- FIXED DATABASE ROLES DETAILS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- FIXED DATABASE ROLES DETAILS ---' AS "Fixed_database_Roles",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT Fixed_database_Role = 'Database Name',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Database Name' AS "Fixed_database_Role",
        'Role Name',
        'Member',
        'Type';
@@ -214,27 +143,15 @@ GO
 
 ------------ used is_fixed = 0 for non fixed database roles(need to run on each database) 
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT NON_Fixed_database_Roles = '--- NON FIXED DATABASE ROLES DETAILS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- NON FIXED DATABASE ROLES DETAILS ---' AS "NON_Fixed_database_Roles",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [Non Fixed_database role] = 'Database Name',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Database Name' AS "Non Fixed_database role",
        'Role Name',
        'Member ',
        'Type';
@@ -249,27 +166,15 @@ FROM sys.database_principals a
 WHERE a.name <> ''dbo''and c.is_fixed_role=0 ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT Server_Level_Permission = '--- SERVER LEVEL PERMISSION DETAILS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- SERVER LEVEL PERMISSION DETAILS ---' AS "Server_Level_Permission",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [Server permission] = 'Logins',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Logins' AS "Server permission",
        'Permission Type',
        ' Permission_desc ',
        'Status';
@@ -281,34 +186,22 @@ SELECT b.name,
        a.permission_name,
        a.state_desc
 FROM sys.server_permissions AS a
-    INNER JOIN sys.server_principals AS b
-        ON a.grantee_principal_id = b.principal_id
+INNER JOIN sys.server_principals AS b
+    ON a.grantee_principal_id = b.principal_id
 --INNER JOIN sys.server_principals b ON b.principal_id = b.role_principal_id 
 WHERE b.name NOT LIKE '%#%'
 ORDER BY b.name;
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT DATABASE_Level_Permission = '--- DATABASE LEVEL PERMISSION DETAILS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- DATABASE LEVEL PERMISSION DETAILS ---' AS "DATABASE_Level_Permission",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [DB permission] = 'Database Name',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Database Name' AS "DB permission",
        'Login Name',
        ' Permission ',
        'Status';
@@ -322,122 +215,75 @@ FROM sys.database_permissions a
   where a.class =0 and b.name <> ''dbo'' and b.name <> ''guest''and   b.name not like ''%#%''';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [Password_ Policy_Details] = '--- PASSWORD POLICY DETAILS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- PASSWORD POLICY DETAILS ---' AS "Password_ Policy_Details",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT Policy = 'Users',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Users' AS "Policy",
        'type',
        ' Policy status',
        'Password policy status';
 GO
 
 INSERT INTO #Login_Audit
-SELECT a.name AS SQL_Server_Login,
+SELECT a.name AS "SQL_Server_Login",
        a.type_desc,
        CASE b.is_policy_checked
-           WHEN 1 THEN
-               'Password Policy Applied'
-           ELSE
-               'Password Policy Not Applied'
-       END AS Password_Policy_Status,
+           WHEN 1 THEN 'Password Policy Applied'
+           ELSE 'Password Policy Not Applied'
+       END AS "Password_Policy_Status",
        CASE b.is_expiration_checked
-           WHEN 1 THEN
-               'Password Expiration Check Applied'
-           ELSE
-               'Password Expiration Check Not Applied'
-       END AS Password_Expiration_Check_Status
+           WHEN 1 THEN 'Password Expiration Check Applied'
+           ELSE 'Password Expiration Check Not Applied'
+       END AS "Password_Expiration_Check_Status"
 FROM sys.server_principals AS a
-    INNER JOIN sys.sql_logins AS b
-        ON a.principal_id = b.principal_id
+INNER JOIN sys.sql_logins AS b
+    ON a.principal_id = b.principal_id
 WHERE a.name NOT LIKE '%#%'
 ORDER BY a.name;
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT Orphan_Login_Details = '--- ORPHAN LOGINS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- ORPHAN LOGINS ---' AS "Orphan_Login_Details",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [orphan logine] = 'Logins Name',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Logins Name' AS "orphan logine",
        'ID',
        '',
        '';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B
-)
+INSERT INTO #Login_Audit (A, B)
 EXEC sp_validatelogins;
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT Orphan_USERS_Details = '--- ORPHAN USERS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- ORPHAN USERS ---' AS "Orphan_USERS_Details",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [orphan users] = 'User Name',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'User Name' AS "orphan users",
        '',
        '  ',
        '';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A
-)
+INSERT INTO #Login_Audit (A)
 SELECT u.name
 FROM master..syslogins AS l
-    RIGHT JOIN sysusers AS u
-        ON l.sid = u.sid
+RIGHT JOIN sysusers AS u
+    ON l.sid = u.sid
 WHERE l.sid IS NULL
       AND issqlrole <> 1
       AND isapprole <> 1
@@ -446,39 +292,23 @@ WHERE l.sid IS NULL
       AND u.name <> 'system_function_schema'
       AND u.name <> 'sys';
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT Database_Owner_details = '--- DATABASE OWNER DETAILS ---',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT '--- DATABASE OWNER DETAILS ---' AS "Database_Owner_details",
        ' ----- ',
        ' ----- ',
        ' ----- ';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B,
-    C,
-    D
-)
-SELECT [DB owner] = 'Database Name',
+INSERT INTO #Login_Audit (A, B, C, D)
+SELECT 'Database Name' AS "DB owner",
        'Owener name',
        '  ',
        '';
 GO
 
-INSERT INTO #Login_Audit
-(
-    A,
-    B
-)
+INSERT INTO #Login_Audit (A, B)
 SELECT name,
-       SUSER_SNAME(owner_sid)
+       SUSER_SNAME (owner_sid)
 FROM sys.databases
 ORDER BY name ASC;
 GO

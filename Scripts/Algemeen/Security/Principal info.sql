@@ -182,22 +182,22 @@ SELECT pr.principal_id,
        pe.state_desc,
        pe.permission_name
 FROM sys.server_principals AS pr
-    JOIN sys.server_permissions AS pe
-        ON pe.grantee_principal_id = pr.principal_id;
+JOIN sys.server_permissions AS pe
+    ON pe.grantee_principal_id = pr.principal_id;
 GO
 
 -------------------------------------------------------------------------------
 -- List names and id's of the server roles and their members.
 -------------------------------------------------------------------------------
 SELECT sys.server_role_members.role_principal_id,
-       role.name AS RoleName,
+       role.name AS "RoleName",
        sys.server_role_members.member_principal_id,
-       member.name AS MemberName
+       member.name AS "MemberName"
 FROM sys.server_role_members
-    JOIN sys.server_principals AS role
-        ON sys.server_role_members.role_principal_id = role.principal_id
-    JOIN sys.server_principals AS member
-        ON sys.server_role_members.member_principal_id = member.principal_id;
+JOIN sys.server_principals AS role
+    ON sys.server_role_members.role_principal_id = role.principal_id
+JOIN sys.server_principals AS member
+    ON sys.server_role_members.member_principal_id = member.principal_id;
 GO
 
 -------------------------------------------------------------------------------
@@ -227,8 +227,8 @@ SELECT pr.principal_id,
        pe.state_desc,
        pe.permission_name
 FROM sys.database_principals AS pr
-    JOIN sys.database_permissions AS pe
-        ON pe.grantee_principal_id = pr.principal_id;
+JOIN sys.database_permissions AS pe
+    ON pe.grantee_principal_id = pr.principal_id;
 GO
 
 -------------------------------------------------------------------------------
@@ -240,26 +240,26 @@ SELECT pr.principal_id,
        pr.authentication_type_desc,
        pe.state_desc,
        pe.permission_name,
-       s.name + '.' + o.name AS ObjectName
+       s.name + '.' + o.name AS "ObjectName"
 FROM sys.database_principals AS pr
-    JOIN sys.database_permissions AS pe
-        ON pe.grantee_principal_id = pr.principal_id
-    JOIN sys.objects AS o
-        ON pe.major_id = o.object_id
-    JOIN sys.schemas AS s
-        ON o.schema_id = s.schema_id;
+JOIN sys.database_permissions AS pe
+    ON pe.grantee_principal_id = pr.principal_id
+JOIN sys.objects AS o
+    ON pe.major_id = o.object_id
+JOIN sys.schemas AS s
+    ON o.schema_id = s.schema_id;
 GO
 
 -------------------------------------------------------------------------------
 -- List members of database roles
 -------------------------------------------------------------------------------
-SELECT DP1.name AS DatabaseRoleName,
-       ISNULL(DP2.name, 'No members') AS DatabaseUserName
+SELECT DP1.name AS "DatabaseRoleName",
+       ISNULL (DP2.name, 'No members') AS "DatabaseUserName"
 FROM sys.database_role_members AS DRM
-    RIGHT OUTER JOIN sys.database_principals AS DP1
-        ON DRM.role_principal_id = DP1.principal_id
-    LEFT OUTER JOIN sys.database_principals AS DP2
-        ON DRM.member_principal_id = DP2.principal_id
+RIGHT OUTER JOIN sys.database_principals AS DP1
+    ON DRM.role_principal_id = DP1.principal_id
+LEFT OUTER JOIN sys.database_principals AS DP2
+    ON DRM.member_principal_id = DP2.principal_id
 WHERE DP1.type = 'R'
 ORDER BY DP1.name;
 GO
@@ -269,24 +269,22 @@ GO
 -- authentication settings
 -------------------------------------------------------------------------------
 SELECT sp.name AS "Account",
-       sp.[principal_id] AS "Account Principal ID",
-       sp.[sid] AS "Account SID",
-       sp.[type_desc] AS "Account Type",
-       sp.[is_disabled] AS "Account Disabled",
+       sp.principal_id AS "Account Principal ID",
+       sp.sid AS "Account SID",
+       sp.type_desc AS "Account Type",
+       sp.is_disabled AS "Account Disabled",
        sl.denylogin AS "Account Deny Login",
        sl.hasaccess AS "Has Access",
-       sp.[create_date] AS "Account Create Date",
-       sp.[modify_date] AS "Account Modify Date",
-       LOGINPROPERTY(sp.name, 'PasswordLastSetTime') AS "Account Last Password Change Date",
+       sp.create_date AS "Account Create Date",
+       sp.modify_date AS "Account Modify Date",
+       LOGINPROPERTY (sp.name, 'PasswordLastSetTime') AS "Account Last Password Change Date",
        sp.is_policy_checked AS "Enforce Windows Password Policies?",
        sp.is_expiration_checked AS "Enforce Windows Expiration Policies?",
        sp.password_hash AS "Password Hash",
        CASE
-           WHEN (PWDCOMPARE('', sp.password_hash) = 1) THEN
-               'Yes'
-           ELSE
-               'No'
+           WHEN (PWDCOMPARE ('', sp.password_hash) = 1) THEN 'Yes'
+           ELSE 'No'
        END AS "Blank Password?"
 FROM master.sys.sql_logins AS sp
-    LEFT JOIN master.sys.syslogins AS sl
-        ON sp.sid = sl.sid;
+LEFT JOIN master.sys.syslogins AS sl
+    ON sp.sid = sl.sid;

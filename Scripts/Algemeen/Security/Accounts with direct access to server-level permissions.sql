@@ -1,11 +1,11 @@
 /*
 	Obtain the list of accounts that have direct access to all server-level permissions
 */
-SELECT what.permission_name AS [Permission Name],
-       what.state_desc AS [Permission State],
-       who.name AS [Principal Name],
-       who.type_desc AS [Principal Type],
-       who.is_disabled AS [Principal Is Disabled]
+SELECT what.permission_name AS "Permission Name",
+       what.state_desc AS "Permission State",
+       who.name AS "Principal Name",
+       who.type_desc AS "Principal Type",
+       who.is_disabled AS "Principal Is Disabled"
 FROM sys.server_permissions AS what
 INNER JOIN sys.server_principals AS who
     ON who.principal_id = what.grantee_principal_id

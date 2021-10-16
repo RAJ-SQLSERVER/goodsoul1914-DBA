@@ -1,16 +1,17 @@
 -- Query 17 - Instance Configuration Properties
 -- Get configuration values for instance  (Query 17) (Configuration Values)
 
-select name, 
-	   value, 
-	   value_in_use, 
-	   minimum, 
-	   maximum, 
-	   description, 
-	   is_dynamic, 
-	   is_advanced
-from sys.configurations with(nolock)
-order by name option(recompile);
+SELECT name,
+       value,
+       value_in_use,
+       minimum,
+       maximum,
+       description,
+       is_dynamic,
+       is_advanced
+FROM sys.configurations WITH (NOLOCK)
+ORDER BY name
+OPTION (RECOMPILE);
 
 /*
 Focus on:

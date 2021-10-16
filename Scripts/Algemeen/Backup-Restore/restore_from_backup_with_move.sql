@@ -7,11 +7,11 @@ Description:
 	Don't forget to modify the SQLCMD variables as needed.
 */
 :setvar DatabaseName MyDatabase
-:setvar BackupFilePath H:\MyDatabase_backup_20200602_233000.bak
-:setvar DataFilesFolder F:\Data
-:setvar LogFilesFolder G:\Log
-:setvar FullTextCatalogFolder F:\FullText
-:setvar FileStreamFolder F:\FStream
+:setvar BackupFilePath E:\SQLBackups\MyDatabase_backup_20200602_233000.bak
+:setvar DataFilesFolder M:\SQLData
+:setvar LogFilesFolder L:\SQLLogs
+:setvar FullTextCatalogFolder M:\SQLData
+:setvar FileStreamFolder M:\SQLData
 
 USE [master];
 GO

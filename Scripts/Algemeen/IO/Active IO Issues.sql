@@ -8,4 +8,4 @@ SELECT session_id,
 FROM sys.dm_os_waiting_tasks
 WHERE wait_type LIKE N'PAGEIOLATCH%'
       OR wait_type IN ( N'IO_COMPLETION', N'WRITELOG', N'ASYNC_IO_COMPLETION' );
-go
+GO

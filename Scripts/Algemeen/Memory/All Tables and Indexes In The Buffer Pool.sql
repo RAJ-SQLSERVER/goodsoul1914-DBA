@@ -1,7 +1,6 @@
 -- Break things down by table and index across all databases that are using space in the buffer pool
 --------------------------------------------------------------------------------------------------
-EXEC sp_MSforeachdb 
-	N'IF EXISTS (SELECT 1 FROM (SELECT DISTINCT DB_NAME ([database_id]) AS [name]
+EXEC sp_MSforeachdb N'IF EXISTS (SELECT 1 FROM (SELECT DISTINCT DB_NAME ([database_id]) AS [name]
     FROM sys.dm_os_buffer_descriptors) AS names WHERE [name] = ''?'')
 BEGIN
 USE [?]

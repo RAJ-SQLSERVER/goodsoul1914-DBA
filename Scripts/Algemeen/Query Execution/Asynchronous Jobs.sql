@@ -12,20 +12,20 @@
 -- 
 ---------------------------------------------------------------------------------------------------
 
-select time_queued, 
-	   job_id, 
-	   database_id, 
-	   object_id1, 
-	   object_id2, 
-	   object_id3, 
-	   object_id4, 
-	   error_code, 
-	   request_type, 
-	   retry_count, 
-	   in_progress, 
-	   session_id
-from sys.dm_exec_background_job_queue;
-go
+SELECT time_queued,
+       job_id,
+       database_id,
+       object_id1,
+       object_id2,
+       object_id3,
+       object_id4,
+       error_code,
+       request_type,
+       retry_count,
+       in_progress,
+       session_id
+FROM sys.dm_exec_background_job_queue;
+GO
 
 -- Returns a row that provides aggregate statistics for each query processor job submitted for 
 -- asynchronous (background) execution.
@@ -44,16 +44,16 @@ go
 -- 
 ---------------------------------------------------------------------------------------------------
 
-select queue_max_len, 
-	   enqueued_count, 
-	   started_count, 
-	   ended_count, 
-	   failed_lock_count, 
-	   failed_other_count, 
-	   failed_giveup_count, 
-	   enqueue_failed_full_count, 
-	   enqueue_failed_duplicate_count, 
-	   elapsed_avg_ms, 
-	   elapsed_max_ms
-from sys.dm_exec_background_job_queue_stats;
-go
+SELECT queue_max_len,
+       enqueued_count,
+       started_count,
+       ended_count,
+       failed_lock_count,
+       failed_other_count,
+       failed_giveup_count,
+       enqueue_failed_full_count,
+       enqueue_failed_duplicate_count,
+       elapsed_avg_ms,
+       elapsed_max_ms
+FROM sys.dm_exec_background_job_queue_stats;
+GO

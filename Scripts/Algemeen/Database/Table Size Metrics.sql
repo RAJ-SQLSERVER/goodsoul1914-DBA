@@ -1,43 +1,42 @@
-set nocount on;
+SET NOCOUNT ON;
 
-declare @_dbName varchar(2000);
-set @_dbName = null;
+DECLARE @_dbName VARCHAR(2000);
+SET @_dbName = NULL;
 
-declare @_sqlString nvarchar(max);
-if OBJECT_ID('tempdb..#TableSizeMetrics') is not null
-	drop table #TableSizeMetrics;
-create table #TableSizeMetrics
-(
-	DbName           nvarchar(128) null, 
-	object_id        int not null, 
-	table_name       nvarchar(257) not null, 
-	type_desc        nvarchar(120) null, 
-	modify_date      datetime not null, 
-	IndexName        sysname null, 
-	index_type_desc  nvarchar(60) null, 
-	fill_factor      tinyint not null, 
-	total_Table_rows bigint null, 
-	total_pages      bigint null, 
-	[size(MB)]       decimal(36, 2) null);
+DECLARE @_sqlString NVARCHAR(MAX);
+IF OBJECT_ID ('tempdb..#TableSizeMetrics') IS NOT NULL
+    DROP TABLE #TableSizeMetrics;
+CREATE TABLE #TableSizeMetrics (
+    DbName           NVARCHAR(128)  NULL,
+    object_id        INT            NOT NULL,
+    table_name       NVARCHAR(257)  NOT NULL,
+    type_desc        NVARCHAR(120)  NULL,
+    modify_date      DATETIME       NOT NULL,
+    IndexName        sysname        NULL,
+    index_type_desc  NVARCHAR(60)   NULL,
+    fill_factor      TINYINT        NOT NULL,
+    total_Table_rows BIGINT         NULL,
+    total_pages      BIGINT         NULL,
+    [size(MB)]       DECIMAL(36, 2) NULL
+);
 
-declare dbCursor cursor local static forward_only
-for select d.name
-	from sys.databases as d
-	where d.is_read_only = 0
-		  and d.is_in_standby = 0
-		  and d.database_id > 4
-		  and d.state_desc = 'ONLINE'
-		  and ( @_dbName is null
-				or d.name = @_dbName
-			  );
+DECLARE dbCursor CURSOR LOCAL STATIC FORWARD_ONLY FOR
+SELECT d.name
+FROM sys.databases AS d
+WHERE d.is_read_only = 0
+      AND d.is_in_standby = 0
+      AND d.database_id > 4
+      AND d.state_desc = 'ONLINE'
+      AND (@_dbName IS NULL OR d.name = @_dbName);
 
-open dbCursor;
-fetch next from dbCursor into @_dbName;
+OPEN dbCursor;
+FETCH NEXT FROM dbCursor
+INTO @_dbName;
 
-while @@FETCH_STATUS = 0
-begin
-	set @_sqlString = '
-USE [' + @_dbName + '];
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @_sqlString = N'
+USE [' + @_dbName + N'];
 SELECT	[DbName] = DB_NAME()
 		,t.[object_id]
 		,[table_name] = s.[Name] + ''.'' + t.[name]
@@ -67,17 +66,18 @@ SELECT	[DbName] = DB_NAME()
     WHERE 
         t.is_ms_shipped = 0 AND i.OBJECT_ID > 255
 	ORDER BY DB_NAME(), s.Name, t.name, i.name;
-';
-	
-	--PRINT @_sqlString;
-	insert into #TableSizeMetrics
-	exec (@_sqlString);
+'   ;
 
-	fetch next from dbCursor into @_dbName;
-end;
+    --PRINT @_sqlString;
+    INSERT INTO #TableSizeMetrics
+    EXEC (@_sqlString);
 
-close dbCursor;
-deallocate dbCursor;
+    FETCH NEXT FROM dbCursor
+    INTO @_dbName;
+END;
 
-select *
-from #TableSizeMetrics;
+CLOSE dbCursor;
+DEALLOCATE dbCursor;
+
+SELECT *
+FROM #TableSizeMetrics;

@@ -31,21 +31,21 @@
 --							This is always in sync with the most_recent_session_id.
 -------------------------------------------------------------------------------
 SELECT session_id,
-	most_recent_session_id,
-	connection_id,
-	connect_time,
-	net_transport,
-	protocol_type,
-	encrypt_option,
-	auth_scheme,
-	node_affinity,
-	num_reads,
-	num_writes,
-	last_read,
-	last_write,
-	net_packet_size,
-	client_net_address,
-	client_tcp_port,
-	most_recent_sql_handle
+       most_recent_session_id,
+       connection_id,
+       connect_time,
+       net_transport,
+       protocol_type,
+       encrypt_option,
+       auth_scheme,
+       node_affinity,
+       num_reads,
+       num_writes,
+       last_read,
+       last_write,
+       net_packet_size,
+       client_net_address,
+       client_tcp_port,
+       most_recent_sql_handle
 FROM sys.dm_exec_connections;
 GO

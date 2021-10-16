@@ -35,17 +35,17 @@ SET STATISTICS XML OFF;
 SET LOCK_TIMEOUT 500;
 SET NOCOUNT ON;
 
-DECLARE @hasPermissions BIT = HAS_PERMS_BY_NAME(NULL, NULL, 'VIEW SERVER STATE');
+DECLARE @hasPermissions BIT = HAS_PERMS_BY_NAME (NULL, NULL, 'VIEW SERVER STATE');
 IF (@hasPermissions = 0)
 BEGIN;
-    RAISERROR('This script requires VIEW SERVER STATE permissions.', 16, 1);
+    RAISERROR ('This script requires VIEW SERVER STATE permissions.', 16, 1);
     RETURN;
 END;
 
-SET @hasPermissions = HAS_PERMS_BY_NAME(NULL, 'DATABASE', 'CREATE FUNCTION');
+SET @hasPermissions = HAS_PERMS_BY_NAME (NULL, 'DATABASE', 'CREATE FUNCTION');
 IF (@hasPermissions = 0)
 BEGIN;
-    RAISERROR('This script requires CREATE FUNCTION permissions in tempdb.', 16, 1);
+    RAISERROR ('This script requires CREATE FUNCTION permissions in tempdb.', 16, 1);
     RETURN;
 END;
 
@@ -59,12 +59,7 @@ BEGIN TRY;
     --- Temporary functions, used to beautify numbers, bits&bytes and dates.
     -------------------------------------------------------------------------------
 
-    IF (NOT EXISTS (
-        SELECT object_id
-        FROM   sys.objects
-        WHERE  name = 'fn_friendly_age'
-    )
-    )
+    IF (NOT EXISTS (SELECT object_id FROM sys.objects WHERE name = 'fn_friendly_age'))
         EXEC ('
 CREATE FUNCTION dbo.fn_friendly_age (
     @from	datetime,
@@ -98,12 +93,7 @@ BEGIN
     RETURN @age
 END'    );
 
-    IF (NOT EXISTS (
-        SELECT object_id
-        FROM   sys.objects
-        WHERE  name = 'fn_format_number'
-    )
-    )
+    IF (NOT EXISTS (SELECT object_id FROM sys.objects WHERE name = 'fn_format_number'))
         EXEC ('
 CREATE FUNCTION dbo.fn_format_number(
     @number		numeric(28, 8),
@@ -130,12 +120,7 @@ BEGIN
     RETURN @out
 END'    );
 
-    IF (NOT EXISTS (
-        SELECT object_id
-        FROM   sys.objects
-        WHERE  name = 'fn_friendly_size'
-    )
-    )
+    IF (NOT EXISTS (SELECT object_id FROM sys.objects WHERE name = 'fn_friendly_size'))
         EXEC ('
 CREATE FUNCTION dbo.fn_friendly_size (
     @bytes	bigint)
@@ -187,19 +172,18 @@ END;'   );
             @min_server_memory         BIGINT,
             @max_degree_of_parallelism TINYINT;
 
-    SET @version = LEFT(CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(10)), 4);
-    IF (@version LIKE '9%')
-        SET @version = LEFT('0' + @version, 4);
+    SET @version = LEFT(CAST(SERVERPROPERTY ('ProductVersion') AS VARCHAR(10)), 4);
+    IF (@version LIKE '9%') SET @version = LEFT('0' + @version, 4);
 
     SELECT @max_server_memory = CAST(value AS BIGINT) * 1024 * 1024
-    FROM   sys.configurations
-    WHERE  name = 'max server memory (MB)';
+    FROM sys.configurations
+    WHERE name = 'max server memory (MB)';
     SELECT @min_server_memory = CAST(value AS BIGINT) * 1024 * 1024
-    FROM   sys.configurations
-    WHERE  name = 'min server memory (MB)';
+    FROM sys.configurations
+    WHERE name = 'min server memory (MB)';
     SELECT @max_degree_of_parallelism = CAST(value AS TINYINT)
-    FROM   sys.configurations
-    WHERE  name = 'max degree of parallelism';
+    FROM sys.configurations
+    WHERE name = 'max degree of parallelism';
 
     IF (@version < '11.0')
         EXECUTE sys.sp_executesql N'
@@ -232,73 +216,58 @@ N'@virtual_machine_type int OUTPUT',
 
     -------------------------------------------------------------------------------
 
-    DECLARE @block_chain TABLE
-    (
-        spid INT NOT NULL,
+    DECLARE @block_chain TABLE (
+        spid       INT          NOT NULL,
         blocked_by VARCHAR(MAX) NOT NULL,
         PRIMARY KEY CLUSTERED (spid)
     );
 
-    DECLARE @blocking TABLE
-    (
-        spid INT NOT NULL,
+    DECLARE @blocking TABLE (
+        spid     INT          NOT NULL,
         blocking VARCHAR(MAX) NOT NULL,
         PRIMARY KEY CLUSTERED (spid)
     );
 
-    DECLARE @locks TABLE
-    (
-        spid INT NOT NULL,
-        tran_id BIGINT NOT NULL,
-        lock_ord INT NOT NULL,
-        mode VARCHAR(255) NOT NULL,
-        [database] VARCHAR(255) NOT NULL,
-        object_id INT NOT NULL,
-        object_name VARCHAR(255) NULL,
-        index_id INT NOT NULL,
-        index_type TINYINT NULL,
-        index_name VARCHAR(255) NULL,
-        index_filter VARCHAR(MAX) NULL,
-        object_notes VARCHAR(255) NULL,
-        obj_rows BIGINT NULL,
-        partition_number INT NOT NULL,
-        partition_count INT NULL,
+    DECLARE @locks TABLE (
+        spid               INT          NOT NULL,
+        tran_id            BIGINT       NOT NULL,
+        lock_ord           INT          NOT NULL,
+        mode               VARCHAR(255) NOT NULL,
+        [database]         VARCHAR(255) NOT NULL,
+        object_id          INT          NOT NULL,
+        object_name        VARCHAR(255) NULL,
+        index_id           INT          NOT NULL,
+        index_type         TINYINT      NULL,
+        index_name         VARCHAR(255) NULL,
+        index_filter       VARCHAR(MAX) NULL,
+        object_notes       VARCHAR(255) NULL,
+        obj_rows           BIGINT       NULL,
+        partition_number   INT          NOT NULL,
+        partition_count    INT          NULL,
         partition_boundary VARCHAR(MAX) NULL,
-        request_owner_type VARCHAR(50) NOT NULL,
-        wait_type VARCHAR(120) NULL,
-        wait_time VARCHAR(100) NULL,
-        blkd_by_spid INT NULL,
-        count INT NULL,
-        isWaiting BIT NULL,
-        isBlocking BIT NULL,
-        ident INT IDENTITY(1, 1) NOT NULL,
-        PRIMARY KEY CLUSTERED (
-            spid,
-            tran_id,
-            object_id,
-            index_id,
-            partition_number,
-            lock_ord,
-            ident
-        )
+        request_owner_type VARCHAR(50)  NOT NULL,
+        wait_type          VARCHAR(120) NULL,
+        wait_time          VARCHAR(100) NULL,
+        blkd_by_spid       INT          NULL,
+        count              INT          NULL,
+        isWaiting          BIT          NULL,
+        isBlocking         BIT          NULL,
+        ident              INT          IDENTITY(1, 1) NOT NULL,
+        PRIMARY KEY CLUSTERED (spid, tran_id, object_id, index_id, partition_number, lock_ord, ident)
     );
 
-    DECLARE @tran_locks TABLE
-    (
-        resource_database_id INT NOT NULL,
-        request_session_id INT NOT NULL,
-        request_owner_id BIGINT NULL,
-        request_mode NVARCHAR(120) NOT NULL,
-        request_status NVARCHAR(120) NOT NULL,
-        resource_type NVARCHAR(120) NOT NULL,
-        request_owner_type NVARCHAR(120) NULL,
-        lock_owner_address VARBINARY(8) NOT NULL,
-        resource_associated_entity_id BIGINT NULL,
-        ord INT NOT NULL,
-        PRIMARY KEY CLUSTERED (
-            request_session_id,
-            ord
-        )
+    DECLARE @tran_locks TABLE (
+        resource_database_id          INT           NOT NULL,
+        request_session_id            INT           NOT NULL,
+        request_owner_id              BIGINT        NULL,
+        request_mode                  NVARCHAR(120) NOT NULL,
+        request_status                NVARCHAR(120) NOT NULL,
+        resource_type                 NVARCHAR(120) NOT NULL,
+        request_owner_type            NVARCHAR(120) NULL,
+        lock_owner_address            VARBINARY(8)  NOT NULL,
+        resource_associated_entity_id BIGINT        NULL,
+        ord                           INT           NOT NULL,
+        PRIMARY KEY CLUSTERED (request_session_id, ord)
     );
 
     INSERT INTO @tran_locks
@@ -311,14 +280,15 @@ N'@virtual_machine_type int OUTPUT',
            request_owner_type,
            lock_owner_address,
            resource_associated_entity_id,
-           ROW_NUMBER() OVER (PARTITION BY request_session_id ORDER BY lock_owner_address) AS ord
-    FROM   sys.dm_tran_locks WITH (NOLOCK);
+           ROW_NUMBER () OVER (PARTITION BY request_session_id
+ORDER BY lock_owner_address
+                         ) AS "ord"
+    FROM sys.dm_tran_locks WITH (NOLOCK);
 
-    DECLARE @tran_session_transactions TABLE
-    (
+    DECLARE @tran_session_transactions TABLE (
         transaction_id BIGINT NOT NULL,
-        session_id INT NOT NULL,
-        is_local BIT NOT NULL,
+        session_id     INT    NOT NULL,
+        is_local       BIT    NOT NULL,
         PRIMARY KEY CLUSTERED (transaction_id)
     );
 
@@ -326,22 +296,21 @@ N'@virtual_machine_type int OUTPUT',
     SELECT transaction_id,
            session_id,
            is_local
-    FROM   sys.dm_tran_session_transactions WITH (NOLOCK);
+    FROM sys.dm_tran_session_transactions WITH (NOLOCK);
 
-    DECLARE @exec_sessions TABLE
-    (
-        session_id INT NOT NULL,
-        program_name NVARCHAR(256) NULL,
-        login_name NVARCHAR(256) NOT NULL,
-        status NVARCHAR(60) NOT NULL,
-        last_request_start_time DATETIME NOT NULL,
-        cpu_time INT NOT NULL,
-        memory_usage INT NOT NULL,
-        reads BIGINT NOT NULL,
-        writes BIGINT NOT NULL,
-        logical_reads BIGINT NOT NULL,
-        flags VARCHAR(200) NOT NULL,
-        client_interface_name NVARCHAR(64) NULL,
+    DECLARE @exec_sessions TABLE (
+        session_id              INT           NOT NULL,
+        program_name            NVARCHAR(256) NULL,
+        login_name              NVARCHAR(256) NOT NULL,
+        status                  NVARCHAR(60)  NOT NULL,
+        last_request_start_time DATETIME      NOT NULL,
+        cpu_time                INT           NOT NULL,
+        memory_usage            INT           NOT NULL,
+        reads                   BIGINT        NOT NULL,
+        writes                  BIGINT        NOT NULL,
+        logical_reads           BIGINT        NOT NULL,
+        flags                   VARCHAR(200)  NOT NULL,
+        client_interface_name   NVARCHAR(64)  NULL,
         PRIMARY KEY CLUSTERED (session_id)
     );
 
@@ -356,91 +325,52 @@ N'@virtual_machine_type int OUTPUT',
            reads,
            writes,
            logical_reads,
-           'arithabort ' + (CASE arithabort
-                                WHEN 1 THEN
-                                    'ON'
-                                ELSE
-                                    'OFF'
-                            END
-                           ) + ', quot.id ' + (CASE quoted_identifier
-                                                   WHEN 1 THEN
-                                                       'ON'
-                                                   ELSE
-                                                       'OFF'
-                                               END
-                                              ) + (CASE ansi_warnings
-                                                       WHEN 0 THEN
-                                                           ', ansi warn OFF'
-                                                       ELSE
-                                                           ''
-                                                   END
-                                                  ) + (CASE ansi_padding
-                                                           WHEN 0 THEN
-                                                               ', ansi pad OFF'
-                                                           ELSE
-                                                               ''
-                                                       END
-                                                      ) + (CASE ansi_nulls
-                                                               WHEN 0 THEN
-                                                                   ', nulls OFF'
-                                                               ELSE
-                                                                   ''
-                                                           END
-                                                          ) + (CASE concat_null_yields_null
-                                                                   WHEN 0 THEN
-                                                                       ', conc.null OFF'
-                                                                   ELSE
-                                                                       ''
-                                                               END
-                                                              ) AS flags,
-           LEFT(client_interface_name, CHARINDEX(' ', client_interface_name + ' ') - 1)
-    FROM   sys.dm_exec_sessions WITH (NOLOCK);
+           'arithabort ' + (CASE arithabort WHEN 1 THEN 'ON' ELSE 'OFF' END) + ', quot.id '
+           + (CASE quoted_identifier WHEN 1 THEN 'ON' ELSE 'OFF' END)
+           + (CASE ansi_warnings WHEN 0 THEN ', ansi warn OFF' ELSE '' END)
+           + (CASE ansi_padding WHEN 0 THEN ', ansi pad OFF' ELSE '' END)
+           + (CASE ansi_nulls WHEN 0 THEN ', nulls OFF' ELSE '' END)
+           + (CASE concat_null_yields_null WHEN 0 THEN ', conc.null OFF' ELSE '' END) AS "flags",
+           LEFT(client_interface_name, CHARINDEX (' ', client_interface_name + ' ') - 1)
+    FROM sys.dm_exec_sessions WITH (NOLOCK);
 
-    DECLARE @jobs TABLE
-    (
-        job_id UNIQUEIDENTIFIER NOT NULL,
-        job_name sysname NOT NULL,
-        step_id INT NOT NULL,
-        step_name sysname NOT NULL,
-        search_name VARCHAR(MAX) NOT NULL,
-        PRIMARY KEY CLUSTERED (
-            job_id,
-            step_id
-        )
+    DECLARE @jobs TABLE (
+        job_id      UNIQUEIDENTIFIER NOT NULL,
+        job_name    sysname          NOT NULL,
+        step_id     INT              NOT NULL,
+        step_name   sysname          NOT NULL,
+        search_name VARCHAR(MAX)     NOT NULL,
+        PRIMARY KEY CLUSTERED (job_id, step_id)
     );
 
     INSERT INTO @jobs
-    SELECT     j.job_id,
-               j.name AS job_name,
-               js.step_id,
-               js.step_name,
-               ' 0x' + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 7, 2) + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 5, 2)
-               + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 3, 2) + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 1, 2)
-               + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 12, 2) + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 10, 2)
-               + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 17, 2) + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 15, 2)
-               + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 20, 4) + SUBSTRING(CAST(j.job_id AS VARCHAR(MAX)), 25, 12)
-               + '%:% ' + CAST(js.step_id AS VARCHAR(MAX)) + ')' AS search_name
-    FROM       msdb.dbo.sysjobs AS j WITH (NOLOCK)
-    INNER JOIN msdb.dbo.sysjobsteps AS js WITH (NOLOCK) ON j.job_id = js.job_id;
+    SELECT j.job_id,
+           j.name AS "job_name",
+           js.step_id,
+           js.step_name,
+           ' 0x' + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 7, 2) + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 5, 2)
+           + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 3, 2) + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 1, 2)
+           + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 12, 2) + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 10, 2)
+           + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 17, 2) + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 15, 2)
+           + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 20, 4) + SUBSTRING (CAST(j.job_id AS VARCHAR(MAX)), 25, 12)
+           + '%:% ' + CAST(js.step_id AS VARCHAR(MAX)) + ')' AS "search_name"
+    FROM msdb.dbo.sysjobs AS j WITH (NOLOCK)
+    INNER JOIN msdb.dbo.sysjobsteps AS js WITH (NOLOCK)
+        ON j.job_id = js.job_id;
 
-    DECLARE @exec_requests TABLE
-    (
-        session_id INT NOT NULL,
-        request_id INT NOT NULL,
-        database_id SMALLINT NOT NULL,
-        transaction_isolation_level SMALLINT NOT NULL,
-        percent_complete REAL NOT NULL,
-        total_elapsed_time INT NOT NULL,
-        command VARCHAR(32) NOT NULL,
-        statement_start_offset INT NULL,
-        statement_end_offset INT NULL,
-        plan_handle VARBINARY(64) NULL,
-        _id INT IDENTITY(1, 1) NOT NULL,
-        PRIMARY KEY CLUSTERED (
-            session_id,
-            request_id,
-            _id
-        )
+    DECLARE @exec_requests TABLE (
+        session_id                  INT           NOT NULL,
+        request_id                  INT           NOT NULL,
+        database_id                 SMALLINT      NOT NULL,
+        transaction_isolation_level SMALLINT      NOT NULL,
+        percent_complete            REAL          NOT NULL,
+        total_elapsed_time          INT           NOT NULL,
+        command                     VARCHAR(32)   NOT NULL,
+        statement_start_offset      INT           NULL,
+        statement_end_offset        INT           NULL,
+        plan_handle                 VARBINARY(64) NULL,
+        _id                         INT           IDENTITY(1, 1) NOT NULL,
+        PRIMARY KEY CLUSTERED (session_id, request_id, _id)
     );
 
     INSERT INTO @exec_requests (session_id,
@@ -463,18 +393,17 @@ N'@virtual_machine_type int OUTPUT',
            statement_start_offset,
            statement_end_offset,
            plan_handle
-    FROM   sys.dm_exec_requests WITH (NOLOCK);
+    FROM sys.dm_exec_requests WITH (NOLOCK);
 
-    DECLARE @exec_connections TABLE
-    (
-        session_id INT NOT NULL,
-        client_net_address VARCHAR(48) NULL,
-        client_tcp_port INT NULL,
-        local_net_address VARCHAR(48) NULL,
-        auth_scheme NVARCHAR(80) NOT NULL,
-        connect_time DATETIME NOT NULL,
-        num_reads INT NULL,
-        num_writes INT NULL,
+    DECLARE @exec_connections TABLE (
+        session_id             INT          NOT NULL,
+        client_net_address     VARCHAR(48)  NULL,
+        client_tcp_port        INT          NULL,
+        local_net_address      VARCHAR(48)  NULL,
+        auth_scheme            NVARCHAR(80) NOT NULL,
+        connect_time           DATETIME     NOT NULL,
+        num_reads              INT          NULL,
+        num_writes             INT          NULL,
         most_recent_sql_handle VARBINARY(64),
         PRIMARY KEY CLUSTERED (session_id)
     );
@@ -489,34 +418,28 @@ N'@virtual_machine_type int OUTPUT',
            num_reads,
            num_writes,
            most_recent_sql_handle
-    FROM   sys.dm_exec_connections WITH (NOLOCK)
-    WHERE  endpoint_id != 0
-           AND session_id IS NOT NULL;
+    FROM sys.dm_exec_connections WITH (NOLOCK)
+    WHERE endpoint_id != 0
+          AND session_id IS NOT NULL;
 
-    DECLARE @os_tasks TABLE
-    (
-        session_id INT NOT NULL,
+    DECLARE @os_tasks TABLE (
+        session_id   INT NOT NULL,
         scheduler_id INT NOT NULL,
-        PRIMARY KEY CLUSTERED (
-            session_id,
-            scheduler_id
-        )
+        PRIMARY KEY CLUSTERED (session_id, scheduler_id)
     );
 
     INSERT INTO @os_tasks
-    SELECT DISTINCT
-           session_id,
-           scheduler_id
-    FROM   sys.dm_os_tasks
-    WHERE  session_id IS NOT NULL
-           AND scheduler_id IS NOT NULL;
+    SELECT DISTINCT session_id,
+                    scheduler_id
+    FROM sys.dm_os_tasks
+    WHERE session_id IS NOT NULL
+          AND scheduler_id IS NOT NULL;
 
-    DECLARE @tran_active_transactions TABLE
-    (
-        transaction_id BIGINT NOT NULL,
+    DECLARE @tran_active_transactions TABLE (
+        transaction_id         BIGINT   NOT NULL,
         transaction_begin_time DATETIME NOT NULL,
-        transaction_type INT NOT NULL,
-        transaction_state INT NOT NULL,
+        transaction_type       INT      NOT NULL,
+        transaction_state      INT      NOT NULL,
         PRIMARY KEY CLUSTERED (transaction_id)
     );
 
@@ -525,22 +448,18 @@ N'@virtual_machine_type int OUTPUT',
            transaction_begin_time,
            transaction_type,
            transaction_state
-    FROM   sys.dm_tran_active_transactions WITH (NOLOCK);
+    FROM sys.dm_tran_active_transactions WITH (NOLOCK);
 
-    DECLARE @os_waiting_tasks TABLE
-    (
-        session_id INT NULL,
-        blocking_session_id INT NULL,
-        waiting_task_address VARBINARY(8) NOT NULL,
-        wait_type NVARCHAR(120) NULL,
-        wait_duration_ms BIGINT NULL,
-        resource_address VARBINARY(8) NULL,
-        exec_context_id INT NULL,
-        dupl INT NOT NULL,
-        PRIMARY KEY CLUSTERED (
-            waiting_task_address,
-            dupl
-        )
+    DECLARE @os_waiting_tasks TABLE (
+        session_id           INT           NULL,
+        blocking_session_id  INT           NULL,
+        waiting_task_address VARBINARY(8)  NOT NULL,
+        wait_type            NVARCHAR(120) NULL,
+        wait_duration_ms     BIGINT        NULL,
+        resource_address     VARBINARY(8)  NULL,
+        exec_context_id      INT           NULL,
+        dupl                 INT           NOT NULL,
+        PRIMARY KEY CLUSTERED (waiting_task_address, dupl)
     );
 
     INSERT INTO @os_waiting_tasks
@@ -551,49 +470,44 @@ N'@virtual_machine_type int OUTPUT',
            wait_duration_ms,
            resource_address,
            exec_context_id,
-           ROW_NUMBER() OVER (PARTITION BY waiting_task_address
-                              ORDER BY wait_duration_ms,
-                                       resource_address
-                        ) AS dupl
-    FROM   sys.dm_os_waiting_tasks WITH (NOLOCK);
+           ROW_NUMBER () OVER (PARTITION BY waiting_task_address
+                               ORDER BY wait_duration_ms,
+                                        resource_address
+                         ) AS "dupl"
+    FROM sys.dm_os_waiting_tasks WITH (NOLOCK);
 
-    DECLARE @exec_query_memory_grants TABLE
-    (
-        session_id INT NOT NULL,
-        request_id INT NOT NULL,
-        requested_mb NUMERIC(16, 3) NOT NULL,
-        granted_mb NUMERIC(16, 3) NULL,
+    DECLARE @exec_query_memory_grants TABLE (
+        session_id          INT            NOT NULL,
+        request_id          INT            NOT NULL,
+        requested_mb        NUMERIC(16, 3) NOT NULL,
+        granted_mb          NUMERIC(16, 3) NULL,
         minimum_required_mb NUMERIC(16, 3) NOT NULL,
-        used_mb NUMERIC(16, 3) NOT NULL,
-        max_used_mb NUMERIC(16, 3) NOT NULL,
-        ideal_mb NUMERIC(16, 3) NOT NULL,
-        est_query_cost NUMERIC(16, 1) NOT NULL,
-        PRIMARY KEY CLUSTERED (
-            session_id,
-            request_id
-        )
+        used_mb             NUMERIC(16, 3) NOT NULL,
+        max_used_mb         NUMERIC(16, 3) NOT NULL,
+        ideal_mb            NUMERIC(16, 3) NOT NULL,
+        est_query_cost      NUMERIC(16, 1) NOT NULL,
+        PRIMARY KEY CLUSTERED (session_id, request_id)
     );
 
     INSERT INTO @exec_query_memory_grants
     SELECT session_id,
            request_id,
-           1.0 * requested_memory_kb / 1024 AS requested_mb,
-           1.0 * granted_memory_kb / 1024 AS granted_mb,
-           1.0 * required_memory_kb / 1024 AS minimum_required_mb,
-           ISNULL(1.0 * used_memory_kb / 1024, 0.0) AS used_mb,
-           ISNULL(1.0 * max_used_memory_kb / 1024, 0.0) AS max_used_mb,
-           1.0 * ideal_memory_kb / 1024 AS ideal_mb,
-           query_cost AS est_query_cost
-    FROM   sys.dm_exec_query_memory_grants WITH (NOLOCK);
+           1.0 * requested_memory_kb / 1024 AS "requested_mb",
+           1.0 * granted_memory_kb / 1024 AS "granted_mb",
+           1.0 * required_memory_kb / 1024 AS "minimum_required_mb",
+           ISNULL (1.0 * used_memory_kb / 1024, 0.0) AS "used_mb",
+           ISNULL (1.0 * max_used_memory_kb / 1024, 0.0) AS "max_used_mb",
+           1.0 * ideal_memory_kb / 1024 AS "ideal_mb",
+           query_cost AS "est_query_cost"
+    FROM sys.dm_exec_query_memory_grants WITH (NOLOCK);
 
-    DECLARE @dm_server_services TABLE
-    (
-        _id TINYINT IDENTITY(1, 1) NOT NULL,
-        servicename NVARCHAR(512) NOT NULL,
+    DECLARE @dm_server_services TABLE (
+        _id               TINYINT       IDENTITY(1, 1) NOT NULL,
+        servicename       NVARCHAR(512) NOT NULL,
         startup_type_desc NVARCHAR(512) NOT NULL,
-        status_desc NVARCHAR(512) NOT NULL,
-        service_account NVARCHAR(512) NOT NULL,
-        cluster_nodename NVARCHAR(512) NULL,
+        status_desc       NVARCHAR(512) NOT NULL,
+        service_account   NVARCHAR(512) NOT NULL,
+        cluster_nodename  NVARCHAR(512) NULL,
         PRIMARY KEY CLUSTERED (_id)
     );
 
@@ -604,86 +518,67 @@ N'@virtual_machine_type int OUTPUT',
                status_desc,
                service_account,
                cluster_nodename
-        FROM   sys.dm_server_services;
+        FROM sys.dm_server_services;
     END TRY
     BEGIN CATCH;
         PRINT 'sys.dm_server_services is not supported on this version of SQL Server.';
     END CATCH;
 
-    DECLARE @database_procedures TABLE
-    (
-        database_id INT NOT NULL,
-        object_id INT NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        PRIMARY KEY CLUSTERED (
-            database_id,
-            object_id
-        )
+    DECLARE @database_procedures TABLE (
+        database_id INT          NOT NULL,
+        object_id   INT          NOT NULL,
+        name        VARCHAR(255) NOT NULL,
+        PRIMARY KEY CLUSTERED (database_id, object_id)
     );
 
-    DECLARE @database_objects TABLE
-    (
-        database_id INT NOT NULL,
-        object_id INT NOT NULL,
-        index_id INT NOT NULL,
-        hobt_id BIGINT NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        index_type TINYINT NULL,
-        index_name VARCHAR(255) NULL,
-        partition_number INT NOT NULL,
-        rows BIGINT NULL,
-        type_desc VARCHAR(255) NOT NULL,
-        is_clustered BIT NULL,
-        index_filter VARCHAR(MAX) NULL,
-        PRIMARY KEY CLUSTERED (
-            database_id,
-            object_id,
-            hobt_id
-        )
+    DECLARE @database_objects TABLE (
+        database_id      INT          NOT NULL,
+        object_id        INT          NOT NULL,
+        index_id         INT          NOT NULL,
+        hobt_id          BIGINT       NOT NULL,
+        name             VARCHAR(255) NOT NULL,
+        index_type       TINYINT      NULL,
+        index_name       VARCHAR(255) NULL,
+        partition_number INT          NOT NULL,
+        rows             BIGINT       NULL,
+        type_desc        VARCHAR(255) NOT NULL,
+        is_clustered     BIT          NULL,
+        index_filter     VARCHAR(MAX) NULL,
+        PRIMARY KEY CLUSTERED (database_id, object_id, hobt_id)
     );
 
-    DECLARE @files TABLE
-    (
-        database_id INT NOT NULL,
-        file_id INT NOT NULL,
-        filetype VARCHAR(20) NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        drive CHAR(3) NOT NULL,
-        filegroup VARCHAR(255) NULL,
-        size_mb NUMERIC(18, 2) NOT NULL,
-        autogrow NUMERIC(18, 2) NULL,
-        is_percent_growth BIT NOT NULL,
-        max_size_mb NUMERIC(18, 2) NULL,
-        used_size_mb NUMERIC(18, 2) NULL,
-        total_bytes BIGINT NULL,
-        available_bytes BIGINT NULL,
-        file_system_type VARCHAR(100) NULL,
-        primary_replica sysname NULL,
-        availability_mode TINYINT NULL,
-        suspend_state VARCHAR(255) NULL,
-        queue_kb BIGINT NULL,
-        rpo BIGINT NULL,
-        PRIMARY KEY CLUSTERED (
-            database_id,
-            name
-        )
+    DECLARE @files TABLE (
+        database_id       INT            NOT NULL,
+        file_id           INT            NOT NULL,
+        filetype          VARCHAR(20)    NOT NULL,
+        name              VARCHAR(255)   NOT NULL,
+        drive             CHAR(3)        NOT NULL,
+        filegroup         VARCHAR(255)   NULL,
+        size_mb           NUMERIC(18, 2) NOT NULL,
+        autogrow          NUMERIC(18, 2) NULL,
+        is_percent_growth BIT            NOT NULL,
+        max_size_mb       NUMERIC(18, 2) NULL,
+        used_size_mb      NUMERIC(18, 2) NULL,
+        total_bytes       BIGINT         NULL,
+        available_bytes   BIGINT         NULL,
+        file_system_type  VARCHAR(100)   NULL,
+        primary_replica   sysname        NULL,
+        availability_mode TINYINT        NULL,
+        suspend_state     VARCHAR(255)   NULL,
+        queue_kb          BIGINT         NULL,
+        rpo               BIGINT         NULL,
+        PRIMARY KEY CLUSTERED (database_id, name)
     );
 
-    DECLARE @parts TABLE
-    (
-        database_id INT NOT NULL,
-        object_id INT NOT NULL,
-        index_id INT NOT NULL,
-        hobt_id BIGINT NULL,
-        boundary_id INT NOT NULL,
-        boundary VARCHAR(MAX) NULL,
-        rows INT NULL,
-        PRIMARY KEY CLUSTERED (
-            database_id,
-            object_id,
-            index_id,
-            boundary_id
-        )
+    DECLARE @parts TABLE (
+        database_id INT          NOT NULL,
+        object_id   INT          NOT NULL,
+        index_id    INT          NOT NULL,
+        hobt_id     BIGINT       NULL,
+        boundary_id INT          NOT NULL,
+        boundary    VARCHAR(MAX) NULL,
+        rows        INT          NULL,
+        PRIMARY KEY CLUSTERED (database_id, object_id, index_id, boundary_id)
     );
 
     DECLARE #cur CURSOR FOR
@@ -702,7 +597,7 @@ N'@virtual_machine_type int OUTPUT',
            + '].sys.indexes AS ix WITH (NOLOCK) ON p.[object_id]=ix.[object_id] AND p.index_id=ix.index_id
          LEFT JOIN [' + name
            + '].sys.indexes AS cix WITH (NOLOCK) ON p.[object_id]=cix.[object_id] AND cix.[type]=1
-        '  AS sql,
+        '  AS "sql",
 
            --- Database files
            'USE [' + name + '];
@@ -717,11 +612,10 @@ N'@virtual_machine_type int OUTPUT',
            + (CASE
                   WHEN @version > '10.5'
                        OR @version = '10.5'
-                          AND CAST(SERVERPROPERTY('ProductLevel') AS VARCHAR(10)) >= 'SP1' THEN
+                          AND CAST(SERVERPROPERTY ('ProductLevel') AS VARCHAR(10)) >= 'SP1' THEN
                       '
             v.total_bytes, v.available_bytes, v.file_system_type'
-                  ELSE
-                      '
+                  ELSE '
             NULL AS total_bytes, NULL AS available_bytes, NULL AS file_system_type'
               END
              ) + ', NULL, NULL, NULL, NULL, NULL
@@ -731,11 +625,10 @@ N'@virtual_machine_type int OUTPUT',
            + (CASE
                   WHEN @version > '10.5'
                        OR @version = '10.5'
-                          AND CAST(SERVERPROPERTY('ProductLevel') AS VARCHAR(10)) >= 'SP1' THEN
+                          AND CAST(SERVERPROPERTY ('ProductLevel') AS VARCHAR(10)) >= 'SP1' THEN
                       '
          CROSS APPLY sys.dm_os_volume_stats(' + CAST(database_id AS VARCHAR(MAX)) + ', f.[file_id]) AS v'
-                  ELSE
-                      ''
+                  ELSE ''
               END
              )
            +
@@ -754,10 +647,9 @@ N'@virtual_machine_type int OUTPUT',
             NULL AS total_bytes, NULL AS available_bytes, NULL AS file_system_type, NULL, NULL, NULL, NULL, NULL
          FROM sys.dm_db_xtp_memory_consumers AS xtp
          HAVING COUNT(*)>0'
-                ELSE
-                    ''
+                ELSE ''
             END
-           ) AS sql2,
+           ) AS "sql2",
 
            --- Partitioning schemes, functions, boundaries
            'WITH spc (data_space_id, function_id, pf_name, boundary_id, boundary_value_on_right, [value])
@@ -798,7 +690,7 @@ N'@virtual_machine_type int OUTPUT',
            + '].sys.columns AS c WITH (NOLOCK) ON ic.[object_id]=c.[object_id] AND ic.column_id=c.column_id
         LEFT  JOIN [' + name
            + '].sys.partitions AS p WITH (NOLOCK) ON ix.[object_id]=p.[object_id] AND ix.index_id=p.index_id AND rng.boundary_id=p.partition_number
-        '  AS sql3,
+        '  AS "sql3",
 
            --- Databases, schemas, tables
            'SELECT ' + CAST(database_id AS VARCHAR(MAX)) + ', o.[object_id], s.name+''.''+o.name
@@ -806,12 +698,10 @@ N'@virtual_machine_type int OUTPUT',
          INNER JOIN [' + name
            + '].sys.schemas AS s WITH (NOLOCK) ON o.[schema_id]=s.[schema_id]
          WHERE o.[type] NOT IN (''U'', ''S'')
-        '  AS sql4
-    FROM   sys.databases WITH (NOLOCK)
-    WHERE  state_desc = 'ONLINE'
-           AND database_id IN (
-                   SELECT resource_database_id FROM @tran_locks
-               );
+        '  AS "sql4"
+    FROM sys.databases WITH (NOLOCK)
+    WHERE state_desc = 'ONLINE'
+          AND database_id IN ( SELECT resource_database_id FROM @tran_locks );
     OPEN #cur;
 
     FETCH NEXT FROM #cur
@@ -827,7 +717,7 @@ N'@virtual_machine_type int OUTPUT',
             EXEC (@sql);
         END TRY
         BEGIN CATCH;
-            PRINT @name + '/schema: ' + ERROR_MESSAGE();
+            PRINT @name + '/schema: ' + ERROR_MESSAGE ();
         END CATCH;
 
         BEGIN TRY;
@@ -835,7 +725,7 @@ N'@virtual_machine_type int OUTPUT',
             EXEC (@sql2);
         END TRY
         BEGIN CATCH;
-            PRINT @name + '/database files: ' + ERROR_MESSAGE();
+            PRINT @name + '/database files: ' + ERROR_MESSAGE ();
         END CATCH;
 
         BEGIN TRY;
@@ -843,7 +733,7 @@ N'@virtual_machine_type int OUTPUT',
             EXEC (@sql3);
         END TRY
         BEGIN CATCH;
-            PRINT @name + '/partitions: ' + ERROR_MESSAGE();
+            PRINT @name + '/partitions: ' + ERROR_MESSAGE ();
         END CATCH;
 
         BEGIN TRY;
@@ -851,7 +741,7 @@ N'@virtual_machine_type int OUTPUT',
             EXEC (@sql4);
         END TRY
         BEGIN CATCH;
-            PRINT @name + '/tables: ' + ERROR_MESSAGE();
+            PRINT @name + '/tables: ' + ERROR_MESSAGE ();
         END CATCH;
 
         FETCH NEXT FROM #cur
@@ -869,302 +759,262 @@ N'@virtual_machine_type int OUTPUT',
     -------------------------------------------------------------------------------
     --- Availability groups stuff:
 
-    UPDATE     f
-    SET        f.primary_replica = ags.primary_replica,
-               f.availability_mode = ar.availability_mode,
-               f.suspend_state = x.suspend_state,
-               f.queue_kb = x.queue_kb,
-               f.rpo = x.rpo
-    FROM       @files AS f
-    INNER JOIN sys.databases AS db ON f.database_id = db.database_id
-    INNER JOIN sys.availability_replicas AS ar ON db.replica_id = ar.replica_id
+    UPDATE f
+    SET f.primary_replica = ags.primary_replica,
+        f.availability_mode = ar.availability_mode,
+        f.suspend_state = x.suspend_state,
+        f.queue_kb = x.queue_kb,
+        f.rpo = x.rpo
+    FROM @files AS f
+    INNER JOIN sys.databases AS db
+        ON f.database_id = db.database_id
+    INNER JOIN sys.availability_replicas AS ar
+        ON db.replica_id = ar.replica_id
     --INNER JOIN sys.availability_groups AS ag ON ar.group_id=ag.group_id
-    INNER JOIN sys.dm_hadr_availability_group_states AS ags ON ar.group_id = ags.group_id
-    LEFT JOIN  (
-        SELECT   database_id,
-                 group_id,
-                 (CASE MAX(suspend_reason_desc)
-                      WHEN 'SUSPEND_FROM_USER' THEN
-                          'A user manually suspended data movement'
-                      WHEN 'SUSPEND_FROM_PARTNER' THEN
-                          'The database replica is suspended after a forced failover'
-                      WHEN 'SUSPEND_FROM_REDO' THEN
-                          'An error occurred during the redo phase'
-                      WHEN 'SUSPEND_FROM_APPLY' THEN
-                          'An error occurred when writing the log to file (see error log)'
-                      WHEN 'SUSPEND_FROM_CAPTURE' THEN
-                          'An error occurred while capturing log on the primary replica'
-                      WHEN 'SUSPEND_FROM_RESTART' THEN
-                          'The database replica was suspended before the database was restarted (see error log)'
-                      WHEN 'SUSPEND_FROM_UNDO' THEN
-                          'An error occurred during the undo phase (see error log)'
-                      WHEN 'SUSPEND_FROM_REVALIDATION' THEN
-                          'Log change mismatch is detected on reconnection (see error log)'
-                      WHEN 'SUSPEND_FROM_XRF_UPDATE' THEN
-                          'Unable to find the common log point (see error log)'
-                      ELSE
-                          MAX(suspend_reason_desc)
-                  END
-                 ) AS suspend_state,
-                 MAX(log_send_queue_size) AS queue_kb,
-                 DATEDIFF(SECOND, MIN(last_commit_time), MAX(last_commit_time)) AS rpo
-        FROM     sys.dm_hadr_database_replica_states
+    INNER JOIN sys.dm_hadr_availability_group_states AS ags
+        ON ar.group_id = ags.group_id
+    LEFT JOIN (
+        SELECT database_id,
+               group_id,
+               (CASE MAX (suspend_reason_desc)
+                    WHEN 'SUSPEND_FROM_USER' THEN 'A user manually suspended data movement'
+                    WHEN 'SUSPEND_FROM_PARTNER' THEN 'The database replica is suspended after a forced failover'
+                    WHEN 'SUSPEND_FROM_REDO' THEN 'An error occurred during the redo phase'
+                    WHEN 'SUSPEND_FROM_APPLY' THEN 'An error occurred when writing the log to file (see error log)'
+                    WHEN 'SUSPEND_FROM_CAPTURE' THEN 'An error occurred while capturing log on the primary replica'
+                    WHEN 'SUSPEND_FROM_RESTART' THEN
+                        'The database replica was suspended before the database was restarted (see error log)'
+                    WHEN 'SUSPEND_FROM_UNDO' THEN 'An error occurred during the undo phase (see error log)'
+                    WHEN 'SUSPEND_FROM_REVALIDATION' THEN
+                        'Log change mismatch is detected on reconnection (see error log)'
+                    WHEN 'SUSPEND_FROM_XRF_UPDATE' THEN 'Unable to find the common log point (see error log)'
+                    ELSE MAX (suspend_reason_desc)
+                END
+               ) AS "suspend_state",
+               MAX (log_send_queue_size) AS "queue_kb",
+               DATEDIFF (SECOND, MIN (last_commit_time), MAX (last_commit_time)) AS "rpo"
+        FROM sys.dm_hadr_database_replica_states
         GROUP BY database_id,
                  group_id
-    ) AS x ON f.database_id = x.database_id
-              AND ar.group_id = x.group_id;
+    ) AS x
+        ON f.database_id = x.database_id
+           AND ar.group_id = x.group_id;
 
     -------------------------------------------------------------------------------
     --- Beautify names of temp tables:
     UPDATE @database_objects
-    SET    name = SUBSTRING(LEFT(name, CHARINDEX(REPLICATE('_', 8), name + REPLICATE('_', 8)) - 1), 5, LEN(name))
-    WHERE  database_id = (
-        SELECT database_id FROM sys.databases WITH (NOLOCK) WHERE name = 'tempdb'
-    )
-           AND REPLACE(name, '_', '.') LIKE 'dbo.#%' + REPLICATE('.', 8) + '[0-9A-F][0-9A-F]%[0-9A-F][0-9A-F]';
+    SET name = SUBSTRING (LEFT(name, CHARINDEX (REPLICATE ('_', 8), name + REPLICATE ('_', 8)) - 1), 5, LEN (name))
+    WHERE database_id = (SELECT database_id FROM sys.databases WITH (NOLOCK) WHERE name = 'tempdb')
+          AND REPLACE (name, '_', '.') LIKE 'dbo.#%' + REPLICATE ('.', 8) + '[0-9A-F][0-9A-F]%[0-9A-F][0-9A-F]';
 
     --- Beautify names of temp table indexes:
     UPDATE @database_objects
-    SET    index_name = 'Primary key'
-    WHERE  database_id = (
-        SELECT database_id FROM sys.databases WITH (NOLOCK) WHERE name = 'tempdb'
-    )
-           AND LEFT(index_name, 12) LIKE 'PK__' + LEFT(name, 8);
+    SET index_name = 'Primary key'
+    WHERE database_id = (SELECT database_id FROM sys.databases WITH (NOLOCK) WHERE name = 'tempdb')
+          AND LEFT(index_name, 12) LIKE 'PK__' + LEFT(name, 8);
 
     UPDATE @database_objects
-    SET    index_name = REPLACE(RTRIM(REPLACE(LEFT(index_name, LEN(index_name) - 16), '_', ' ')), ' ', '_')
-    WHERE  database_id = (
-        SELECT database_id FROM sys.databases WITH (NOLOCK) WHERE name = 'tempdb'
-    )
-           AND REPLACE(index_name, '_', '.') LIKE '%#%' + REPLICATE('[0-9A-F]', 16);
+    SET index_name = REPLACE (RTRIM (REPLACE (LEFT(index_name, LEN (index_name) - 16), '_', ' ')), ' ', '_')
+    WHERE database_id = (SELECT database_id FROM sys.databases WITH (NOLOCK) WHERE name = 'tempdb')
+          AND REPLACE (index_name, '_', '.') LIKE '%#%' + REPLICATE ('[0-9A-F]', 16);
 
 
 
     -------------------------------------------------------------------------------
     --- Chains of spids that are being blocked, per spid:
-    WITH blocks (spid, blocked_by, ord)
-    AS
+    WITH blocks (spid, blocked_by, ord) AS
     (
-        SELECT DISTINCT
-               session_id AS spid,
-               blocking_session_id AS blocked_by,
-               DENSE_RANK() OVER (PARTITION BY blocking_session_id ORDER BY session_id) AS ord
-        FROM   @os_waiting_tasks
-        WHERE  blocking_session_id IS NOT NULL
-               AND session_id != blocking_session_id
+        SELECT DISTINCT session_id AS "spid",
+                        blocking_session_id AS "blocked_by",
+                        DENSE_RANK () OVER (PARTITION BY blocking_session_id
+ORDER BY session_id
+                                      ) AS "ord"
+        FROM @os_waiting_tasks
+        WHERE blocking_session_id IS NOT NULL
+              AND session_id != blocking_session_id
     ),
-         list (spid, blocking, list, ord)
-    AS
+         list (spid, blocking, list, ord) AS
     (
-        SELECT blocks.blocked_by AS spid,
-               blocks.spid AS blocking,
-               CAST(blocks.spid AS VARCHAR(MAX)) AS list,
+        SELECT blocks.blocked_by AS "spid",
+               blocks.spid AS "blocking",
+               CAST(blocks.spid AS VARCHAR(MAX)) AS "list",
                blocks.ord
-        FROM   blocks
-        WHERE  blocks.ord = 1
+        FROM blocks
+        WHERE blocks.ord = 1
         UNION ALL
-        SELECT     c.spid,
-                   c.blocking,
-                   CAST(c.list + ', ' + CAST(b.spid AS VARCHAR(MAX)) AS VARCHAR(MAX)) AS list,
-                   b.ord
-        FROM       list AS c
-        INNER JOIN blocks AS b ON c.spid = b.blocked_by
-                                  AND c.ord + 1 = b.ord
+        SELECT c.spid,
+               c.blocking,
+               CAST(c.list + ', ' + CAST(b.spid AS VARCHAR(MAX)) AS VARCHAR(MAX)) AS "list",
+               b.ord
+        FROM list AS c
+        INNER JOIN blocks AS b
+            ON c.spid = b.blocked_by
+               AND c.ord + 1 = b.ord
     )
     INSERT INTO @blocking (spid, blocking)
     SELECT l.spid,
-           l.list AS blocking
-    FROM   list AS l
-    WHERE  l.ord = (
-        SELECT MAX(list.ord) FROM list WHERE list.spid = l.spid
-    );
+           l.list AS "blocking"
+    FROM list AS l
+    WHERE l.ord = (SELECT MAX (list.ord) FROM list WHERE list.spid = l.spid);
 
 
 
     --- Spids that are blocking other spids (reverse-lookup)
-    WITH blocks (spid, blocked_by)
-    AS
+    WITH blocks (spid, blocked_by) AS
     (
-        SELECT DISTINCT
-               session_id AS spid,
-               blocking_session_id AS blocked_by
-        FROM   @os_waiting_tasks
-        WHERE  blocking_session_id IS NOT NULL
-               AND session_id != blocking_session_id
+        SELECT DISTINCT session_id AS "spid",
+                        blocking_session_id AS "blocked_by"
+        FROM @os_waiting_tasks
+        WHERE blocking_session_id IS NOT NULL
+              AND session_id != blocking_session_id
     ),
-         chain (spid, blocked_by, chain, lvl)
-    AS
+         chain (spid, blocked_by, chain, lvl) AS
     (
         SELECT blocks.spid,
                blocks.blocked_by,
-               CAST(blocks.blocked_by AS VARCHAR(MAX)) AS chain,
-               1 AS lvl
-        FROM   blocks
+               CAST(blocks.blocked_by AS VARCHAR(MAX)) AS "chain",
+               1 AS "lvl"
+        FROM blocks
         UNION ALL
-        SELECT     c.spid,
-                   b.blocked_by,
-                   CAST(c.chain + ' <- ' + CAST(b.blocked_by AS VARCHAR(MAX)) AS VARCHAR(MAX)) AS chain,
-                   c.lvl + 1
-        FROM       chain AS c
-        INNER JOIN blocks AS b ON b.spid = c.blocked_by
+        SELECT c.spid,
+               b.blocked_by,
+               CAST(c.chain + ' <- ' + CAST(b.blocked_by AS VARCHAR(MAX)) AS VARCHAR(MAX)) AS "chain",
+               c.lvl + 1
+        FROM chain AS c
+        INNER JOIN blocks AS b
+            ON b.spid = c.blocked_by
     )
     INSERT INTO @block_chain (spid, blocked_by)
-    SELECT   c.spid,
-             MAX('<- ' + c.chain)
-    FROM     chain AS c
-    WHERE    c.lvl = (
-        SELECT MAX(chain.lvl) FROM chain WHERE chain.spid = c.spid
-    )
+    SELECT c.spid,
+           MAX ('<- ' + c.chain)
+    FROM chain AS c
+    WHERE c.lvl = (SELECT MAX (chain.lvl) FROM chain WHERE chain.spid = c.spid)
     GROUP BY c.spid;
 
 
 
     --- Compile locks
     INSERT INTO @locks
-    SELECT          tl.request_session_id AS spid,
-                    NULLIF(tl.request_owner_id, 0) AS tran_id,
-                    DENSE_RANK() OVER (PARTITION BY tl.request_session_id,
-                                                    tl.request_owner_id,
-                                                    obj.object_id,
-                                                    obj.index_id,
-                                                    obj.partition_number
-                                       ORDER BY (CASE
-                                                     WHEN tl.request_mode = 'GRANT' THEN
-                                                         1
-                                                     ELSE
-                                                         2
-                                                 END
-                                                ),
-                                                tl.request_mode
-                                 ) AS lock_ord,
-                    ISNULL(NULLIF(tl.request_status, 'GRANT') + ' ', '') + tl.request_mode + ' '
-                    + (CASE tl.resource_type
-                           WHEN 'DATABASE' THEN
-                               'db'
-                           WHEN 'FILE' THEN
-                               'file'
-                           WHEN 'OBJECT' THEN
-                               ISNULL(LOWER(REPLACE(REPLACE(REPLACE(obj.type_desc, '_', ' '), 'SQL ', ''), 'USER ', '')), 'obj')
-                           WHEN 'PAGE' THEN
-                               'page'
-                           WHEN 'KEY' THEN
-                               'key'
-                           WHEN 'EXTENT' THEN
-                               'extent'
-                           WHEN 'RID' THEN
-                               'RID'
-                           WHEN 'APPLICATION' THEN
-                               'app'
-                           WHEN 'METADATA' THEN
-                               'metadata'
-                           WHEN 'HOBT' THEN
-                               'HoBT'
-                           WHEN 'ALLOCATION_UNIT' THEN
-                               'alloc unit'
-                       END
-                      ) AS mode,
-                    db.name AS [database],
-                    ISNULL(obj.object_id, 0),
-                    obj.name AS object_name,
-                    ISNULL(obj.index_id, 0),
-                    obj.index_type,
-                    obj.index_name,
-                    obj.index_filter,
-                    (CASE
-                         WHEN obj.type_desc = 'USER_TABLE'
-                              AND obj.is_clustered = 1 THEN
-                             'Clustered'
-                         WHEN obj.type_desc = 'USER_TABLE' THEN
-                             'Heap'
-                         WHEN obj.type_desc = 'VIEW'
-                              AND obj.is_clustered = 1 THEN
-                             'Indexed view'
-                         ELSE
-                             ''
-                     END
-                    ) AS object_notes,
-                    obj.rows AS obj_rows,
-                    ISNULL(obj.partition_number, 0),
-                    (
-                        SELECT MAX(sub.partition_number)
-                        FROM   @database_objects AS sub
-                        WHERE  sub.database_id = obj.database_id
-                               AND sub.object_id = obj.object_id
-                               AND sub.index_id = obj.index_id
-                    ) AS partition_count,
-                    parts.boundary AS partition_boundary,
-                    (CASE tl.request_owner_type
-                         WHEN 'TRANSACTION' THEN
-                             'Trans'            --- The request is owned by a transaction.
-                         WHEN 'CURSOR' THEN
-                             'Cursor'           --- The request is owned by a cursor.
-                         WHEN 'SESSION' THEN
-                             'Session'          --- The request is owned by a user session.
-                         WHEN 'SHARED_TRANSACTION_WORKSPACE' THEN
-                             'Tran ws (shared)' --- The request is owned by the shared part of the transaction workspace.
-                         WHEN 'EXCLUSIVE_TRANSACTION_WORKSPACE' THEN
-                             'Tran ws (excl)'   --- The request is owned by the exclusive part of the transaction workspace.
-                         WHEN 'NOTIFICATION_OBJECT' THEN
-                             'Internal'         --- The request is owned by an internal SQL Server component. This component has requested the lock manager to notify it when another component is waiting to take the lock. The FileTable feature is a component that uses this value.
-                     END
-                    ) AS request_owner_type,
-                    wt.wait_type,
-                    dbo.fn_friendly_age(DATEADD(ms, 0 - wt.wait_duration_ms, GETDATE()), GETDATE()) AS wait_time,
-                    wt.blocking_session_id AS blkd_by_spid,
-                    COUNT(*) AS count,
-                    (CASE
-                         WHEN tl.request_status = 'WAIT' THEN
-                             1
-                         ELSE
-                             0
-                     END
-                    ) AS isWaiting,
-                    0 AS isBlocking
-    FROM            @tran_locks AS tl
-    INNER HASH JOIN sys.databases AS db WITH (NOLOCK) ON tl.resource_database_id = db.database_id
-    INNER HASH JOIN @tran_session_transactions AS st ON tl.request_owner_id = st.transaction_id
-    LEFT HASH JOIN  @os_waiting_tasks AS wt ON tl.lock_owner_address = wt.resource_address
-    LEFT HASH JOIN  @database_objects AS obj ON tl.resource_database_id = obj.database_id
-                                                AND tl.resource_associated_entity_id IN ( obj.object_id, obj.hobt_id )
-    LEFT HASH JOIN  @parts AS parts ON obj.database_id = parts.database_id
-                                       AND parts.hobt_id = obj.hobt_id
-    WHERE           tl.request_session_id != @@SPID
-    GROUP BY        tl.request_session_id,
-                    tl.request_owner_id,
-                    tl.request_status,
-                    tl.request_mode,
-                    tl.resource_type,
-                    db.name,
-                    obj.object_id,
-                    obj.index_id,
-                    obj.index_type,
-                    obj.index_name,
-                    obj.index_filter,
-                    obj.type_desc,
-                    obj.object_id,
-                    obj.database_id,
-                    obj.is_clustered,
-                    obj.name,
-                    obj.rows,
-                    obj.partition_number,
-                    parts.boundary,
-                    tl.request_owner_type,
-                    wt.wait_type,
-                    wt.wait_duration_ms,
-                    wt.blocking_session_id;
+    SELECT tl.request_session_id AS "spid",
+           NULLIF(tl.request_owner_id, 0) AS "tran_id",
+           DENSE_RANK () OVER (PARTITION BY tl.request_session_id,
+                                            tl.request_owner_id,
+                                            obj.object_id,
+                                            obj.index_id,
+                                            obj.partition_number
+                               ORDER BY (CASE WHEN tl.request_mode = 'GRANT' THEN 1 ELSE 2 END),
+                                        tl.request_mode
+                         ) AS "lock_ord",
+           ISNULL (NULLIF(tl.request_status, 'GRANT') + ' ', '') + tl.request_mode + ' '
+           + (CASE tl.resource_type
+                  WHEN 'DATABASE' THEN 'db'
+                  WHEN 'FILE' THEN 'file'
+                  WHEN 'OBJECT' THEN
+                      ISNULL (
+                          LOWER (REPLACE (REPLACE (REPLACE (obj.type_desc, '_', ' '), 'SQL ', ''), 'USER ', '')), 'obj'
+                      )
+                  WHEN 'PAGE' THEN 'page'
+                  WHEN 'KEY' THEN 'key'
+                  WHEN 'EXTENT' THEN 'extent'
+                  WHEN 'RID' THEN 'RID'
+                  WHEN 'APPLICATION' THEN 'app'
+                  WHEN 'METADATA' THEN 'metadata'
+                  WHEN 'HOBT' THEN 'HoBT'
+                  WHEN 'ALLOCATION_UNIT' THEN 'alloc unit'
+              END
+             ) AS "mode",
+           db.name AS "database",
+           ISNULL (obj.object_id, 0),
+           obj.name AS "object_name",
+           ISNULL (obj.index_id, 0),
+           obj.index_type,
+           obj.index_name,
+           obj.index_filter,
+           (CASE
+                WHEN obj.type_desc = 'USER_TABLE'
+                     AND obj.is_clustered = 1 THEN 'Clustered'
+                WHEN obj.type_desc = 'USER_TABLE' THEN 'Heap'
+                WHEN obj.type_desc = 'VIEW'
+                     AND obj.is_clustered = 1 THEN 'Indexed view'
+                ELSE ''
+            END
+           ) AS "object_notes",
+           obj.rows AS "obj_rows",
+           ISNULL (obj.partition_number, 0),
+           (
+               SELECT MAX (sub.partition_number)
+               FROM @database_objects AS sub
+               WHERE sub.database_id = obj.database_id
+                     AND sub.object_id = obj.object_id
+                     AND sub.index_id = obj.index_id
+           ) AS "partition_count",
+           parts.boundary AS "partition_boundary",
+           (CASE tl.request_owner_type
+                WHEN 'TRANSACTION' THEN 'Trans'                              --- The request is owned by a transaction.
+                WHEN 'CURSOR' THEN 'Cursor'                                  --- The request is owned by a cursor.
+                WHEN 'SESSION' THEN 'Session'                                --- The request is owned by a user session.
+                WHEN 'SHARED_TRANSACTION_WORKSPACE' THEN 'Tran ws (shared)'  --- The request is owned by the shared part of the transaction workspace.
+                WHEN 'EXCLUSIVE_TRANSACTION_WORKSPACE' THEN 'Tran ws (excl)' --- The request is owned by the exclusive part of the transaction workspace.
+                WHEN 'NOTIFICATION_OBJECT' THEN 'Internal'                   --- The request is owned by an internal SQL Server component. This component has requested the lock manager to notify it when another component is waiting to take the lock. The FileTable feature is a component that uses this value.
+            END
+           ) AS "request_owner_type",
+           wt.wait_type,
+           dbo.fn_friendly_age (DATEADD (ms, 0 - wt.wait_duration_ms, GETDATE ()), GETDATE ()) AS "wait_time",
+           wt.blocking_session_id AS "blkd_by_spid",
+           COUNT (*) AS "count",
+           (CASE WHEN tl.request_status = 'WAIT' THEN 1 ELSE 0 END) AS "isWaiting",
+           0 AS "isBlocking"
+    FROM @tran_locks AS tl
+    INNER HASH JOIN sys.databases AS db WITH (NOLOCK)
+        ON tl.resource_database_id = db.database_id
+    INNER HASH JOIN @tran_session_transactions AS st
+        ON tl.request_owner_id = st.transaction_id
+    LEFT HASH JOIN @os_waiting_tasks AS wt
+        ON tl.lock_owner_address = wt.resource_address
+    LEFT HASH JOIN @database_objects AS obj
+        ON tl.resource_database_id = obj.database_id
+           AND tl.resource_associated_entity_id IN ( obj.object_id, obj.hobt_id )
+    LEFT HASH JOIN @parts AS parts
+        ON obj.database_id = parts.database_id
+           AND parts.hobt_id = obj.hobt_id
+    WHERE tl.request_session_id != @@SPID
+    GROUP BY tl.request_session_id,
+             tl.request_owner_id,
+             tl.request_status,
+             tl.request_mode,
+             tl.resource_type,
+             db.name,
+             obj.object_id,
+             obj.index_id,
+             obj.index_type,
+             obj.index_name,
+             obj.index_filter,
+             obj.type_desc,
+             obj.object_id,
+             obj.database_id,
+             obj.is_clustered,
+             obj.name,
+             obj.rows,
+             obj.partition_number,
+             parts.boundary,
+             tl.request_owner_type,
+             wt.wait_type,
+             wt.wait_duration_ms,
+             wt.blocking_session_id;
 
 
     --- Update @locks.isBlocking column.
-    UPDATE     blocking
-    SET        blocking.isBlocking = 1
-    FROM       @locks AS blocked
-    INNER JOIN @locks AS blocking ON blocked.[database] = blocking.[database]
-                                     AND ISNULL(blocked.object_id, -1) = ISNULL(blocking.object_id, -1)
-                                     AND ISNULL(blocked.index_id, -1) = ISNULL(blocking.index_id, -1)
-                                     AND ISNULL(blocked.partition_number, -1) = ISNULL(blocking.partition_number, -1)
-                                     AND blocked.tran_id != blocking.tran_id
-                                     AND blocked.spid != blocking.spid
-                                     AND blocked.isWaiting = 1;
+    UPDATE blocking
+    SET blocking.isBlocking = 1
+    FROM @locks AS blocked
+    INNER JOIN @locks AS blocking
+        ON blocked.[database] = blocking.[database]
+           AND ISNULL (blocked.object_id, -1) = ISNULL (blocking.object_id, -1)
+           AND ISNULL (blocked.index_id, -1) = ISNULL (blocking.index_id, -1)
+           AND ISNULL (blocked.partition_number, -1) = ISNULL (blocking.partition_number, -1)
+           AND blocked.tran_id != blocking.tran_id
+           AND blocked.spid != blocking.spid
+           AND blocked.isWaiting = 1;
 
 
 
@@ -1174,93 +1024,73 @@ N'@virtual_machine_type int OUTPUT',
     --- 1. Server properties:
     -------------------------------------------------------------------------------
 
-    SELECT    CAST(SERVERPROPERTY('ComputerNamePhysicalNetBIOS') AS VARCHAR(128)) AS [Physical name],
-              CAST(SERVERPROPERTY('ServerName') AS VARCHAR(128)) AS [Instance name],
-              (CASE CAST(SERVERPROPERTY('IsClustered') AS BIT)
-                   WHEN 1 THEN
-                       ISNULL('Cluster node ' + sqlsrv.cluster_nodename, 'Clustered')
-                   ELSE
-                       'Stand-alone'
-               END
-              ) + (CASE
-                       WHEN SERVERPROPERTY('IsHadrEnabled') = 1 THEN
-                           ' with Availability Groups'
-                       ELSE
-                           ''
-                   END
-                  ) + (CASE @virtual_machine_type
-                           WHEN 1 THEN
-                               ' on Hypervisor'
-                           WHEN 2 THEN
-                               ' on virtual machine'
-                           ELSE
-                               ''
-                       END
-                      ) AS Configuration,
-              'SQL Server ' + (CASE @version
-                                   WHEN '09.0' THEN
-                                       '2005'
-                                   WHEN '10.0' THEN
-                                       '2008'
-                                   WHEN '10.5' THEN
-                                       '2008 R2'
-                                   WHEN '11.0' THEN
-                                       '2012'
-                                   WHEN '12.0' THEN
-                                       '2014'
-                                   WHEN '13.0' THEN
-                                       '2016'
-                                   ELSE
-                                       @version
-                               END
-                              ) + ' '
-              + REPLACE(
-                    REPLACE(REPLACE(CAST(SERVERPROPERTY('Edition') AS VARCHAR(128)), ' Edition', ''), 'Standard', 'Std'),
-                    'Enterprise',
-                    'Ent'
-                ) AS [Product, edition],
-              CAST(SERVERPROPERTY('ProductLevel') AS VARCHAR(128))
-              + ISNULL(', ' + CAST(SERVERPROPERTY('ProductUpdateLevel') AS VARCHAR(128)), '') + ' ('
-              + CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(128)) + ')' AS [Level, CU],
-              (CASE
-                   WHEN @max_server_memory / (1024 * 1024) > 2000000 THEN
-                       ''
-                   ELSE
-              (CASE
-                   WHEN @min_server_memory < @max_server_memory
-                        AND @min_server_memory > 0 THEN
-                       LTRIM(dbo.fn_friendly_size(@min_server_memory)) + ' - '
-                   ELSE
-                       ''
-               END
-              ) + LTRIM(dbo.fn_friendly_size(@max_server_memory)) + (CASE
-                                                                         WHEN @max_server_memory != @physical_memory THEN
-                                                                             ' / '
-                                                                         ELSE
-                                                                             ''
-                                                                     END
-                                                                    )
-               END
-              ) + LTRIM(dbo.fn_friendly_size(@physical_memory)) AS [Min - max / physical mem],
-              --	dbo.fn_friendly_size(@virtual_memory) AS [Virtual mem],
-              CAST(sysinfo.cpu_count / sysinfo.hyperthread_ratio AS VARCHAR(10))
-              + ISNULL('x' + CAST(NULLIF(sysinfo.hyperthread_ratio, 1) AS VARCHAR(10)), '')
-              + ISNULL(' (' + CAST((
-                                  SELECT NULLIF(MAX(memory_node_id), 0) + 1
-                                  FROM   sys.dm_os_memory_clerks
-                                  WHERE  memory_node_id < 64
-                              ) AS VARCHAR(10)) + ' NUMA)',
-                       ''
-                ) AS [Core count],
-              ISNULL(CAST(NULLIF(@max_degree_of_parallelism, 0) AS VARCHAR(10)), '-') AS MaxDOP,
-              dbo.fn_friendly_age(sysinfo.sqlserver_start_time, GETDATE()) AS Uptime,
-              CAST(SERVERPROPERTY('Collation') AS VARCHAR(128)) AS [Server collation],
-              sqlsrv.service_account AS [Service acct],
-              --  sqlagt.service_account AS [Agent svc acct],
-              sqlagt.status_desc + ' (' + sqlagt.startup_type_desc + ')' AS [SQL Server Agent]
-    FROM      sys.dm_os_sys_info AS sysinfo WITH (NOLOCK)
-    LEFT JOIN @dm_server_services AS sqlsrv ON sqlsrv.servicename LIKE 'SQL Server (%'
-    LEFT JOIN @dm_server_services AS sqlagt ON sqlagt.servicename LIKE 'SQL Server Agent (%';
+    SELECT CAST(SERVERPROPERTY ('ComputerNamePhysicalNetBIOS') AS VARCHAR(128)) AS "Physical name",
+           CAST(SERVERPROPERTY ('ServerName') AS VARCHAR(128)) AS "Instance name",
+           (CASE CAST(SERVERPROPERTY ('IsClustered') AS BIT)
+                WHEN 1 THEN ISNULL ('Cluster node ' + sqlsrv.cluster_nodename, 'Clustered')
+                ELSE 'Stand-alone'
+            END
+           ) + (CASE
+                    WHEN SERVERPROPERTY ('IsHadrEnabled') = 1 THEN ' with Availability Groups'
+                    ELSE ''
+                END
+               ) + (CASE @virtual_machine_type
+                        WHEN 1 THEN ' on Hypervisor'
+                        WHEN 2 THEN ' on virtual machine'
+                        ELSE ''
+                    END
+                   ) AS "Configuration",
+           'SQL Server ' + (CASE @version
+                                WHEN '09.0' THEN '2005'
+                                WHEN '10.0' THEN '2008'
+                                WHEN '10.5' THEN '2008 R2'
+                                WHEN '11.0' THEN '2012'
+                                WHEN '12.0' THEN '2014'
+                                WHEN '13.0' THEN '2016'
+                                ELSE @version
+                            END
+                           ) + ' '
+           + REPLACE (
+                 REPLACE (REPLACE (CAST(SERVERPROPERTY ('Edition') AS VARCHAR(128)), ' Edition', ''), 'Standard', 'Std'),
+                 'Enterprise',
+                 'Ent'
+             ) AS "Product, edition",
+           CAST(SERVERPROPERTY ('ProductLevel') AS VARCHAR(128))
+           + ISNULL (', ' + CAST(SERVERPROPERTY ('ProductUpdateLevel') AS VARCHAR(128)), '') + ' ('
+           + CAST(SERVERPROPERTY ('ProductVersion') AS VARCHAR(128)) + ')' AS "Level, CU",
+           (CASE
+                WHEN @max_server_memory / (1024 * 1024) > 2000000 THEN ''
+                ELSE
+           (CASE
+                WHEN @min_server_memory < @max_server_memory
+                     AND @min_server_memory > 0 THEN LTRIM (dbo.fn_friendly_size (@min_server_memory)) + ' - '
+                ELSE ''
+            END
+           ) + LTRIM (dbo.fn_friendly_size (@max_server_memory))
+           + (CASE WHEN @max_server_memory != @physical_memory THEN ' / ' ELSE '' END)
+            END
+           ) + LTRIM (dbo.fn_friendly_size (@physical_memory)) AS "Min - max / physical mem",
+           --	dbo.fn_friendly_size(@virtual_memory) AS [Virtual mem],
+           CAST(sysinfo.cpu_count / sysinfo.hyperthread_ratio AS VARCHAR(10))
+           + ISNULL ('x' + CAST(NULLIF(sysinfo.hyperthread_ratio, 1) AS VARCHAR(10)), '')
+           + ISNULL (' (' + CAST((
+                                SELECT NULLIF(MAX (memory_node_id), 0) + 1
+                                FROM sys.dm_os_memory_clerks
+                                WHERE memory_node_id < 64
+                            ) AS VARCHAR(10)) + ' NUMA)',
+                     ''
+             ) AS "Core count",
+           ISNULL (CAST(NULLIF(@max_degree_of_parallelism, 0) AS VARCHAR(10)), '-') AS "MaxDOP",
+           dbo.fn_friendly_age (sysinfo.sqlserver_start_time, GETDATE ()) AS "Uptime",
+           CAST(SERVERPROPERTY ('Collation') AS VARCHAR(128)) AS "Server collation",
+           sqlsrv.service_account AS "Service acct",
+           --  sqlagt.service_account AS [Agent svc acct],
+           sqlagt.status_desc + ' (' + sqlagt.startup_type_desc + ')' AS "SQL Server Agent"
+    FROM sys.dm_os_sys_info AS sysinfo WITH (NOLOCK)
+    LEFT JOIN @dm_server_services AS sqlsrv
+        ON sqlsrv.servicename LIKE 'SQL Server (%'
+    LEFT JOIN @dm_server_services AS sqlagt
+        ON sqlagt.servicename LIKE 'SQL Server Agent (%';
 
 
 
@@ -1268,131 +1098,107 @@ N'@virtual_machine_type int OUTPUT',
     --- 2. Display database file usages:
     -------------------------------------------------------------------------------
 
-    SELECT     db.name AS [Database],
-               UPPER(LEFT(f.filetype, 1)) + LOWER(SUBSTRING(f.filetype, 2, 100)) AS Type,
-               COALESCE(
-                   (CASE
-                        WHEN f.primary_replica = @@SERVERNAME THEN
-                            'Primary AG replica'
-                        WHEN f.primary_replica IS NOT NULL THEN
-                   (CASE f.availability_mode
-                        WHEN 1 THEN
-                            'Synchronous AG replica'
-                        WHEN 0 THEN
-                            'Async AG replica'
-                        ELSE
-                            '?'
-                    END
-                   )
-                    END
-                   ),
-                   LEFT(m.mirroring_role_desc, 1)
-                   + LOWER(SUBSTRING(m.mirroring_role_desc, 2, 100) + ', ' + REPLACE(m.mirroring_state_desc, '_', ' '))
-                   + (CASE m.mirroring_safety_level
-                          WHEN 1 THEN
-                              ' (async)'
-                          WHEN 2 THEN
-                              '(sync)'
-                          ELSE
-                              '(unknown)'
-                      END
-                     ),
-                   ''
-               ) AS [Mirror/AG],
-               SUBSTRING(
-                   ISNULL(', ' + f.suspend_state, '')
-                   + ISNULL(', ' + LTRIM(dbo.fn_friendly_size(NULLIF(f.queue_kb, 0) * 1024)) + ' queue', '')
-                   + ISNULL(
-                         ', ' + LTRIM(dbo.fn_friendly_age('00:00:00', DATEADD(SECOND, NULLIF(f.rpo, 0), '00:00:00')))
-                         + ' RPO',
-                         ''
-                     ),
-                   3,
-                   1000
-               ) AS [AG state],
+    SELECT db.name AS "Database",
+           UPPER (LEFT(f.filetype, 1)) + LOWER (SUBSTRING (f.filetype, 2, 100)) AS "Type",
+           COALESCE (
                (CASE
-                    WHEN f.filetype = 'LOG'
-                         AND db.log_reuse_wait_desc != 'NOTHING' THEN
-                        LEFT(db.log_reuse_wait_desc, 1)
-                        + LOWER(SUBSTRING(REPLACE(db.log_reuse_wait_desc, '_', ' '), 2, 1000))
-                    ELSE
-                        ''
-                END
-               ) AS [Log wait],
-               UPPER(LEFT(db.recovery_model_desc, 1)) + LOWER(SUBSTRING(db.recovery_model_desc, 2, 100)) AS [Recovery model],
-               f.name AS [File name],
-               dbo.fn_friendly_size(f.size_mb * @mb) AS [Allocated size],
-               ISNULL((CASE
-                           WHEN f.filetype = 'IN-MEMORY' THEN
-                               'n/a'
-                           WHEN f.is_percent_growth = 1 THEN
-                               dbo.fn_format_number(NULLIF(f.autogrow, 0), 1) + '%'
-                           ELSE
-                               dbo.fn_friendly_size(NULLIF(f.autogrow, 0) * 1.0 * @mb)
-                       END
-                      ),
-                      'None'
-               ) AS Autogrow,
-               (CASE
-                    WHEN f.max_size_mb = 0 THEN
-                        ''
-                    WHEN f.max_size_mb IS NULL
-                         AND f.filetype = 'Rows'
-                         AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(128)) LIKE '%Express edition%'
-                         AND @version >= '10.50' THEN
-                        dbo.fn_friendly_size(10 * @gb) + ' (Express ed.)'
-                    WHEN f.max_size_mb IS NULL
-                         AND f.filetype = 'Rows'
-                         AND CAST(SERVERPROPERTY('Edition') AS VARCHAR(128)) LIKE '%Express edition%' THEN
-                        dbo.fn_friendly_size(4 * @gb) + ' (Express ed.)'
-                    WHEN f.max_size_mb IS NULL
-                         AND f.filetype = 'IN-MEMORY' THEN
-                        'n/a'
-                    WHEN f.max_size_mb IS NULL THEN
-                        '(' + ISNULL(f.file_system_type, 'OS') + ' max)'
-                    WHEN f.max_size_mb = 268435456 / 128 THEN
-                        '(Log max, 2 TB)'
-                    ELSE
-                        ISNULL(dbo.fn_friendly_size(f.max_size_mb * @mb), '')
-                END
-               ) AS [Max file size],
-               ISNULL(dbo.fn_friendly_size(f.used_size_mb * @mb), '') AS [File usage],
-               ISNULL(dbo.fn_format_number(100.0 * f.used_size_mb / f.size_mb, 2) + '%', '') AS [File usage %],
-               f.drive AS Drive,
-               ISNULL(
-                   LTRIM(dbo.fn_friendly_size(1.0 * f.available_bytes)) + ' of '
-                   + LTRIM(dbo.fn_friendly_size(1.0 * f.total_bytes)),
-                   ''
-               ) AS [Free disk space]
-    FROM       @files AS f
-    INNER JOIN master.sys.databases AS db WITH (NOLOCK) ON db.database_id = f.database_id
-    INNER JOIN master.sys.database_mirroring AS m WITH (NOLOCK) ON db.database_id = m.database_id
-    WHERE      f.database_id IN (
-                   SELECT database_id
-                   FROM   @exec_requests
-                   UNION
-                   SELECT DISTINCT
-                          resource_database_id
-                   FROM   @tran_locks
-                   WHERE  request_session_id IN (
-                              SELECT session_id FROM @exec_sessions WHERE login_name = SUSER_SNAME()
-                          )
-               )
-    ORDER BY   db.name,
-               (CASE f.filetype
-                    WHEN 'ROWS' THEN
-                        0
-                    WHEN 'LOG' THEN
-                        1
-                    WHEN 'FILESTREAM' THEN
-                        2
-                    WHEN 'IN-MEMORY' THEN
-                        3
-                    ELSE
-                        0
+                    WHEN f.primary_replica = @@SERVERNAME THEN 'Primary AG replica'
+                    WHEN f.primary_replica IS NOT NULL THEN (CASE f.availability_mode
+                                                                 WHEN 1 THEN 'Synchronous AG replica'
+                                                                 WHEN 0 THEN 'Async AG replica'
+                                                                 ELSE '?'
+                                                             END
+                                                            )
                 END
                ),
-               f.name;
+               LEFT(m.mirroring_role_desc, 1)
+               + LOWER (SUBSTRING (m.mirroring_role_desc, 2, 100) + ', ' + REPLACE (m.mirroring_state_desc, '_', ' '))
+               + (CASE m.mirroring_safety_level
+                      WHEN 1 THEN ' (async)'
+                      WHEN 2 THEN '(sync)'
+                      ELSE '(unknown)'
+                  END
+                 ),
+               ''
+           ) AS "Mirror/AG",
+           SUBSTRING (
+               ISNULL (', ' + f.suspend_state, '')
+               + ISNULL (', ' + LTRIM (dbo.fn_friendly_size (NULLIF(f.queue_kb, 0) * 1024)) + ' queue', '')
+               + ISNULL (
+                     ', ' + LTRIM (dbo.fn_friendly_age ('00:00:00', DATEADD (SECOND, NULLIF(f.rpo, 0), '00:00:00')))
+                     + ' RPO',
+                     ''
+                 ),
+               3,
+               1000
+           ) AS "AG state",
+           (CASE
+                WHEN f.filetype = 'LOG'
+                     AND db.log_reuse_wait_desc != 'NOTHING' THEN
+                    LEFT(db.log_reuse_wait_desc, 1)
+                    + LOWER (SUBSTRING (REPLACE (db.log_reuse_wait_desc, '_', ' '), 2, 1000))
+                ELSE ''
+            END
+           ) AS "Log wait",
+           UPPER (LEFT(db.recovery_model_desc, 1)) + LOWER (SUBSTRING (db.recovery_model_desc, 2, 100)) AS "Recovery model",
+           f.name AS "File name",
+           dbo.fn_friendly_size (f.size_mb * @mb) AS "Allocated size",
+           ISNULL ((CASE
+                        WHEN f.filetype = 'IN-MEMORY' THEN 'n/a'
+                        WHEN f.is_percent_growth = 1 THEN dbo.fn_format_number (NULLIF(f.autogrow, 0), 1) + '%'
+                        ELSE dbo.fn_friendly_size (NULLIF(f.autogrow, 0) * 1.0 * @mb)
+                    END
+                   ),
+                   'None'
+           ) AS "Autogrow",
+           (CASE
+                WHEN f.max_size_mb = 0 THEN ''
+                WHEN f.max_size_mb IS NULL
+                     AND f.filetype = 'Rows'
+                     AND CAST(SERVERPROPERTY ('Edition') AS VARCHAR(128)) LIKE '%Express edition%'
+                     AND @version >= '10.50' THEN dbo.fn_friendly_size (10 * @gb) + ' (Express ed.)'
+                WHEN f.max_size_mb IS NULL
+                     AND f.filetype = 'Rows'
+                     AND CAST(SERVERPROPERTY ('Edition') AS VARCHAR(128)) LIKE '%Express edition%' THEN
+                    dbo.fn_friendly_size (4 * @gb) + ' (Express ed.)'
+                WHEN f.max_size_mb IS NULL
+                     AND f.filetype = 'IN-MEMORY' THEN 'n/a'
+                WHEN f.max_size_mb IS NULL THEN '(' + ISNULL (f.file_system_type, 'OS') + ' max)'
+                WHEN f.max_size_mb = 268435456 / 128 THEN '(Log max, 2 TB)'
+                ELSE ISNULL (dbo.fn_friendly_size (f.max_size_mb * @mb), '')
+            END
+           ) AS "Max file size",
+           ISNULL (dbo.fn_friendly_size (f.used_size_mb * @mb), '') AS "File usage",
+           ISNULL (dbo.fn_format_number (100.0 * f.used_size_mb / f.size_mb, 2) + '%', '') AS "File usage %",
+           f.drive AS "Drive",
+           ISNULL (
+               LTRIM (dbo.fn_friendly_size (1.0 * f.available_bytes)) + ' of '
+               + LTRIM (dbo.fn_friendly_size (1.0 * f.total_bytes)),
+               ''
+           ) AS "Free disk space"
+    FROM @files AS f
+    INNER JOIN master.sys.databases AS db WITH (NOLOCK)
+        ON db.database_id = f.database_id
+    INNER JOIN master.sys.database_mirroring AS m WITH (NOLOCK)
+        ON db.database_id = m.database_id
+    WHERE f.database_id IN (
+              SELECT database_id
+              FROM @exec_requests
+              UNION
+              SELECT DISTINCT resource_database_id
+              FROM @tran_locks
+              WHERE request_session_id IN ( SELECT session_id FROM @exec_sessions WHERE login_name = SUSER_SNAME ())
+          )
+    ORDER BY db.name,
+             (CASE f.filetype
+                  WHEN 'ROWS' THEN 0
+                  WHEN 'LOG' THEN 1
+                  WHEN 'FILESTREAM' THEN 2
+                  WHEN 'IN-MEMORY' THEN 3
+                  ELSE 0
+              END
+             ),
+             f.name;
 
 
 
@@ -1400,73 +1206,69 @@ N'@virtual_machine_type int OUTPUT',
     --- 3. Display all sessions:
     -------------------------------------------------------------------------------
 
-    SELECT      xc.session_id AS SPID,
-                ISNULL(
-                    '"' + job.job_name + '", step ' + CAST(job.step_id AS VARCHAR(MAX)) + ' "' + job.step_name + '"',
-                    (CASE xs.program_name
-                         WHEN 'Microsoft SQL Server Management Studio - Query' THEN
-                             'SSMS Query'
-                         WHEN 'Microsoft SQL Server Management Studio' THEN
-                             'SSMS'
-                         ELSE
-                             xs.program_name
-                     END
-                    )
-                ) AS Application,
-                --	xs.client_interface_name AS [Interface],
-                --	ISNULL(NULLIF(xc.client_net_address, xc.local_net_address), 'local')+ISNULL(':'+CAST(xc.client_tcp_port AS varchar(max)), '') AS [Client addr],
-                xs.login_name + ISNULL(' (' + xc.auth_scheme + ')', '') AS [Login name (auth)],
-                dbo.fn_friendly_age(xc.connect_time, GETDATE()) AS [Conn. age],
-                ISNULL(dbo.fn_friendly_size(NULLIF(xs.logical_reads * 8192, 0)), '') AS [Logical reads],
-                ISNULL(dbo.fn_friendly_size(NULLIF(xs.reads * 8192, 0)), '') AS Reads,
-                ISNULL(dbo.fn_friendly_size(NULLIF(xs.writes * 8192, 0)), '') AS Writes,
-                ISNULL(dbo.fn_friendly_age(0, DATEADD(ms, NULLIF(xs.cpu_time, 0), 0)), '') AS [CPU time],
-                ISNULL(NULLIF(xs.status, 'sleeping'), '') AS State,
-                ISNULL(CAST(NULLIF(trn.count, 0) AS VARCHAR(10)), '') AS [Tran count],
-                ISNULL(blocking.blocking, '') AS Blocking,
-                ISNULL(chain.blocked_by, '') AS [Blocked by],
-                ISNULL(SUBSTRING(cur.x.value('.', 'varchar(1000)'), 3, 1000), '') AS Cursors,
-                ISNULL(
-                    CAST(NULLIF((
-                             SELECT COUNT(*) FROM @os_tasks AS t WHERE t.session_id = xc.session_id
-                         ), 0) AS VARCHAR(10)),
-                    ''
-                ) AS [Schedulers (DOP)],
-                (CASE
-                     WHEN ISNULL(trn.count, 0) > 0
-                          AND xs.status = 'sleeping' THEN
-                         dbo.fn_friendly_age(xs.last_request_start_time, GETDATE())
-                     ELSE
-                         ''
-                 END
-                ) AS [Abandoned?],
-                xs.flags AS [Connection/ANSI flags]
-    FROM        @exec_connections AS xc
-    LEFT JOIN   @exec_sessions AS xs ON xc.session_id = xs.session_id
-    LEFT JOIN   @jobs AS job ON xs.program_name LIKE '%' + job.search_name + '%'
-    LEFT JOIN   @block_chain AS chain ON chain.spid = xc.session_id
-    LEFT JOIN   @blocking AS blocking ON blocking.spid = xc.session_id
-    LEFT JOIN   (
-        SELECT   session_id,
-                 COUNT(*) AS count
-        FROM     @tran_session_transactions
+    SELECT xc.session_id AS "SPID",
+           ISNULL (
+               '"' + job.job_name + '", step ' + CAST(job.step_id AS VARCHAR(MAX)) + ' "' + job.step_name + '"',
+               (CASE xs.program_name
+                    WHEN 'Microsoft SQL Server Management Studio - Query' THEN 'SSMS Query'
+                    WHEN 'Microsoft SQL Server Management Studio' THEN 'SSMS'
+                    ELSE xs.program_name
+                END
+               )
+           ) AS "Application",
+           --	xs.client_interface_name AS [Interface],
+           --	ISNULL(NULLIF(xc.client_net_address, xc.local_net_address), 'local')+ISNULL(':'+CAST(xc.client_tcp_port AS varchar(max)), '') AS [Client addr],
+           xs.login_name + ISNULL (' (' + xc.auth_scheme + ')', '') AS "Login name (auth)",
+           dbo.fn_friendly_age (xc.connect_time, GETDATE ()) AS "Conn. age",
+           ISNULL (dbo.fn_friendly_size (NULLIF(xs.logical_reads * 8192, 0)), '') AS "Logical reads",
+           ISNULL (dbo.fn_friendly_size (NULLIF(xs.reads * 8192, 0)), '') AS "Reads",
+           ISNULL (dbo.fn_friendly_size (NULLIF(xs.writes * 8192, 0)), '') AS "Writes",
+           ISNULL (dbo.fn_friendly_age (0, DATEADD (ms, NULLIF(xs.cpu_time, 0), 0)), '') AS "CPU time",
+           ISNULL (NULLIF(xs.status, 'sleeping'), '') AS "State",
+           ISNULL (CAST(NULLIF(trn.count, 0) AS VARCHAR(10)), '') AS "Tran count",
+           ISNULL (blocking.blocking, '') AS "Blocking",
+           ISNULL (chain.blocked_by, '') AS "Blocked by",
+           ISNULL (SUBSTRING (cur.x.value ('.', 'varchar(1000)'), 3, 1000), '') AS "Cursors",
+           ISNULL (
+               CAST(NULLIF((SELECT COUNT (*) FROM @os_tasks AS t WHERE t.session_id = xc.session_id), 0) AS VARCHAR(10)),
+               ''
+           ) AS "Schedulers (DOP)",
+           (CASE
+                WHEN ISNULL (trn.count, 0) > 0
+                     AND xs.status = 'sleeping' THEN dbo.fn_friendly_age (xs.last_request_start_time, GETDATE ())
+                ELSE ''
+            END
+           ) AS "Abandoned?",
+           xs.flags AS "Connection/ANSI flags"
+    FROM @exec_connections AS xc
+    LEFT JOIN @exec_sessions AS xs
+        ON xc.session_id = xs.session_id
+    LEFT JOIN @jobs AS job
+        ON xs.program_name LIKE '%' + job.search_name + '%'
+    LEFT JOIN @block_chain AS chain
+        ON chain.spid = xc.session_id
+    LEFT JOIN @blocking AS blocking
+        ON blocking.spid = xc.session_id
+    LEFT JOIN (
+        SELECT session_id,
+               COUNT (*) AS "count"
+        FROM @tran_session_transactions
         GROUP BY session_id
-    ) AS trn ON xc.session_id = trn.session_id
+    ) AS trn
+        ON xc.session_id = trn.session_id
     CROSS APPLY (
         SELECT ', ' + name
-        FROM   sys.dm_exec_cursors(xc.session_id)
-        FOR XML PATH(''), TYPE
+        FROM sys.dm_exec_cursors (xc.session_id)
+        FOR XML PATH (''), TYPE
     ) AS cur(x)
-    WHERE       xc.session_id != @@SPID
-    ORDER BY    (CASE
-                     WHEN xs.status NOT IN ( 'sleeping', 'dormant' )
-                          OR ISNULL(trn.count, 0) > 0 THEN
-                         1
-                     ELSE
-                         2
-                 END
-                ),
-                xc.session_id;
+    WHERE xc.session_id != @@SPID
+    ORDER BY (CASE
+                  WHEN xs.status NOT IN ( 'sleeping', 'dormant' )
+                       OR ISNULL (trn.count, 0) > 0 THEN 1
+                  ELSE 2
+              END
+             ),
+             xc.session_id;
 
 
 
@@ -1474,99 +1276,96 @@ N'@virtual_machine_type int OUTPUT',
     --- 4. Running queries:
     -------------------------------------------------------------------------------
 
-    SELECT      xc.session_id AS SPID,
-                ISNULL(
-                    '"' + job.job_name + '", step ' + CAST(job.step_id AS VARCHAR(MAX)) + ' "' + job.step_name + '"',
-                    (CASE xs.program_name
-                         WHEN 'Microsoft SQL Server Management Studio - Query' THEN
-                             'SSMS Query'
-                         WHEN 'Microsoft SQL Server Management Studio' THEN
-                             'SSMS'
-                         ELSE
-                             xs.program_name
-                     END
+    SELECT xc.session_id AS "SPID",
+           ISNULL (
+               '"' + job.job_name + '", step ' + CAST(job.step_id AS VARCHAR(MAX)) + ' "' + job.step_name + '"',
+               (CASE xs.program_name
+                    WHEN 'Microsoft SQL Server Management Studio - Query' THEN 'SSMS Query'
+                    WHEN 'Microsoft SQL Server Management Studio' THEN 'SSMS'
+                    ELSE xs.program_name
+                END
+               )
+           ) AS "Application",
+           ISNULL (dbobj.name, '') AS "Proc",
+           (CASE
+                WHEN xs.status NOT IN ( 'sleeping', 'dormant' ) THEN
+           (CASE
+                WHEN cmd.encrypted = 1 THEN xr.command + ' (encrypted)'
+                ELSE
+                    COALESCE (
+                        SUBSTRING (
+                            cmd.text,
+                            xr.statement_start_offset / 2,
+                            NULLIF(xr.statement_end_offset, -1) / 2 - xr.statement_start_offset / 2
+                        ),
+                        cmd.text,
+                        xr.command COLLATE DATABASE_DEFAULT,
+                        ''
                     )
-                ) AS Application,
-                ISNULL(dbobj.name, '') AS [Proc],
-                (CASE
-                     WHEN xs.status NOT IN ( 'sleeping', 'dormant' ) THEN
-                (CASE
-                     WHEN cmd.encrypted = 1 THEN
-                         xr.command + ' (encrypted)'
-                     ELSE
-                         COALESCE(
-                             SUBSTRING(
-                                 cmd.text,
-                                 xr.statement_start_offset / 2,
-                                 NULLIF(xr.statement_end_offset, -1) / 2 - xr.statement_start_offset / 2
-                             ),
-                             cmd.text,
-                             xr.command COLLATE DATABASE_DEFAULT,
-                             ''
-                         )
-                 END
-                )
-                     ELSE
-                         '(' + xs.status + ')'
-                 END
-                ) AS [Command/T-SQL],
-                (CASE
-                     WHEN xs.status != 'sleeping' THEN
-                         dbo.fn_friendly_age(xs.last_request_start_time, GETDATE())
-                     ELSE
-                         ''
-                 END
-                ) AS [Stmt age],
-                ISNULL(
-                    dbo.fn_friendly_size(mem.max_used_mb)
-                    + (CASE
-                           WHEN mem.max_used_mb < mem.granted_mb THEN
-                               ' of ' + LTRIM(dbo.fn_friendly_size(mem.granted_mb * @mb))
-                           ELSE
-                               ''
-                       END
-                      ) + (CASE
-                               WHEN mem.granted_mb < mem.requested_mb THEN
-                                   ' (' + LTRIM(dbo.fn_friendly_size(mem.requested_mb * @mb)) + ' requested)'
-                               ELSE
-                                   ''
-                           END
-                          ),
-                    ''
-                ) AS [Max used/granted memory],
-                ISNULL(dbo.fn_friendly_size(mem.used_mb), '') AS [Used mem],
-                ISNULL(dbo.fn_friendly_size(NULLIF(mem.ideal_mb, mem.granted_mb)), '') AS [Ideal mem],
-                ISNULL(dbo.fn_format_number(mem.est_query_cost, 2), '') AS [Est. cost],
-                ISNULL(dbo.fn_format_number(NULLIF(xr.percent_complete, 0.0), 1) + '%', '') AS Progress,
-                ISNULL(
-                    dbo.fn_friendly_age(
-                        GETDATE(),
-                        DATEADD(
-                            ms, 100.0 * xr.total_elapsed_time / NULLIF(xr.percent_complete, 0.0), xs.last_request_start_time
-                        )
-                    ),
-                    ''
-                ) AS [Est remaining],
-                [plan].query_plan AS [Query plan]
-    FROM        @exec_connections AS xc
-    CROSS APPLY sys.dm_exec_sql_text(xc.most_recent_sql_handle) AS cmd
-    LEFT JOIN   @exec_sessions AS xs ON xc.session_id = xs.session_id
-    LEFT JOIN   @jobs AS job ON xs.program_name LIKE '%' + job.search_name + '%'
-    LEFT JOIN   @exec_requests AS xr ON xc.session_id = xr.session_id
-    OUTER APPLY sys.dm_exec_query_plan(xr.plan_handle) AS [plan]
-    LEFT JOIN   @block_chain AS chain ON chain.spid = xc.session_id
-    LEFT JOIN   @blocking AS blocking ON blocking.spid = xc.session_id
-    LEFT JOIN   @exec_query_memory_grants AS mem ON xc.session_id = mem.session_id
-    LEFT JOIN   @database_procedures AS dbobj ON dbobj.database_id = cmd.dbid
-                                                 AND dbobj.object_id = cmd.objectid
-    WHERE       xc.session_id != @@SPID
-                AND (
-                    xs.status != 'sleeping'
-                    OR xc.session_id IN (
-                           SELECT session_id FROM @tran_session_transactions
-                       )
-                )
-    ORDER BY    xc.session_id;
+            END
+           )
+                ELSE '(' + xs.status + ')'
+            END
+           ) AS "Command/T-SQL",
+           (CASE
+                WHEN xs.status != 'sleeping' THEN dbo.fn_friendly_age (xs.last_request_start_time, GETDATE ())
+                ELSE ''
+            END
+           ) AS "Stmt age",
+           ISNULL (
+               dbo.fn_friendly_size (mem.max_used_mb)
+               + (CASE
+                      WHEN mem.max_used_mb < mem.granted_mb THEN
+                          ' of ' + LTRIM (dbo.fn_friendly_size (mem.granted_mb * @mb))
+                      ELSE ''
+                  END
+                 )
+               + (CASE
+                      WHEN mem.granted_mb < mem.requested_mb THEN
+                          ' (' + LTRIM (dbo.fn_friendly_size (mem.requested_mb * @mb)) + ' requested)'
+                      ELSE ''
+                  END
+                 ),
+               ''
+           ) AS "Max used/granted memory",
+           ISNULL (dbo.fn_friendly_size (mem.used_mb), '') AS "Used mem",
+           ISNULL (dbo.fn_friendly_size (NULLIF(mem.ideal_mb, mem.granted_mb)), '') AS "Ideal mem",
+           ISNULL (dbo.fn_format_number (mem.est_query_cost, 2), '') AS "Est. cost",
+           ISNULL (dbo.fn_format_number (NULLIF(xr.percent_complete, 0.0), 1) + '%', '') AS "Progress",
+           ISNULL (
+               dbo.fn_friendly_age (
+                   GETDATE (),
+                   DATEADD (
+                       ms, 100.0 * xr.total_elapsed_time / NULLIF(xr.percent_complete, 0.0), xs.last_request_start_time
+                   )
+               ),
+               ''
+           ) AS "Est remaining",
+           [plan].query_plan AS "Query plan"
+    FROM @exec_connections AS xc
+    CROSS APPLY sys.dm_exec_sql_text (xc.most_recent_sql_handle) AS cmd
+    LEFT JOIN @exec_sessions AS xs
+        ON xc.session_id = xs.session_id
+    LEFT JOIN @jobs AS job
+        ON xs.program_name LIKE '%' + job.search_name + '%'
+    LEFT JOIN @exec_requests AS xr
+        ON xc.session_id = xr.session_id
+    OUTER APPLY sys.dm_exec_query_plan (xr.plan_handle) AS [plan]
+    LEFT JOIN @block_chain AS chain
+        ON chain.spid = xc.session_id
+    LEFT JOIN @blocking AS blocking
+        ON blocking.spid = xc.session_id
+    LEFT JOIN @exec_query_memory_grants AS mem
+        ON xc.session_id = mem.session_id
+    LEFT JOIN @database_procedures AS dbobj
+        ON dbobj.database_id = cmd.dbid
+           AND dbobj.object_id = cmd.objectid
+    WHERE xc.session_id != @@SPID
+          AND (
+              xs.status != 'sleeping'
+              OR xc.session_id IN ( SELECT session_id FROM @tran_session_transactions )
+          )
+    ORDER BY xc.session_id;
 
 
 
@@ -1574,88 +1373,64 @@ N'@virtual_machine_type int OUTPUT',
     --- 5. Display open transactions:
     -------------------------------------------------------------------------------
 
-    SELECT     st.session_id AS SPID,
-               act.transaction_id AS [Transaction],
-               dbo.fn_friendly_age(act.transaction_begin_time, GETDATE()) AS [Transaction age],
-               REPLACE((CASE st.is_local
-                            WHEN 0 THEN
-                                'Distr '
-                            WHEN 1 THEN
-                                'Local '
-                        END
-                       ) + (CASE act.transaction_type
-                                WHEN 1 THEN
-                                    'r/w'
-                                WHEN 2 THEN
-                                    'read'
-                                WHEN 3 THEN
-                                    'sys'
-                                WHEN 4 THEN
-                                    'distr'
-                            END
-                           ),
-                       'Distr distr',
-                       'Distr'
-               ) AS [Transaction type],
-               (CASE act.transaction_state
-                    WHEN 0 THEN
-                        'None'         --- The transaction has not been completely initialized yet.
-                    WHEN 1 THEN
-                        'Init'         --- The transaction has been initialized but has not started.
-                    WHEN 2 THEN
-                        'Active'       --- The transaction is active.
-                    WHEN 3 THEN
-                        'Ended'        --- The transaction has ended. This is used for read-only transactions.
-                    WHEN 4 THEN
-                        'Distr commit' --- The commit process has been initiated on the distributed transaction. This is for distributed transactions only. The distributed transaction is still active but further processing cannot take place.
-                    WHEN 5 THEN
-                        'Prepared'     --- The transaction is in a prepared state and waiting resolution.
-                    WHEN 6 THEN
-                        'Committed'    --- The transaction has been committed.
-                    WHEN 7 THEN
-                        'Rolling back' --- The transaction is being rolled back.
-                    WHEN 8 THEN
-                        'Rolled back'  --- The transaction has been rolled back.
-                END
-               ) AS State,
-               (CASE xr.transaction_isolation_level
-                    WHEN 0 THEN
-                        '?'
-                    WHEN 1 THEN
-                        'Read uncommitted'
-                    WHEN 2 THEN
-                        'Read committed'
-                    WHEN 3 THEN
-                        'Repeatable read'
-                    WHEN 4 THEN
-                        'Serializable'
-                    WHEN 5 THEN
-                        'Snapshot'
-                    ELSE
-                        ISNULL(CAST(xr.transaction_isolation_level AS VARCHAR(10)), '')
-                END
-               ) AS [Isolation level],
-               ISNULL(
-                   CAST(dbo.fn_friendly_age(0,
-                                            DATEADD(ms,
-                                            (
-                                                SELECT AVG(wt.wait_duration_ms)
-                                                FROM   @os_waiting_tasks AS wt
-                                                WHERE  wt.session_id = wt.blocking_session_id
-                                                       AND wt.session_id = st.session_id
-                                                       AND wt.wait_type = 'CXPACKET'
-                                            ),
-                                                    0
-                                            )
-                        ) AS VARCHAR(20)),
-                   'None'
-               ) AS [Avg cxPkt wait]
-    FROM       @tran_session_transactions AS st
-    INNER JOIN @tran_active_transactions AS act ON st.transaction_id = act.transaction_id
-    LEFT JOIN  @exec_requests AS xr ON st.session_id = xr.session_id
-    WHERE      st.session_id != @@SPID
-    ORDER BY   st.session_id,
-               act.transaction_id;
+    SELECT st.session_id AS "SPID",
+           act.transaction_id AS "Transaction",
+           dbo.fn_friendly_age (act.transaction_begin_time, GETDATE ()) AS "Transaction age",
+           REPLACE ((CASE st.is_local WHEN 0 THEN 'Distr ' WHEN 1 THEN 'Local ' END) + (CASE act.transaction_type
+                                                                                            WHEN 1 THEN 'r/w'
+                                                                                            WHEN 2 THEN 'read'
+                                                                                            WHEN 3 THEN 'sys'
+                                                                                            WHEN 4 THEN 'distr'
+                                                                                        END
+                                                                                       ),
+                    'Distr distr',
+                    'Distr'
+           ) AS "Transaction type",
+           (CASE act.transaction_state
+                WHEN 0 THEN 'None'         --- The transaction has not been completely initialized yet.
+                WHEN 1 THEN 'Init'         --- The transaction has been initialized but has not started.
+                WHEN 2 THEN 'Active'       --- The transaction is active.
+                WHEN 3 THEN 'Ended'        --- The transaction has ended. This is used for read-only transactions.
+                WHEN 4 THEN 'Distr commit' --- The commit process has been initiated on the distributed transaction. This is for distributed transactions only. The distributed transaction is still active but further processing cannot take place.
+                WHEN 5 THEN 'Prepared'     --- The transaction is in a prepared state and waiting resolution.
+                WHEN 6 THEN 'Committed'    --- The transaction has been committed.
+                WHEN 7 THEN 'Rolling back' --- The transaction is being rolled back.
+                WHEN 8 THEN 'Rolled back'  --- The transaction has been rolled back.
+            END
+           ) AS "State",
+           (CASE xr.transaction_isolation_level
+                WHEN 0 THEN '?'
+                WHEN 1 THEN 'Read uncommitted'
+                WHEN 2 THEN 'Read committed'
+                WHEN 3 THEN 'Repeatable read'
+                WHEN 4 THEN 'Serializable'
+                WHEN 5 THEN 'Snapshot'
+                ELSE ISNULL (CAST(xr.transaction_isolation_level AS VARCHAR(10)), '')
+            END
+           ) AS "Isolation level",
+           ISNULL (
+               CAST(dbo.fn_friendly_age (0,
+                                         DATEADD (ms,
+                                         (
+                                             SELECT AVG (wt.wait_duration_ms)
+                                             FROM @os_waiting_tasks AS wt
+                                             WHERE wt.session_id = wt.blocking_session_id
+                                                   AND wt.session_id = st.session_id
+                                                   AND wt.wait_type = 'CXPACKET'
+                                         ),
+                                                  0
+                                         )
+                    ) AS VARCHAR(20)),
+               'None'
+           ) AS "Avg cxPkt wait"
+    FROM @tran_session_transactions AS st
+    INNER JOIN @tran_active_transactions AS act
+        ON st.transaction_id = act.transaction_id
+    LEFT JOIN @exec_requests AS xr
+        ON st.session_id = xr.session_id
+    WHERE st.session_id != @@SPID
+    ORDER BY st.session_id,
+             act.transaction_id;
 
 
 
@@ -1666,8 +1441,7 @@ N'@virtual_machine_type int OUTPUT',
     WITH rcte (spid, tran_id, lock_ord, mode, count, [database], object_id, object_name, index_id, index_type,
                index_name, index_filter, partition_number, partition_count, partition_boundary, obj_rows,
                request_owner_type, wait_type, wait_time, isBlocking, isWaiting, lock_descr
-    )
-    AS
+    ) AS
     (
         SELECT spid,
                tran_id,
@@ -1691,178 +1465,118 @@ N'@virtual_machine_type int OUTPUT',
                isBlocking,
                isWaiting,
                CAST((CASE
-                         WHEN mode LIKE '%table' THEN
-                             ''
-                         ELSE
-                             LTRIM(ISNULL(dbo.fn_format_number(NULLIF(count, 1), 0) + ' ', ''))
+                         WHEN mode LIKE '%table' THEN ''
+                         ELSE LTRIM (ISNULL (dbo.fn_format_number (NULLIF(count, 1), 0) + ' ', ''))
                      END
                     ) + mode AS VARCHAR(MAX))
-        FROM   @locks
-        WHERE  lock_ord = 1
+        FROM @locks
+        WHERE lock_ord = 1
         UNION ALL
-        SELECT     rcte.spid,
-                   rcte.tran_id,
-                   lck.lock_ord,
-                   lck.mode,
-                   lck.count,
-                   rcte.[database],
-                   rcte.object_id,
-                   rcte.object_name,
-                   rcte.index_id,
-                   rcte.index_type,
-                   rcte.index_name,
-                   rcte.index_filter,
-                   rcte.partition_number,
-                   rcte.partition_count,
-                   rcte.partition_boundary,
-                   rcte.obj_rows,
-                   rcte.request_owner_type,
-                   rcte.wait_type,
-                   rcte.wait_time,
-                   CAST((CASE
-                             WHEN 1 IN ( rcte.isBlocking, lck.isBlocking ) THEN
-                                 1
-                             ELSE
-                                 0
-                         END
-                        ) AS BIT),
-                   CAST((CASE
-                             WHEN 1 IN ( rcte.isWaiting, lck.isWaiting ) THEN
-                                 1
-                             ELSE
-                                 0
-                         END
-                        ) AS BIT),
-                   CAST(rcte.lock_descr + ', '
-                        + (CASE
-                               WHEN lck.mode LIKE '%table' THEN
-                                   ''
-                               ELSE
-                                   LTRIM(ISNULL(dbo.fn_format_number(NULLIF(lck.count, 1), 0) + ' ', ''))
-                           END
-                          ) + lck.mode AS VARCHAR(MAX))
-        FROM       @locks AS lck
-        INNER JOIN rcte ON rcte.lock_ord + 1 = lck.lock_ord
-                           AND rcte.spid = lck.spid
-                           AND rcte.tran_id = lck.tran_id
-                           AND rcte.[database] = lck.[database]
-                           AND rcte.object_id = lck.object_id
-                           AND ISNULL(rcte.index_id, -1) = ISNULL(lck.index_id, -1)
-                           AND rcte.partition_number = lck.partition_number
+        SELECT rcte.spid,
+               rcte.tran_id,
+               lck.lock_ord,
+               lck.mode,
+               lck.count,
+               rcte.[database],
+               rcte.object_id,
+               rcte.object_name,
+               rcte.index_id,
+               rcte.index_type,
+               rcte.index_name,
+               rcte.index_filter,
+               rcte.partition_number,
+               rcte.partition_count,
+               rcte.partition_boundary,
+               rcte.obj_rows,
+               rcte.request_owner_type,
+               rcte.wait_type,
+               rcte.wait_time,
+               CAST((CASE WHEN 1 IN ( rcte.isBlocking, lck.isBlocking ) THEN 1 ELSE 0 END) AS BIT),
+               CAST((CASE WHEN 1 IN ( rcte.isWaiting, lck.isWaiting ) THEN 1 ELSE 0 END) AS BIT),
+               CAST(rcte.lock_descr + ', '
+                    + (CASE
+                           WHEN lck.mode LIKE '%table' THEN ''
+                           ELSE LTRIM (ISNULL (dbo.fn_format_number (NULLIF(lck.count, 1), 0) + ' ', ''))
+                       END
+                      ) + lck.mode AS VARCHAR(MAX))
+        FROM @locks AS lck
+        INNER JOIN rcte
+            ON rcte.lock_ord + 1 = lck.lock_ord
+               AND rcte.spid = lck.spid
+               AND rcte.tran_id = lck.tran_id
+               AND rcte.[database] = lck.[database]
+               AND rcte.object_id = lck.object_id
+               AND ISNULL (rcte.index_id, -1) = ISNULL (lck.index_id, -1)
+               AND rcte.partition_number = lck.partition_number
     )
-    SELECT   rcte.spid AS SPID,
-             rcte.tran_id AS [Transaction],
-             rcte.lock_descr AS [Lock types],
-             rcte.[database] AS [Database],
-             ISNULL(rcte.object_name, '') AS Object,
-             ISNULL((CASE
-                         WHEN rcte.index_name = 'Primary key'
-                              AND rcte.index_id = 1 THEN
-                             'Primary key, clustered'
-                         WHEN rcte.index_type = 5 THEN
-                             rcte.index_name + ' (clustered colstore)'
-                         WHEN rcte.index_type = 6 THEN
-                             rcte.index_name + ' (colstore)'
-                         WHEN rcte.index_type = 7 THEN
-                             rcte.index_name + ' (hash)'
-                         WHEN rcte.index_id = 1 THEN
-                             rcte.index_name + ' (clustered)'
-                         WHEN rcte.index_id = 0
-                              OR rcte.index_id IS NULL THEN
-                             rcte.index_name + ' (heap)'
-                         ELSE
-                             rcte.index_name
-                     END
-                    ) + ISNULL(' ' + rcte.index_filter, ''),
-                    ''
-             ) AS [Index],
-             ISNULL(
-                 STR(NULLIF(rcte.partition_number, 0), 4, 0) + '/' + CAST(NULLIF(rcte.partition_count, 1) AS VARCHAR(10)),
-                 ''
-             ) AS [Part'n],
-             ISNULL(rcte.partition_boundary, '') AS [..bounds],
-             ISNULL(dbo.fn_format_number(rcte.obj_rows, 0), '') AS [Est. object rows],
-             rcte.request_owner_type AS [Req/trans owned by],
-             ISNULL((CASE rcte.wait_type
-                         WHEN 'LCK_M_SCH_S' THEN
-                             'Schema stability'
-                         WHEN 'LCK_M_SCH_M' THEN
-                             'Schema modification'
-                         WHEN 'LCK_M_S' THEN
-                             'Share'
-                         WHEN 'LCK_M_U' THEN
-                             'Update'
-                         WHEN 'LCK_M_X' THEN
-                             'Exclusive'
-                         WHEN 'LCK_M_IS' THEN
-                             'Intent-Share'
-                         WHEN 'LCK_M_IU' THEN
-                             'Intent-Update'
-                         WHEN 'LCK_M_IX' THEN
-                             'Intent-Exclusive'
-                         WHEN 'LCK_M_SIU' THEN
-                             'Shared intent to update'
-                         WHEN 'LCK_M_SIX' THEN
-                             'Share-Intent-Exclusive'
-                         WHEN 'LCK_M_UIX' THEN
-                             'Update-Intent-Exclusive'
-                         WHEN 'LCK_M_BU' THEN
-                             'Bulk Update'
-                         WHEN 'LCK_M_RS_S' THEN
-                             'Range-share-share'
-                         WHEN 'LCK_M_RS_U' THEN
-                             'Range-share-Update'
-                         WHEN 'LCK_M_RI_NL' THEN
-                             'Range-Insert-NULL'
-                         WHEN 'LCK_M_RI_S' THEN
-                             'Range-Insert-Shared'
-                         WHEN 'LCK_M_RI_U' THEN
-                             'Range-Insert-Update'
-                         WHEN 'LCK_M_RI_X' THEN
-                             'Range-Insert-Exclusive'
-                         WHEN 'LCK_M_RX_S' THEN
-                             'Range-exclusive-Shared'
-                         WHEN 'LCK_M_RX_U' THEN
-                             'Range-exclusive-update'
-                         WHEN 'LCK_M_RX_X' THEN
-                             'Range-exclusive-exclusive'
-                         ELSE
-                             rcte.wait_type
-                     END
-                    ),
-                    ''
-             ) AS [Wait type],
-             ISNULL(rcte.wait_time, '') AS [Wait time],
-             (CASE
-                  WHEN rcte.isBlocking = 1 THEN
-                      'Blocking'
-                  ELSE
-                      ''
-              END
-             ) + (CASE
-                      WHEN rcte.isBlocking = 1
-                           AND rcte.isWaiting = 1 THEN
-                          ', '
-                      ELSE
-                          ''
-                  END
-                 ) + (CASE
-                          WHEN rcte.isWaiting = 1 THEN
-                              'Blocked'
-                          ELSE
-                              ''
-                      END
-                     ) AS [Blocking/blocked]
-    FROM     rcte
-    WHERE    rcte.lock_ord = (
-        SELECT MAX(x.lock_ord)
-        FROM   rcte AS x
-        WHERE  x.spid = rcte.spid
-               AND x.tran_id = rcte.tran_id
-               AND x.[database] = rcte.[database]
-               AND ISNULL(x.object_id, -1) = ISNULL(rcte.object_id, -1)
-               AND ISNULL(x.index_id, -1) = ISNULL(rcte.index_id, -1)
-               AND ISNULL(x.partition_number, -1) = ISNULL(rcte.partition_number, -1)
+    SELECT rcte.spid AS "SPID",
+           rcte.tran_id AS "Transaction",
+           rcte.lock_descr AS "Lock types",
+           rcte.[database] AS "Database",
+           ISNULL (rcte.object_name, '') AS "Object",
+           ISNULL ((CASE
+                        WHEN rcte.index_name = 'Primary key'
+                             AND rcte.index_id = 1 THEN 'Primary key, clustered'
+                        WHEN rcte.index_type = 5 THEN rcte.index_name + ' (clustered colstore)'
+                        WHEN rcte.index_type = 6 THEN rcte.index_name + ' (colstore)'
+                        WHEN rcte.index_type = 7 THEN rcte.index_name + ' (hash)'
+                        WHEN rcte.index_id = 1 THEN rcte.index_name + ' (clustered)'
+                        WHEN rcte.index_id = 0
+                             OR rcte.index_id IS NULL THEN rcte.index_name + ' (heap)'
+                        ELSE rcte.index_name
+                    END
+                   ) + ISNULL (' ' + rcte.index_filter, ''),
+                   ''
+           ) AS "Index",
+           ISNULL (
+               STR (NULLIF(rcte.partition_number, 0), 4, 0) + '/'
+               + CAST(NULLIF(rcte.partition_count, 1) AS VARCHAR(10)),
+               ''
+           ) AS "Part'n",
+           ISNULL (rcte.partition_boundary, '') AS "..bounds",
+           ISNULL (dbo.fn_format_number (rcte.obj_rows, 0), '') AS "Est. object rows",
+           rcte.request_owner_type AS "Req/trans owned by",
+           ISNULL ((CASE rcte.wait_type
+                        WHEN 'LCK_M_SCH_S' THEN 'Schema stability'
+                        WHEN 'LCK_M_SCH_M' THEN 'Schema modification'
+                        WHEN 'LCK_M_S' THEN 'Share'
+                        WHEN 'LCK_M_U' THEN 'Update'
+                        WHEN 'LCK_M_X' THEN 'Exclusive'
+                        WHEN 'LCK_M_IS' THEN 'Intent-Share'
+                        WHEN 'LCK_M_IU' THEN 'Intent-Update'
+                        WHEN 'LCK_M_IX' THEN 'Intent-Exclusive'
+                        WHEN 'LCK_M_SIU' THEN 'Shared intent to update'
+                        WHEN 'LCK_M_SIX' THEN 'Share-Intent-Exclusive'
+                        WHEN 'LCK_M_UIX' THEN 'Update-Intent-Exclusive'
+                        WHEN 'LCK_M_BU' THEN 'Bulk Update'
+                        WHEN 'LCK_M_RS_S' THEN 'Range-share-share'
+                        WHEN 'LCK_M_RS_U' THEN 'Range-share-Update'
+                        WHEN 'LCK_M_RI_NL' THEN 'Range-Insert-NULL'
+                        WHEN 'LCK_M_RI_S' THEN 'Range-Insert-Shared'
+                        WHEN 'LCK_M_RI_U' THEN 'Range-Insert-Update'
+                        WHEN 'LCK_M_RI_X' THEN 'Range-Insert-Exclusive'
+                        WHEN 'LCK_M_RX_S' THEN 'Range-exclusive-Shared'
+                        WHEN 'LCK_M_RX_U' THEN 'Range-exclusive-update'
+                        WHEN 'LCK_M_RX_X' THEN 'Range-exclusive-exclusive'
+                        ELSE rcte.wait_type
+                    END
+                   ),
+                   ''
+           ) AS "Wait type",
+           ISNULL (rcte.wait_time, '') AS "Wait time",
+           (CASE WHEN rcte.isBlocking = 1 THEN 'Blocking' ELSE '' END)
+           + (CASE WHEN rcte.isBlocking = 1 AND rcte.isWaiting = 1 THEN ', ' ELSE '' END)
+           + (CASE WHEN rcte.isWaiting = 1 THEN 'Blocked' ELSE '' END) AS "Blocking/blocked"
+    FROM rcte
+    WHERE rcte.lock_ord = (
+        SELECT MAX (x.lock_ord)
+        FROM rcte AS x
+        WHERE x.spid = rcte.spid
+              AND x.tran_id = rcte.tran_id
+              AND x.[database] = rcte.[database]
+              AND ISNULL (x.object_id, -1) = ISNULL (rcte.object_id, -1)
+              AND ISNULL (x.index_id, -1) = ISNULL (rcte.index_id, -1)
+              AND ISNULL (x.partition_number, -1) = ISNULL (rcte.partition_number, -1)
     )
     ORDER BY SPID,
              rcte.tran_id,
@@ -1879,32 +1593,20 @@ N'@virtual_machine_type int OUTPUT',
     -------------------------------------------------------------------------------
 
     IF (
-        XACT_STATE() != -1
-        AND EXISTS (
-        SELECT object_id
-        FROM   sys.objects
-        WHERE  name = 'fn_friendly_size'
-    )
+        XACT_STATE () != -1
+        AND EXISTS (SELECT object_id FROM sys.objects WHERE name = 'fn_friendly_size')
     )
         DROP FUNCTION dbo.fn_friendly_size;
 
     IF (
-        XACT_STATE() != -1
-        AND EXISTS (
-        SELECT object_id
-        FROM   sys.objects
-        WHERE  name = 'fn_format_number'
-    )
+        XACT_STATE () != -1
+        AND EXISTS (SELECT object_id FROM sys.objects WHERE name = 'fn_format_number')
     )
         DROP FUNCTION dbo.fn_format_number;
 
     IF (
-        XACT_STATE() != -1
-        AND EXISTS (
-        SELECT object_id
-        FROM   sys.objects
-        WHERE  name = 'fn_friendly_age'
-    )
+        XACT_STATE () != -1
+        AND EXISTS (SELECT object_id FROM sys.objects WHERE name = 'fn_friendly_age')
     )
         DROP FUNCTION dbo.fn_friendly_age;
 
@@ -1918,7 +1620,7 @@ N'@virtual_machine_type int OUTPUT',
 END TRY
 BEGIN CATCH;
 
-    IF (EXISTS (SELECT session_id FROM sys.dm_exec_cursors(@@SPID) ))
+    IF (EXISTS (SELECT session_id FROM sys.dm_exec_cursors (@@SPID) ))
     BEGIN;
         CLOSE #cur;
         DEALLOCATE #cur;
@@ -1926,8 +1628,7 @@ BEGIN CATCH;
 
     THROW;
 
-    IF (@@TRANCOUNT != 0)
-        ROLLBACK TRANSACTION;
+    IF (@@TRANCOUNT != 0) ROLLBACK TRANSACTION;
     RETURN;
 
 END CATCH;

@@ -13,9 +13,8 @@ LEFT JOIN sys.server_principals AS SP
     ON DP.sid = SP.sid
 WHERE SP.sid IS NULL
       AND DP.authentication_type_desc = 'INSTANCE';
-
-USE master;
 GO
+
 
 -------------------------------------------------------------------------------
 -- Add SQL logins

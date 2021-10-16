@@ -28,10 +28,10 @@ DECLARE @MaxQueriesToCheckFromQueryStats INT     = 200,
         ----------------------------------------
         --'execution_count'		-- Execution Count
         'total_elapsed_time', -- Total Duration
-        --'total_worker_time'		-- Total CPU
-        --'total_physical_reads'	-- Total Disk I/O
-        --'total_logical_reads'		-- Total Memory/Disk Activity
-        --'total_used_grant_kb'		-- Total Memory Consumption (SQL 2016 and newer only)
+                              --'total_worker_time'		-- Total CPU
+                              --'total_physical_reads'	-- Total Disk I/O
+                              --'total_logical_reads'		-- Total Memory/Disk Activity
+                              --'total_used_grant_kb'		-- Total Memory Consumption (SQL 2016 and newer only)
         @DaysBackToCheck                 INT     = 2,
         @MinimumExecCount                INT     = 1000,
         @MinimumCPUTime                  INT     = 100,

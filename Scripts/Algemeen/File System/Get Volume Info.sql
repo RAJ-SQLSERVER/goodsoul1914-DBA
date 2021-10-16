@@ -6,106 +6,113 @@
 					This considers even non-accessible DBs
 ********************************************************************************/
 
-declare @output table
-(
-	line varchar(2000));
-declare @_powershellCMD varchar(400);
-declare @mountPointVolumes table
-(
-	Volume          varchar(200), 
-	Label           varchar(100) null, 
-	[capacity(MB)]  decimal(20, 2), 
-	[freespace(MB)] decimal(20, 2), 
-	VolumeName      varchar(50), 
-	[capacity(GB)]  decimal(20, 2), 
-	[freespace(GB)] decimal(20, 2), 
-	[freespace(%)]  decimal(20, 2));
+DECLARE @output TABLE (line VARCHAR(2000));
+DECLARE @_powershellCMD VARCHAR(400);
+DECLARE @mountPointVolumes TABLE (
+    Volume          VARCHAR(200),
+    Label           VARCHAR(100)  NULL,
+    [capacity(MB)]  DECIMAL(20, 2),
+    [freespace(MB)] DECIMAL(20, 2),
+    VolumeName      VARCHAR(50),
+    [capacity(GB)]  DECIMAL(20, 2),
+    [freespace(GB)] DECIMAL(20, 2),
+    [freespace(%)]  DECIMAL(20, 2)
+);
 
 --	Begin: Get Data & Log Mount Point Volumes
-set @_powershellCMD = 'powershell.exe -c "Get-WmiObject -ComputerName ' + QUOTENAME(@@servername, '''') + ' -Class Win32_Volume -Filter ''DriveType = 3'' | select name,Label,capacity,freespace | foreach{$_.name+''|''+$_.Label+''|''+$_.capacity/1048576+''|''+$_.freespace/1048576}"';
+SET @_powershellCMD = 'powershell.exe -c "Get-WmiObject -ComputerName ' + QUOTENAME (@@servername, '''')
+                      + ' -Class Win32_Volume -Filter ''DriveType = 3'' | select name,Label,capacity,freespace | foreach{$_.name+''|''+$_.Label+''|''+$_.capacity/1048576+''|''+$_.freespace/1048576}"';
 
 --inserting disk name, Label, total space and free space value in to temporary table
-insert into @output
-exec xp_cmdshell @_powershellCMD;
+INSERT INTO @output
+EXEC xp_cmdshell @_powershellCMD;
 
-with t_RawData
-	 as (select ID = 1, 
-				line, 
-				expression = LEFT(line, CHARINDEX('|', line) - 1), 
-				searchExpression = SUBSTRING(line, CHARINDEX('|', line) + 1, LEN(line) + 1), 
-				delimitorPosition = CHARINDEX('|', SUBSTRING(line, CHARINDEX('|', line) + 1, LEN(line) + 1))
-		 from @output
-		 where line like '[A-Z][:]%'
-		 --line like 'C:\%'
-		 -- 
-		 union all
-		 --
-		 select ID = ID + 1, 
-				line, 
-				expression = case
-								 when delimitorPosition = 0 then searchExpression
-							 else LEFT(searchExpression, delimitorPosition - 1)
-							 end, 
-				searchExpression = case
-									   when delimitorPosition = 0 then null
-								   else SUBSTRING(searchExpression, delimitorPosition + 1, LEN(searchExpression) + 1)
-								   end, 
-				delimitorPosition = case
-										when delimitorPosition = 0 then -1
-									else CHARINDEX('|', SUBSTRING(searchExpression, delimitorPosition + 1, LEN(searchExpression) + 1))
-									end
-		 from t_RawData
-		 where delimitorPosition >= 0),
-	 T_Volumes
-	 as (select line, 
-				Volume, 
-				Label, 
-				[capacity(MB)], 
-				[freespace(MB)]
-		 from (select line, 
-					  [Column] = case ID
-									 when 1 then 'Volume'
-									 when 2 then 'Label'
-									 when 3 then 'capacity(MB)'
-									 when 4 then 'freespace(MB)'
-								 else null
-								 end, 
-					  [Value] = expression
-			   from t_RawData) as up pivot(MAX([Value]) for [Column] in(Volume, 
-																		Label, 
-																		[capacity(MB)], 
-																		[freespace(MB)])) as pvt
-	 --ORDER BY LINE
-	 )
-	 insert into @mountPointVolumes (Volume, 
-									 Label, 
-									 [capacity(MB)], 
-									 [freespace(MB)], 
-									 VolumeName, 
-									 [capacity(GB)], 
-									 [freespace(GB)], 
-									 [freespace(%)]) 
-	 select Volume, 
-			Label, 
-			[capacity(MB)] = CAST([capacity(MB)] as numeric(20, 2)), 
-			[freespace(MB)] = CAST([freespace(MB)] as numeric(20, 2)), 
-			Label as VolumeName, 
-			CAST(CAST([capacity(MB)] as numeric(20, 2)) / 1024.0 as decimal(20, 2)) as [capacity(GB)], 
-			CAST(CAST([freespace(MB)] as numeric(20, 2)) / 1024.0 as decimal(20, 2)) as [freespace(GB)], 
-			CAST(( CAST([freespace(MB)] as numeric(20, 2)) * 100.0 ) / [capacity(MB)] as decimal(20, 2)) as [freespace(%)]
-	 from T_Volumes as v
-	 where v.Volume like '[A-Z]:\Data\'
-		   or v.Volume like '[A-Z]:\Data[0-9]\'
-		   or v.Volume like '[A-Z]:\Data[0-9][0-9]\'
-		   or v.Volume like '[A-Z]:\Logs\'
-		   or v.Volume like '[A-Z]:\Logs[0-9]\'
-		   or v.Volume like '[A-Z]:\Logs[0-9][0-9]\'
-		   or v.Volume like '[A-Z]:\tempdb\'
-		   or v.Volume like '[A-Z]:\tempdb[0-9]\'
-		   or v.Volume like '[A-Z]:\tempdb[0-9][0-9]\'
-		   or exists (select *
-					  from sys.master_files as mf
-					  where mf.physical_name like Volume + '%');
+WITH t_RawData AS
+(
+    SELECT 1 AS "ID",
+           line,
+           LEFT(line, CHARINDEX ('|', line) - 1) AS "expression",
+           SUBSTRING (line, CHARINDEX ('|', line) + 1, LEN (line) + 1) AS "searchExpression",
+           CHARINDEX ('|', SUBSTRING (line, CHARINDEX ('|', line) + 1, LEN (line) + 1)) AS "delimitorPosition"
+    FROM @output
+    WHERE line LIKE '[A-Z][:]%'
+    --line like 'C:\%'
+    -- 
+    UNION ALL
+    --
+    SELECT ID + 1 AS "ID",
+           line,
+           CASE
+               WHEN delimitorPosition = 0 THEN searchExpression
+               ELSE LEFT(searchExpression, delimitorPosition - 1)
+           END AS "expression",
+           CASE
+               WHEN delimitorPosition = 0 THEN NULL
+               ELSE SUBSTRING (searchExpression, delimitorPosition + 1, LEN (searchExpression) + 1)
+           END AS "searchExpression",
+           CASE
+               WHEN delimitorPosition = 0 THEN -1
+               ELSE CHARINDEX ('|', SUBSTRING (searchExpression, delimitorPosition + 1, LEN (searchExpression) + 1))
+           END AS "delimitorPosition"
+    FROM t_RawData
+    WHERE delimitorPosition >= 0
+),
+     T_Volumes AS
+(
+    SELECT line,
+           Volume,
+           Label,
+           [capacity(MB)],
+           [freespace(MB)]
+    FROM (
+        SELECT line,
+               CASE ID
+                   WHEN 1 THEN 'Volume'
+                   WHEN 2 THEN 'Label'
+                   WHEN 3 THEN 'capacity(MB)'
+                   WHEN 4 THEN 'freespace(MB)'
+                   ELSE NULL
+               END AS "Column",
+               expression AS "Value"
+        FROM t_RawData
+    ) AS up
+    PIVOT (
+        MAX(Value)
+        FOR [Column] IN (Volume, Label, [capacity(MB)], [freespace(MB)])
+    ) AS pvt
+--ORDER BY LINE
+)
+INSERT INTO @mountPointVolumes (Volume,
+                                Label,
+                                [capacity(MB)],
+                                [freespace(MB)],
+                                VolumeName,
+                                [capacity(GB)],
+                                [freespace(GB)],
+                                [freespace(%)])
+SELECT Volume,
+       Label,
+       CAST([capacity(MB)] AS NUMERIC(20, 2)) AS "capacity(MB)",
+       CAST([freespace(MB)] AS NUMERIC(20, 2)) AS "freespace(MB)",
+       Label AS "VolumeName",
+       CAST(CAST([capacity(MB)] AS NUMERIC(20, 2)) / 1024.0 AS DECIMAL(20, 2)) AS "capacity(GB)",
+       CAST(CAST([freespace(MB)] AS NUMERIC(20, 2)) / 1024.0 AS DECIMAL(20, 2)) AS "freespace(GB)",
+       CAST((CAST([freespace(MB)] AS NUMERIC(20, 2)) * 100.0) / [capacity(MB)] AS DECIMAL(20, 2)) AS "freespace(%)"
+FROM T_Volumes AS v
+WHERE v.Volume LIKE '[A-Z]:\Data\'
+      OR v.Volume LIKE '[A-Z]:\Data[0-9]\'
+      OR v.Volume LIKE '[A-Z]:\Data[0-9][0-9]\'
+      OR v.Volume LIKE '[A-Z]:\Logs\'
+      OR v.Volume LIKE '[A-Z]:\Logs[0-9]\'
+      OR v.Volume LIKE '[A-Z]:\Logs[0-9][0-9]\'
+      OR v.Volume LIKE '[A-Z]:\tempdb\'
+      OR v.Volume LIKE '[A-Z]:\tempdb[0-9]\'
+      OR v.Volume LIKE '[A-Z]:\tempdb[0-9][0-9]\'
+      OR EXISTS (
+    SELECT *
+    FROM sys.master_files AS mf
+    WHERE mf.physical_name LIKE Volume + '%'
+);
 
-select *
-from @mountPointVolumes;
+SELECT *
+FROM @mountPointVolumes;

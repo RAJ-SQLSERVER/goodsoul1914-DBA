@@ -4,23 +4,25 @@
 -- This helps you characterize and baseline your workload
 ---------------------------------------------------------------------------------------------------
 
-select top (50) p.name as [SP Name], 
-				 qs.execution_count as [Execution Count], 
-				 ISNULL(qs.execution_count / DATEDIFF(Minute, qs.cached_time, GETDATE()), 0) as [Calls/Minute], 
-				 qs.total_elapsed_time / qs.execution_count as [Avg Elapsed Time], 
-				 qs.total_worker_time / qs.execution_count as [Avg Worker Time], 
-				 qs.total_logical_reads / qs.execution_count as [Avg Logical Reads],
-				 case
-					 when CONVERT(nvarchar(max), qp.query_plan) like N'%<MissingIndexes>%' then 1
-					 else 0
-				 end as [Has Missing Index], 
-				 FORMAT(qs.last_execution_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') as [Last Execution Time], 
-				 FORMAT(qs.cached_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') as [Plan Cached Time], 
-				 qp.query_plan as [Query Plan]
-from sys.procedures as p with(nolock)
-	 inner join sys.dm_exec_procedure_stats as qs with(nolock) on p.object_id = qs.object_id
-	 cross apply sys.dm_exec_query_plan (qs.plan_handle) as qp
-where qs.database_id = DB_ID()
-	  and DATEDIFF(Minute, qs.cached_time, GETDATE()) > 0
-order by qs.execution_count desc option(recompile);
-go
+SELECT TOP (50) p.name AS "SP Name",
+                qs.execution_count AS "Execution Count",
+                ISNULL (qs.execution_count / DATEDIFF (MINUTE, qs.cached_time, GETDATE ()), 0) AS "Calls/Minute",
+                qs.total_elapsed_time / qs.execution_count AS "Avg Elapsed Time",
+                qs.total_worker_time / qs.execution_count AS "Avg Worker Time",
+                qs.total_logical_reads / qs.execution_count AS "Avg Logical Reads",
+                CASE
+                    WHEN CONVERT (NVARCHAR(MAX), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1
+                    ELSE 0
+                END AS "Has Missing Index",
+                FORMAT (qs.last_execution_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS "Last Execution Time",
+                FORMAT (qs.cached_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS "Plan Cached Time",
+                qp.query_plan AS "Query Plan"
+FROM sys.procedures AS p WITH (NOLOCK)
+INNER JOIN sys.dm_exec_procedure_stats AS qs WITH (NOLOCK)
+    ON p.object_id = qs.object_id
+CROSS APPLY sys.dm_exec_query_plan (qs.plan_handle) AS qp
+WHERE qs.database_id = DB_ID ()
+      AND DATEDIFF (MINUTE, qs.cached_time, GETDATE ()) > 0
+ORDER BY qs.execution_count DESC
+OPTION (RECOMPILE);
+GO

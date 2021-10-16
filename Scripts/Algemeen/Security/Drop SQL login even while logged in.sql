@@ -14,15 +14,15 @@ FETCH NEXT FROM sessionsToKill
 INTO @sessionId;
 
 WHILE @@FETCH_STATUS = 0
-    BEGIN
-        PRINT 'Killing session ' + CAST(@sessionId AS NVARCHAR(20)) + ' for login ' + @loginNameToDrop;
+BEGIN
+    PRINT 'Killing session ' + CAST(@sessionId AS NVARCHAR(20)) + ' for login ' + @loginNameToDrop;
 
-        SET @statement = N'KILL ' + CAST(@sessionId AS NVARCHAR(20));
-        EXEC sys.sp_executesql @statement;
+    SET @statement = N'KILL ' + CAST(@sessionId AS NVARCHAR(20));
+    EXEC sys.sp_executesql @statement;
 
-        FETCH NEXT FROM sessionsToKill
-        INTO @sessionId;
-    END;
+    FETCH NEXT FROM sessionsToKill
+    INTO @sessionId;
+END;
 
 CLOSE sessionsToKill;
 DEALLOCATE sessionsToKill;

@@ -1,6 +1,6 @@
 --	https://stackoverflow.com/q/7048839/4449743
 
-SELECT DB_NAME() AS database_name,
+SELECT DB_NAME () AS "database_name",
        class,
        class_desc,
        major_id,
@@ -11,20 +11,18 @@ SELECT DB_NAME() AS database_name,
        permission_name,
        state,
        state_desc,
-       granteedatabaseprincipal.name AS grantee_name,
-       granteedatabaseprincipal.type_desc AS grantee_type_desc,
-       granteeserverprincipal.name AS grantee_principal_name,
-       granteeserverprincipal.type_desc AS grantee_principal_type_desc,
-       grantor.name AS grantor_name,
+       granteedatabaseprincipal.name AS "grantee_name",
+       granteedatabaseprincipal.type_desc AS "grantee_type_desc",
+       granteeserverprincipal.name AS "grantee_principal_name",
+       granteeserverprincipal.type_desc AS "grantee_principal_type_desc",
+       grantor.name AS "grantor_name",
        granted_on_name,
-       permissionstatement + N' TO ' + QUOTENAME(granteedatabaseprincipal.name) + CASE
-                                                                                      WHEN state = N'W' THEN
-                                                                                          N' WITH GRANT OPTION'
-                                                                                      ELSE
-                                                                                          N''
-                                                                                  END AS permissionstatement
-FROM
-(
+       permissionstatement + N' TO ' + QUOTENAME (granteedatabaseprincipal.name)
+       + CASE
+             WHEN state = N'W' THEN N' WITH GRANT OPTION'
+             ELSE N''
+         END AS "permissionstatement"
+FROM (
     SELECT sys.database_permissions.class,
            sys.database_permissions.class_desc,
            sys.database_permissions.major_id,
@@ -35,13 +33,11 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(CONVERT(NVARCHAR(MAX), DB_NAME())) AS granted_on_name,
+           QUOTENAME (CONVERT (NVARCHAR(MAX), DB_NAME ())) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
-           END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS AS permissionstatement
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
+           END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS AS "permissionstatement"
     FROM sys.database_permissions
     WHERE sys.database_permissions.class = 0
     UNION ALL
@@ -55,23 +51,21 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.schemas.name) + N'.' + QUOTENAME(sys.objects.name) AS granted_on_name,
+           QUOTENAME (sys.schemas.name) + N'.' + QUOTENAME (sys.objects.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS + N' ON '
-           + QUOTENAME(sys.schemas.name) + N'.' + QUOTENAME(sys.objects.name)
-           + COALESCE(N' (' + QUOTENAME(sys.columns.name) + N')', N'') AS permissionstatement
+           + QUOTENAME (sys.schemas.name) + N'.' + QUOTENAME (sys.objects.name)
+           + COALESCE (N' (' + QUOTENAME (sys.columns.name) + N')', N'') AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.objects
-            ON sys.objects.object_id = sys.database_permissions.major_id
-        INNER JOIN sys.schemas
-            ON sys.schemas.schema_id = sys.objects.schema_id
-        LEFT OUTER JOIN sys.columns
-            ON sys.columns.object_id = sys.database_permissions.major_id
-               AND sys.columns.column_id = sys.database_permissions.minor_id
+    INNER JOIN sys.objects
+        ON sys.objects.object_id = sys.database_permissions.major_id
+    INNER JOIN sys.schemas
+        ON sys.schemas.schema_id = sys.objects.schema_id
+    LEFT OUTER JOIN sys.columns
+        ON sys.columns.object_id = sys.database_permissions.major_id
+           AND sys.columns.column_id = sys.database_permissions.minor_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 1
     UNION ALL
@@ -85,17 +79,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.schemas.name) AS granted_on_name,
+           QUOTENAME (sys.schemas.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS + N' ON SCHEMA::'
-           + QUOTENAME(sys.schemas.name) AS permissionstatement
+           + QUOTENAME (sys.schemas.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.schemas
-            ON sys.schemas.schema_id = sys.database_permissions.major_id
+    INNER JOIN sys.schemas
+        ON sys.schemas.schema_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 3
     UNION ALL
@@ -109,17 +101,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(targetPrincipal.name) AS granted_on_name,
+           QUOTENAME (targetPrincipal.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS + N' ON '
-           + targetPrincipal.type_desc + N'::' + QUOTENAME(targetPrincipal.name) AS permissionstatement
+           + targetPrincipal.type_desc + N'::' + QUOTENAME (targetPrincipal.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.database_principals AS targetPrincipal
-            ON targetPrincipal.principal_id = sys.database_permissions.major_id
+    INNER JOIN sys.database_principals AS targetPrincipal
+        ON targetPrincipal.principal_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 4
     UNION ALL
@@ -133,17 +123,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.assemblies.name) AS granted_on_name,
+           QUOTENAME (sys.assemblies.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
-           + N' ON ASSEMBLY::' + QUOTENAME(sys.assemblies.name) AS permissionstatement
+           + N' ON ASSEMBLY::' + QUOTENAME (sys.assemblies.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.assemblies
-            ON sys.assemblies.assembly_id = sys.database_permissions.major_id
+    INNER JOIN sys.assemblies
+        ON sys.assemblies.assembly_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 5
     UNION ALL
@@ -157,17 +145,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.types.name) AS granted_on_name,
+           QUOTENAME (sys.types.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS + N' ON TYPE::'
-           + QUOTENAME(sys.types.name) AS permissionstatement
+           + QUOTENAME (sys.types.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.types
-            ON sys.types.user_type_id = sys.database_permissions.major_id
+    INNER JOIN sys.types
+        ON sys.types.user_type_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 6
     UNION ALL
@@ -181,17 +167,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.types.name) AS granted_on_name,
+           QUOTENAME (sys.types.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS + N' ON TYPE::'
-           + QUOTENAME(sys.types.name) AS permissionstatement
+           + QUOTENAME (sys.types.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.types
-            ON sys.types.user_type_id = sys.database_permissions.major_id
+    INNER JOIN sys.types
+        ON sys.types.user_type_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 6
     UNION ALL
@@ -205,17 +189,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.xml_schema_collections.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS granted_on_name,
+           QUOTENAME (sys.xml_schema_collections.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
-           + N' ON XML SCHEMA COLLECTION::' + QUOTENAME(sys.xml_schema_collections.name) AS permissionstatement
+           + N' ON XML SCHEMA COLLECTION::' + QUOTENAME (sys.xml_schema_collections.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.xml_schema_collections
-            ON sys.xml_schema_collections.xml_collection_id = sys.database_permissions.major_id
+    INNER JOIN sys.xml_schema_collections
+        ON sys.xml_schema_collections.xml_collection_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 10
     UNION ALL
@@ -229,17 +211,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.service_message_types.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS granted_on_name,
+           QUOTENAME (sys.service_message_types.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
-           + N' ON MESSAGE TYPE::' + QUOTENAME(sys.service_message_types.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS permissionstatement
+           + N' ON MESSAGE TYPE::' + QUOTENAME (sys.service_message_types.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.service_message_types
-            ON sys.service_message_types.message_type_id = sys.database_permissions.major_id
+    INNER JOIN sys.service_message_types
+        ON sys.service_message_types.message_type_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 15
     UNION ALL
@@ -253,17 +233,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.service_contracts.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS granted_on_name,
+           QUOTENAME (sys.service_contracts.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
-           + N' ON CONTRACT::' + QUOTENAME(sys.service_contracts.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS permissionstatement
+           + N' ON CONTRACT::' + QUOTENAME (sys.service_contracts.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.service_contracts
-            ON sys.service_contracts.service_contract_id = sys.database_permissions.major_id
+    INNER JOIN sys.service_contracts
+        ON sys.service_contracts.service_contract_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 16
     UNION ALL
@@ -277,17 +255,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.services.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS granted_on_name,
+           QUOTENAME (sys.services.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
-           + N' ON SERVICE::' + QUOTENAME(sys.services.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS permissionstatement
+           + N' ON SERVICE::' + QUOTENAME (sys.services.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.services
-            ON sys.services.service_id = sys.database_permissions.major_id
+    INNER JOIN sys.services
+        ON sys.services.service_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 17
     UNION ALL
@@ -301,18 +277,16 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.remote_service_bindings.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS granted_on_name,
+           QUOTENAME (sys.remote_service_bindings.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
            + N' ON REMOTE SERVICE BINDING::'
-           + QUOTENAME(sys.remote_service_bindings.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS permissionstatement
+           + QUOTENAME (sys.remote_service_bindings.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.remote_service_bindings
-            ON sys.remote_service_bindings.remote_service_binding_id = sys.database_permissions.major_id
+    INNER JOIN sys.remote_service_bindings
+        ON sys.remote_service_bindings.remote_service_binding_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 18
     UNION ALL
@@ -326,17 +300,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.routes.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS granted_on_name,
+           QUOTENAME (sys.routes.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS + N' ON ROUTE::'
-           + QUOTENAME(sys.routes.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS permissionstatement
+           + QUOTENAME (sys.routes.name COLLATE SQL_Latin1_General_CP1_CI_AS) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.routes
-            ON sys.routes.route_id = sys.database_permissions.major_id
+    INNER JOIN sys.routes
+        ON sys.routes.route_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 19
     UNION ALL
@@ -350,17 +322,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.symmetric_keys.name) AS granted_on_name,
+           QUOTENAME (sys.symmetric_keys.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
-           + N' ON ASYMMETRIC KEY::' + QUOTENAME(sys.symmetric_keys.name) AS permissionstatement
+           + N' ON ASYMMETRIC KEY::' + QUOTENAME (sys.symmetric_keys.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.symmetric_keys
-            ON sys.symmetric_keys.symmetric_key_id = sys.database_permissions.major_id
+    INNER JOIN sys.symmetric_keys
+        ON sys.symmetric_keys.symmetric_key_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 24
     UNION ALL
@@ -374,17 +344,15 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.certificates.name) AS granted_on_name,
+           QUOTENAME (sys.certificates.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
-           + N' ON CERTIFICATE::' + QUOTENAME(sys.certificates.name) AS permissionstatement
+           + N' ON CERTIFICATE::' + QUOTENAME (sys.certificates.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.certificates
-            ON sys.certificates.certificate_id = sys.database_permissions.major_id
+    INNER JOIN sys.certificates
+        ON sys.certificates.certificate_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 25
     UNION ALL
@@ -398,48 +366,46 @@ FROM
            sys.database_permissions.permission_name,
            sys.database_permissions.state,
            sys.database_permissions.state_desc,
-           QUOTENAME(sys.asymmetric_keys.name) AS granted_on_name,
+           QUOTENAME (sys.asymmetric_keys.name) AS "granted_on_name",
            CASE
-               WHEN sys.database_permissions.state = N'W' THEN
-                   N'GRANT'
-               ELSE
-                   sys.database_permissions.state_desc
+               WHEN sys.database_permissions.state = N'W' THEN N'GRANT'
+               ELSE sys.database_permissions.state_desc
            END + N' ' + sys.database_permissions.permission_name COLLATE SQL_Latin1_General_CP1_CI_AS
-           + N' ON ASYMMETRIC KEY::' + QUOTENAME(sys.asymmetric_keys.name) AS permissionstatement
+           + N' ON ASYMMETRIC KEY::' + QUOTENAME (sys.asymmetric_keys.name) AS "permissionstatement"
     FROM sys.database_permissions
-        INNER JOIN sys.asymmetric_keys
-            ON sys.asymmetric_keys.asymmetric_key_id = sys.database_permissions.major_id
+    INNER JOIN sys.asymmetric_keys
+        ON sys.asymmetric_keys.asymmetric_key_id = sys.database_permissions.major_id
     WHERE sys.database_permissions.major_id >= 0
           AND sys.database_permissions.class = 26
 ) AS databasepermissions
-    INNER JOIN sys.database_principals AS granteedatabaseprincipal
-        ON granteedatabaseprincipal.principal_id = grantee_principal_id
-    LEFT OUTER JOIN sys.server_principals AS granteeserverprincipal
-        ON granteeserverprincipal.sid = granteedatabaseprincipal.sid
-    INNER JOIN sys.database_principals AS grantor
-        ON grantor.principal_id = grantor_principal_id
+INNER JOIN sys.database_principals AS granteedatabaseprincipal
+    ON granteedatabaseprincipal.principal_id = grantee_principal_id
+LEFT OUTER JOIN sys.server_principals AS granteeserverprincipal
+    ON granteeserverprincipal.sid = granteedatabaseprincipal.sid
+INNER JOIN sys.database_principals AS grantor
+    ON grantor.principal_id = grantor_principal_id
 ORDER BY grantee_name,
          granted_on_name;
 
-SELECT roles.name AS role_name,
+SELECT roles.name AS "role_name",
        roles.principal_id,
-       roles.type AS role_type,
-       roles.type_desc AS role_type_desc,
-       roles.is_fixed_role AS role_is_fixed_role,
-       memberdatabaseprincipal.name AS member_name,
-       memberdatabaseprincipal.principal_id AS member_principal_id,
-       memberdatabaseprincipal.type AS member_type,
-       memberdatabaseprincipal.type_desc AS member_type_desc,
-       memberdatabaseprincipal.is_fixed_role AS member_is_fixed_role,
-       memberserverprincipal.name AS member_principal_name,
-       memberserverprincipal.type_desc AS member_principal_type_desc,
-       N'ALTER ROLE ' + QUOTENAME(roles.name) + N' ADD MEMBER ' + QUOTENAME(memberdatabaseprincipal.name) AS AddRoleMembersStatement
+       roles.type AS "role_type",
+       roles.type_desc AS "role_type_desc",
+       roles.is_fixed_role AS "role_is_fixed_role",
+       memberdatabaseprincipal.name AS "member_name",
+       memberdatabaseprincipal.principal_id AS "member_principal_id",
+       memberdatabaseprincipal.type AS "member_type",
+       memberdatabaseprincipal.type_desc AS "member_type_desc",
+       memberdatabaseprincipal.is_fixed_role AS "member_is_fixed_role",
+       memberserverprincipal.name AS "member_principal_name",
+       memberserverprincipal.type_desc AS "member_principal_type_desc",
+       N'ALTER ROLE ' + QUOTENAME (roles.name) + N' ADD MEMBER ' + QUOTENAME (memberdatabaseprincipal.name) AS "AddRoleMembersStatement"
 FROM sys.database_principals AS roles
-    INNER JOIN sys.database_role_members
-        ON sys.database_role_members.role_principal_id = roles.principal_id
-    INNER JOIN sys.database_principals AS memberdatabaseprincipal
-        ON memberdatabaseprincipal.principal_id = sys.database_role_members.member_principal_id
-    LEFT OUTER JOIN sys.server_principals AS memberserverprincipal
-        ON memberserverprincipal.sid = memberdatabaseprincipal.sid
+INNER JOIN sys.database_role_members
+    ON sys.database_role_members.role_principal_id = roles.principal_id
+INNER JOIN sys.database_principals AS memberdatabaseprincipal
+    ON memberdatabaseprincipal.principal_id = sys.database_role_members.member_principal_id
+LEFT OUTER JOIN sys.server_principals AS memberserverprincipal
+    ON memberserverprincipal.sid = memberdatabaseprincipal.sid
 ORDER BY role_name,
          member_name;

@@ -5,12 +5,12 @@
 /* Is a Login Using the database? */
 EXEC dbo.sp_whoisactive @show_sleeping_spids = 2,
                         @filter_type = 'database',
-                        @filter = 'AdventureWorks2019';
+                        @filter = 'AdventureWorks';
 GO
 
 
 /* Are Reads and Writes Happening on Tables in the Database? */
-EXEC dbo.sp_BlitzIndex @DatabaseName = 'AdventureWorks2019', @Mode = 2;
+EXEC dbo.sp_BlitzIndex @DatabaseName = 'AdventureWorks', @Mode = 2;
 GO
 
 
@@ -22,7 +22,7 @@ SELECT object_name,
        cntr_type
 FROM sys.dm_os_performance_counters
 WHERE counter_name LIKE 'Transactions/sec%'
-      AND instance_name LIKE 'AdventureWorks2019%';
+      AND instance_name LIKE 'AdventureWorks%';
 GO
 
 
@@ -48,7 +48,7 @@ SELECT SUBSTRING (
 FROM sys.dm_exec_query_stats AS qs
 CROSS APPLY sys.dm_exec_text_query_plan (qs.plan_handle, qs.statement_start_offset, qs.statement_end_offset) AS pl
 CROSS APPLY sys.dm_exec_sql_text (qs.sql_handle) AS tx
-WHERE pl.query_plan LIKE '%[AdventureWorks2019]%'
+WHERE pl.query_plan LIKE '%[AdventureWorks]%'
 ORDER BY qs.execution_count DESC
 OPTION (RECOMPILE);
 GO

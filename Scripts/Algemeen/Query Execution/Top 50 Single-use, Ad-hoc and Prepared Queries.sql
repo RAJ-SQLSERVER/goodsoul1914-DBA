@@ -11,29 +11,30 @@
 --
 -- ------------------------------------------------------------------------------------------------
 
-select top (50) DB_NAME(t.dbid) as [Database Name], 
-				t.[text] as [Query Text], 
-				cp.objtype as [Object Type], 
-				cp.size_in_bytes / 1024 as [Plan Size in KB]
-from sys.dm_exec_cached_plans as cp with(nolock)
-	 cross apply sys.dm_exec_sql_text (plan_handle) as t
-where cp.cacheobjtype = N'Compiled Plan'
-	  and cp.objtype in (N'Adhoc', N'Prepared')
-	  and cp.usecounts = 1
-order by cp.size_in_bytes desc, 
-		 DB_NAME(t.dbid) option(recompile);
-go
+SELECT TOP (50) DB_NAME (t.dbid) AS "Database Name",
+                t.text AS "Query Text",
+                cp.objtype AS "Object Type",
+                cp.size_in_bytes / 1024 AS "Plan Size in KB"
+FROM sys.dm_exec_cached_plans AS cp WITH (NOLOCK)
+CROSS APPLY sys.dm_exec_sql_text (plan_handle) AS t
+WHERE cp.cacheobjtype = N'Compiled Plan'
+      AND cp.objtype IN ( N'Adhoc', N'Prepared' )
+      AND cp.usecounts = 1
+ORDER BY cp.size_in_bytes DESC,
+         DB_NAME (t.dbid)
+OPTION (RECOMPILE);
+GO
 
 -- Find single-use, ad hoc queries that are bloating the plan cache
 ---------------------------------------------------------------------------------------------------
 
-select top (100) [text], 
-				 cp.size_in_bytes
-from sys.dm_exec_cached_plans as cp
-	 cross apply sys.dm_exec_sql_text (plan_handle)
-where cp.cacheobjtype = 'Compiled Plan'
-	  and cp.objtype = 'Adhoc'
-	  and cp.usecounts = 1
-order by cp.size_in_bytes desc;
-go
+SELECT TOP (100) text,
+                 cp.size_in_bytes
+FROM sys.dm_exec_cached_plans AS cp
+CROSS APPLY sys.dm_exec_sql_text (plan_handle)
+WHERE cp.cacheobjtype = 'Compiled Plan'
+      AND cp.objtype = 'Adhoc'
+      AND cp.usecounts = 1
+ORDER BY cp.size_in_bytes DESC;
+GO
 
